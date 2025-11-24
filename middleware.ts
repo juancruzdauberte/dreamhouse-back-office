@@ -1,6 +1,10 @@
 import { withAuth } from "next-auth/middleware";
 
-export default withAuth({});
+export default withAuth({
+  pages: {
+    signIn: "/login",
+  },
+});
 
 export const config = {
   // Protege todas las rutas excepto las públicas (login, api, estáticos)
