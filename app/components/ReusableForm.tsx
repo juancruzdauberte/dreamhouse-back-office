@@ -1,8 +1,11 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 type ReusableFormProps = {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (
+    formData: FormData
+  ) => void | Promise<void | { success: boolean; message: string }>;
   children: React.ReactNode;
   title?: string;
   submitText?: string;
@@ -22,6 +25,8 @@ export function ReusableForm({
   centered = false,
   compact = false,
 }: ReusableFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const gridClass =
     gridCols === 1
       ? "grid-cols-1"
@@ -39,13 +44,34 @@ export function ReusableForm({
 
   const formPadding = compact ? "p-6" : "p-8";
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const result = await action(formData);
+
+      if (result && typeof result === "object" && "success" in result) {
+        if (result.success) {
+          toast.success(result.message);
+          e.currentTarget.reset();
+        } else {
+          toast.error(result.message);
+        }
+      }
+    } catch (error) {
+      toast.error("Error al procesar el formulario");
+      console.error("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className={containerClass}>
       <form
-        action={action}
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
+        onSubmit={handleSubmit}
         className={`w-full max-w-7xl rounded-xl border border-gray-200 bg-white shadow-xl ${formPadding} ${className}`}
       >
         {title && (
@@ -59,9 +85,12 @@ export function ReusableForm({
         <div className="mt-6 flex justify-center border-t border-gray-200 pt-6">
           <button
             type="submit"
-            className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-8 py-2.5 font-semibold text-white shadow-md transition-all duration-300 hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-indigo-300"
+            disabled={isSubmitting}
+            className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-700 px-8 py-2.5 font-semibold text-white shadow-md transition-all duration-300 hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
-            <span className="relative z-10">{submitText}</span>
+            <span className="relative z-10">
+              {isSubmitting ? "Procesando..." : submitText}
+            </span>
           </button>
         </div>
       </form>

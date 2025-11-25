@@ -4,8 +4,7 @@ import Sidebar, {
   SidebarLinkItem,
 } from "./components/layout/Navbar";
 import CreateBookingForm from "./components/CreateBookingForm";
-
-export default function Page() {
+export default async function Page() {
   return (
     <div className="flex h-screen justify-center">
       <Sidebar>

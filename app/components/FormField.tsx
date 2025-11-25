@@ -25,6 +25,7 @@ type SelectFieldProps = BaseFieldProps & {
   options: Array<{ value: string | number | undefined; label: string }>;
   defaultValue?: string | number;
   placeholder?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
 type FieldsetProps = {
@@ -59,6 +60,7 @@ export function FormField(props: FormFieldProps) {
           name={props.name}
           required={props.required}
           defaultValue={props.defaultValue}
+          onChange={props.onChange}
           className={`${baseClasses} cursor-pointer bg-white`}
         >
           {props.placeholder && (

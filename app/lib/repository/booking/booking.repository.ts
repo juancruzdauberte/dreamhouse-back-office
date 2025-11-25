@@ -8,7 +8,7 @@ export class BookingRepository implements IBookingRepository {
     try {
       const fechaActual = new Date();
       const [rows] = await pool.execute<RowDataPacket[]>(
-        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, comision_canal_usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           fechaActual,
           bookingData.check_in,
@@ -19,6 +19,7 @@ export class BookingRepository implements IBookingRepository {
           bookingData.booking_adv,
           bookingData.tenant_name,
           bookingData.booking_total_price_usd,
+          bookingData.comission,
         ]
       );
       if (rows.length === 0) console.log("Error al crear la reserva");
