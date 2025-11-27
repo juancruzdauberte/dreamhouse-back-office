@@ -15,11 +15,12 @@ export async function createBooking(
       check_in: checkInStr,
       check_out: checkOutStr,
       channel_id: formData.get("channel_id"),
-      tenant_cuantity: formData.get("tenant_cuantity"),
+      tenant_quantity: formData.get("tenant_quantity"),
       booking_adv: formData.get("booking_adv") === "true",
       booking_total_price_usd: formData.get("booking_total_price_usd"),
       booking_state: "Confirmada",
       comission: formData.get("comission"),
+      prepayment_ars: formData.get("prepayment_ars"),
     });
 
     await DIContainer.getBookingRepository().createBooking(booking);

@@ -15,6 +15,10 @@ export function BookingFormClient({
 }: BookingFormClientProps) {
   const [selectedChannel, setSelectedChannel] = useState<number>(0);
 
+  const handleSuccess = () => {
+    setSelectedChannel(0); // Reset channel selection
+  };
+
   return (
     <ReusableForm
       action={createBooking}
@@ -22,6 +26,7 @@ export function BookingFormClient({
       submitText="Crear Reserva"
       gridCols={2}
       centered
+      onSuccess={handleSuccess}
     >
       <FormField
         type="text"
@@ -124,6 +129,13 @@ export function BookingFormClient({
           { value: "false", label: "No" },
         ]}
         required
+      />
+
+      <FormField
+        type="text"
+        name="prepayment_ars"
+        label="Pago anticipado ARS"
+        placeholder="0.00"
       />
     </ReusableForm>
   );
