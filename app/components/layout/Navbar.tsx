@@ -205,9 +205,10 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
       href={href}
       target="_blank"
       className={`
-        relative flex items-center  px-3 my-1
+        relative flex items-center p-0.5 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
+        ${!expanded && "justify-center"}
         ${
           isActive
             ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
@@ -237,7 +238,7 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
           absolute left-full rounded-md w-20 px-2 ml-5
           bg-indigo-100 text-indigo-800 text-sm
           invisible opacity-20 -translate-x-3 transition-all
-          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0c  
+          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
       `}
         >
           {text}
@@ -263,7 +264,7 @@ const Navbar = ({ children }: { children: ReactNode }) => {
         />
         <SidebarLinkItem
           icon={<LinkIcon size={20} />}
-          text="Ver Reservas"
+          text="Ver web"
           href="https://dreamhousebaradero.com/"
         />
       </Sidebar>

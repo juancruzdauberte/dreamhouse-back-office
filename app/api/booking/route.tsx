@@ -11,9 +11,6 @@ import { BookingDTO } from "../../lib/repository/booking/booking.dto";
 import { NextResponse } from "next/server";
 import { DIContainer } from "../../core/DiContainer";
 
-// Register fonts if needed, otherwise use standard fonts
-// Font.register({ family: 'Roboto', src: 'path/to/font.ttf' });
-
 const styles = StyleSheet.create({
   page: {
     padding: 30,
@@ -183,7 +180,7 @@ const formatCurrencyARS = (amount: string | number | null) => {
 
 const BookingPDFTemplate = ({ booking }: Props) => {
   return (
-    <Document>
+    <Document title={`Reserva #${booking.id}`}>
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
@@ -199,7 +196,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
             />
           </View>
           <View>
-            <Text style={styles.title}>Reserva #{booking.id}</Text>
+            <Text style={styles.title}>Reserva DH-{booking.id}</Text>
             <Text style={styles.subtitle}>
               Detalles completos de la reserva
             </Text>
@@ -333,7 +330,7 @@ export async function GET(request: Request) {
       "Content-Type": "application/pdf",
       "Content-Disposition": `${
         preview ? "inline" : "attachment"
-      }; filename="reserva-${booking.id}.pdf"`,
+      }; filename="booking_DH-${booking.id}.pdf"`,
     },
   });
 }
