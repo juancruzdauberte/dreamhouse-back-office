@@ -5,7 +5,6 @@ import {
   ChevronFirst,
   LogOut,
   Calendar,
-  HomeIcon,
   LinkIcon,
   CalendarPlus2,
 } from "lucide-react";
@@ -253,7 +252,11 @@ const Navbar = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex min-h-screen bg-slate-50 ">
       <Sidebar>
-        <SidebarItem icon={<Calendar size={20} />} text="Home" href="/" />
+        <SidebarItem
+          icon={<Calendar size={20} />}
+          text="Ver Reservas"
+          href="/"
+        />
         <SidebarItem
           icon={<CalendarPlus2 size={20} />}
           text="Crear Reserva"

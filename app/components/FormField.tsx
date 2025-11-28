@@ -37,11 +37,17 @@ type FieldsetProps = {
 type FormFieldProps = InputFieldProps | SelectFieldProps;
 
 export function FormField(props: FormFieldProps) {
-  const [dateValue, setDateValue] = useState<Date | null>(
-    props.type === "date" && props.defaultValue
-      ? new Date(props.defaultValue)
-      : null
-  );
+  const [dateValue, setDateValue] = useState<Date | null>(() => {
+    if (props.type === "date" && props.defaultValue) {
+      if (typeof props.defaultValue === "string") {
+        // Parse "YYYY-MM-DD" as local date to avoid timezone shift
+        const [year, month, day] = props.defaultValue.split("-").map(Number);
+        return new Date(year, month - 1, day);
+      }
+      return new Date(props.defaultValue);
+    }
+    return null;
+  });
 
   const baseClasses =
     "w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-900 transition-all duration-200 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-200 hover:border-gray-400";

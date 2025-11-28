@@ -46,26 +46,13 @@ export default function UpdateBookingFormClient({
   };
 
   const formatDateForInput = (dateString: string | Date) => {
-    if (typeof dateString === "string") {
-      const [year, month, day] = dateString.split("T")[0].split("-");
-      return `${year}-${month}-${day}`;
-    } else {
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
-  };
-
-  // Add one day to a date
-  const addOneDay = (dateString: string | Date): string => {
+    if (!dateString) return "";
     const date =
-      typeof dateString === "string"
-        ? new Date(dateString + "T00:00:00") // Parse as local time
-        : new Date(dateString);
-    date.setDate(date.getDate() + 1);
-    return formatDateForInput(date);
+      typeof dateString === "string" ? new Date(dateString) : dateString;
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   const filteredDatesUnavailable = datesUnavailable.filter((d) => {
@@ -117,7 +104,7 @@ export default function UpdateBookingFormClient({
         type="date"
         name="check_in"
         label="Check in"
-        defaultValue={formatDateForInput(addOneDay(booking.check_in))}
+        defaultValue={formatDateForInput(booking.check_in)}
         disablePastDates={false}
         required
         disabledRanges={filteredDatesUnavailable.map((d) => {
@@ -134,7 +121,7 @@ export default function UpdateBookingFormClient({
         type="date"
         name="check_out"
         label="Check out"
-        defaultValue={formatDateForInput(addOneDay(booking.check_out))}
+        defaultValue={formatDateForInput(booking.check_out)}
         disablePastDates={false}
         required
         disabledRanges={filteredDatesUnavailable.map((d) => {

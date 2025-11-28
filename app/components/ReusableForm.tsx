@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 type ReusableFormProps = {
   action: (
@@ -14,7 +15,7 @@ type ReusableFormProps = {
   centered?: boolean;
   submitinText?: string;
   compact?: boolean;
-  onSuccess?: () => void; // Callback when form submission is successful
+  onSuccess?: () => void;
 };
 
 export function ReusableForm({
@@ -43,7 +44,7 @@ export function ReusableForm({
       : "grid-cols-1 md:grid-cols-2 lg:grid-cols-5";
 
   const containerClass = centered
-    ? "flex items-center justify-center  p-4"
+    ? "flex items-center justify-center p-4"
     : "p-4";
 
   const formPadding = compact ? "p-6" : "p-8";
@@ -80,7 +81,7 @@ export function ReusableForm({
     <div className={containerClass}>
       <form
         onSubmit={handleSubmit}
-        className={`w-full max-w-7xl rounded-xl border border-gray-200 bg-white shadow-xl ${formPadding} ${className}`}
+        className={`w-full max-w-4xl rounded-xl border border-gray-200 bg-white shadow-xl ${formPadding} ${className}`}
       >
         {title && (
           <h2 className="mb-6 text-center text-2xl font-bold text-indigo-800 border-b border-gray-200 pb-4">
@@ -90,7 +91,7 @@ export function ReusableForm({
 
         <div className={`grid gap-4 ${gridClass}`}>{children}</div>
 
-        <div className="mt-6 flex justify-center border-t border-gray-200 pt-6">
+        <div className="mt-6 flex justify-center gap-4 border-t border-gray-200 pt-6">
           <button
             type="submit"
             disabled={isSubmitting}
