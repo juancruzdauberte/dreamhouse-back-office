@@ -7,6 +7,7 @@ import {
   Calendar,
   HomeIcon,
   LinkIcon,
+  CalendarPlus2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -141,7 +142,7 @@ const SidebarItem: FC<SidebarItemProps> = ({
     <Link
       href={href}
       className={`
-        relative flex items-center p-0.5 my-1
+        relative flex items-center py-2 px-3 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${!expanded && "justify-center"}
@@ -205,7 +206,7 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
       href={href}
       target="_blank"
       className={`
-        relative flex items-center p-0.5 my-1
+        relative flex items-center py-2 px-3 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${!expanded && "justify-center"}
@@ -252,16 +253,13 @@ const Navbar = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex min-h-screen bg-slate-50 ">
       <Sidebar>
+        <SidebarItem icon={<Calendar size={20} />} text="Home" href="/" />
         <SidebarItem
-          icon={<HomeIcon size={20} />}
+          icon={<CalendarPlus2 size={20} />}
           text="Crear Reserva"
-          href="/"
+          href="/bookings/create"
         />
-        <SidebarItem
-          icon={<Calendar size={20} />}
-          text="Ver Reservas"
-          href="/bookings"
-        />
+
         <SidebarLinkItem
           icon={<LinkIcon size={20} />}
           text="Ver web"

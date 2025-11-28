@@ -236,7 +236,9 @@ const BookingPDFTemplate = ({ booking }: Props) => {
             <View style={styles.col}>
               <Text style={styles.label}>Noches</Text>
               <Text style={[styles.value, styles.valueHighlight]}>
-                {booking.nights_stay} noches
+                {booking.nights_stay === 1
+                  ? "1 noche"
+                  : `${booking.nights_stay} noches`}
               </Text>
             </View>
           </View>
@@ -309,7 +311,6 @@ const BookingPDFTemplate = ({ booking }: Props) => {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
-  const preview = searchParams.get("preview");
 
   if (!id) {
     return new NextResponse("Missing id parameter", { status: 400 });
@@ -328,9 +329,7 @@ export async function GET(request: Request) {
   return new NextResponse(stream as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `${
-        preview ? "inline" : "attachment"
-      }; filename="booking_DH-${booking.id}.pdf"`,
+      "Content-Disposition": `inline; filename="reserva${booking.id}.pdf"`,
     },
   });
 }
