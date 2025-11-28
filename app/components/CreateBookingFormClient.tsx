@@ -1,29 +1,41 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createBooking } from "../lib/actions/booking.actions";
 import { FormField } from "./FormField";
 import { ReusableForm } from "./ReusableForm";
+import { useBookingStore } from "../store/bookings.store";
 
 type BookingFormClientProps = {
   channels: Array<{ id: number; channel_name: string }>;
   datesUnavailable: Array<{ check_in: string; check_out: string }>;
 };
 
-export function BookingFormClient({
+export function CreateBookingFormClient({
   channels,
   datesUnavailable,
 }: BookingFormClientProps) {
-  const [selectedChannel, setSelectedChannel] = useState<number>(0);
+  const {
+    setChannels,
+    setDatesUnavailable,
+    setSelectedChannel,
+    selectedChannel,
+  } = useBookingStore();
+
+  useEffect(() => {
+    setChannels(channels);
+    setDatesUnavailable(datesUnavailable);
+  }, [channels, datesUnavailable, setChannels, setDatesUnavailable]);
 
   const handleSuccess = () => {
-    setSelectedChannel(0); // Reset channel selection
+    setSelectedChannel(0);
   };
 
   return (
     <ReusableForm
       action={createBooking}
       title="Crear Rerserva"
-      submitText="Crear Reserva"
+      submitText="Crear"
+      submitinText="Creando"
       gridCols={2}
       centered
       onSuccess={handleSuccess}

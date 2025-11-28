@@ -12,6 +12,7 @@ type ReusableFormProps = {
   className?: string;
   gridCols?: 1 | 2 | 3 | 4 | 5;
   centered?: boolean;
+  submitinText?: string;
   compact?: boolean;
   onSuccess?: () => void; // Callback when form submission is successful
 };
@@ -21,6 +22,7 @@ export function ReusableForm({
   children,
   title,
   submitText = "Enviar",
+  submitinText,
   className = "",
   gridCols = 2,
   centered = false,
@@ -121,7 +123,7 @@ export function ReusableForm({
                   ></path>
                 </svg>
               )}
-              {isSubmitting ? "Creando reserva..." : submitText}
+              {isSubmitting ? submitinText : submitText}
             </span>
           </button>
         </div>

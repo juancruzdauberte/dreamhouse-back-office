@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  /* Hide sidebar and navbar specifically if they don't have the class but are structural */
+  aside,
+  nav {
+    display: none !important;
+  }
+
+  /* Ensure main content takes full width */
+  main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Reset background colors for better printing */
+  body {
+    background-color: white !important;
+  }
+}

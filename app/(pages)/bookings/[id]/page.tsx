@@ -1,0 +1,352 @@
+import { DIContainer } from "../../../core/DiContainer";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import DeleteBookingButton from "../../../components/DeleteBookingButton";
+import PrintPDFBookingDetail from "../../../components/PrintPDFBookingDetail";
+
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+export default async function BookingDetailPage({ params }: Props) {
+  const { id } = await params;
+  const booking = await DIContainer.getBookingRepository().getBooking(
+    Number(id)
+  );
+
+  if (!booking) {
+    notFound();
+  }
+
+  return (
+    <div className="min-h-screen p-6">
+      <div className="max-w-5xl mx-auto" id="booking-details-content">
+        {/* Header with Back Button */}
+        <div className="mb-8">
+          <Link
+            href="/bookings"
+            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors mb-4 no-print"
+            data-html2canvas-ignore
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Volver a reservas
+          </Link>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-slate-800">
+                Reserva #{booking.id}
+              </h1>
+              <p className="text-slate-600 mt-1">
+                Detalles completos de la reserva
+              </p>
+            </div>
+            <span
+              className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                booking.status === "Confirmada"
+                  ? "bg-green-100 text-green-800"
+                  : booking.status === "Pendiente"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {booking.status}
+            </span>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Guest Information */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+                Información del Huésped
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Nombre</p>
+                  <p className="text-base font-semibold text-slate-900">
+                    {booking.guest_name}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">
+                    Cantidad de Huéspedes
+                  </p>
+                  <p className="text-base font-semibold text-slate-900">
+                    {booking.guest_count}{" "}
+                    {booking.guest_count === 1 ? "persona" : "personas"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stay Details */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Detalles de la Estadía
+              </h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Check-in</p>
+                  <p className="text-base font-semibold text-slate-900">
+                    {new Date(booking.check_in).toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Check-out</p>
+                  <p className="text-base font-semibold text-slate-900">
+                    {new Date(booking.check_out).toLocaleDateString("es-AR", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Noches</p>
+                  <p className="text-base font-semibold text-indigo-600">
+                    {booking.nights_stay} noches
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Details */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Detalles de Precio
+              </h2>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+                  <span className="text-sm text-slate-600">
+                    Precio por noche
+                  </span>
+                  <span className="text-base font-semibold text-slate-900">
+                    ${parseFloat(booking.price_per_night_usd).toLocaleString()}{" "}
+                    USD
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+                  <span className="text-sm text-slate-600">
+                    {booking.nights_stay} noches
+                  </span>
+                  <span className="text-base font-semibold text-slate-900">
+                    ${parseFloat(booking.total_price_usd).toLocaleString()} USD
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+                  <span className="text-sm text-slate-600">Comisión canal</span>
+                  <span className="text-base font-semibold text-red-600">
+                    -$
+                    {parseFloat(
+                      booking.channel_commission_usd
+                    ).toLocaleString()}{" "}
+                    USD
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-base font-semibold text-slate-900">
+                    Total
+                  </span>
+                  <span className="text-2xl font-bold text-emerald-600">
+                    ${parseFloat(booking.total_price_usd).toLocaleString()} USD
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Details */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-indigo-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                  />
+                </svg>
+                Pagos
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <p className="text-sm text-blue-700 font-medium mb-1">
+                    Anticipo (30%)
+                  </p>
+                  <p className="text-xl font-bold text-blue-900">
+                    ${parseFloat(booking.deposit_amount_usd).toLocaleString()}{" "}
+                    USD
+                  </p>
+                  {booking.deposit_payment_ars && (
+                    <p className="text-sm text-blue-700 mt-1">
+                      $
+                      {parseFloat(booking.deposit_payment_ars).toLocaleString()}{" "}
+                      ARS
+                    </p>
+                  )}
+                </div>
+                <div className="bg-emerald-50 rounded-lg p-4">
+                  <p className="text-sm text-emerald-700 font-medium mb-1">
+                    Saldo (70%)
+                  </p>
+                  <p className="text-xl font-bold text-emerald-900">
+                    ${parseFloat(booking.balance_amount_usd).toLocaleString()}{" "}
+                    USD
+                  </p>
+                  {booking.balance_payment_ars && (
+                    <p className="text-sm text-emerald-700 mt-1">
+                      $
+                      {parseFloat(booking.balance_payment_ars).toLocaleString()}{" "}
+                      ARS
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Additional Info */}
+          <div className="space-y-6">
+            {/* Channel Info */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+                Canal de Reserva
+              </h3>
+              <p className="text-lg font-bold text-indigo-600">
+                {booking.channel_name}
+              </p>
+            </div>
+
+            {/* Booking Date */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+                Fecha de Reserva
+              </h3>
+              <p className="text-base font-semibold text-slate-900">
+                {new Date(booking.booking_date).toLocaleDateString("es-AR", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+
+            {/* Advertising */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+                Publicidad
+              </h3>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  booking.advertising_booking
+                    ? "bg-green-100 text-green-800"
+                    : "bg-slate-100 text-slate-800"
+                }`}
+              >
+                {booking.advertising_booking ? "Sí" : "No"}
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div
+              className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6 no-print"
+              data-html2canvas-ignore
+            >
+              <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">
+                Acciones
+              </h3>
+              <div className="space-y-3">
+                <Link
+                  href={`/bookings/${booking.id}/edit`}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  Editar Reserva
+                </Link>
+
+                <PrintPDFBookingDetail bookingId={booking.id} />
+
+                <DeleteBookingButton bookingId={booking.id} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

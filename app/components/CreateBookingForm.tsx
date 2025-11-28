@@ -1,5 +1,5 @@
 import { DIContainer } from "../core/DiContainer";
-import { BookingFormClient } from "./BookingFormClient";
+import { CreateBookingFormClient } from "./CreateBookingFormClient";
 
 export default async function CreateBookingForm() {
   const channels = await DIContainer.getBookingRepository().getChannels();
@@ -7,7 +7,7 @@ export default async function CreateBookingForm() {
     await DIContainer.getBookingRepository().getBookingsDate();
 
   return (
-    <BookingFormClient
+    <CreateBookingFormClient
       channels={channels}
       datesUnavailable={datesUnavailable}
     />

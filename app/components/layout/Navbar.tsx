@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronLast, ChevronFirst, LogOut } from "lucide-react";
+import {
+  ChevronLast,
+  ChevronFirst,
+  LogOut,
+  Calendar,
+  HomeIcon,
+  LinkIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -11,6 +18,7 @@ import {
   type ReactNode,
   type FC,
 } from "react";
+import Image from "next/image";
 
 type SidebarContextType = {
   expanded: boolean;
@@ -27,26 +35,40 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
 
   return (
     <aside
-      className={`h-screen w-[70px] absolute left-0 ${expanded && "w-[200px]"}`}
+      className={`h-screen w-[80px] fixed left-0 transition-all ${
+        expanded && "w-[250px]"
+      }`}
     >
       <nav className="h-full flex flex-col bg-white border-r border-gray-100 shadow-md">
-        <div className="p-4 pb-2 flex justify-between items-center">
-          {/* <Image
-            src="https://img.logoipsum.com/243.svg"
-            className={`overflow-hidden transition-all ${
-              expanded ? "w-32" : "w-0"
-            }`}
-            width={32}
-            height={32}
-            alt="Logo"
-          /> */}
+        <div
+          className={`p-4 pb-2 flex flex-col gap-3 ${
+            expanded && "flex-row justify-between pr-8 pl-8"
+          }`}
+        >
+          {/* Logo Section */}
+          <div className="flex justify-center items-center">
+            <Image
+              src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1758318130/dreamhouse.002.b16_ibpty8.jpg"
+              className={`rounded-lg transition-all ${
+                expanded ? "w-16 h-16" : "w-12 h-12"
+              }`}
+              width={64}
+              height={64}
+              alt="Dreamhouse Logo"
+            />
+          </div>
+
+          {/* Expand/Collapse Button */}
           <button
             onClick={() => setExpanded((curr) => !curr)}
-            className="p-1.5 hover:pb-1 text-indigo-800 hover:border-b-2 hover:border-indigo-800"
+            className="p-1.5 rounded-md hover:bg-indigo-50 text-indigo-800 transition-colors self-center"
           >
-            {expanded ? <ChevronFirst /> : <ChevronLast />}
+            {expanded ? <ChevronFirst size={25} /> : <ChevronLast size={25} />}
           </button>
         </div>
+
+        {/* Divider */}
+        <div className="border-b border-gray-200 mx-3 mb-2"></div>
 
         <SidebarContext.Provider value={{ expanded }}>
           <ul className="flex-1 px-3">{children}</ul>
@@ -119,9 +141,10 @@ const SidebarItem: FC<SidebarItemProps> = ({
     <Link
       href={href}
       className={`
-        relative flex items-center py-2 px-3 my-1
+        relative flex items-center p-0.5 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
+        ${!expanded && "justify-center"}
         ${
           isActive
             ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
@@ -151,7 +174,8 @@ const SidebarItem: FC<SidebarItemProps> = ({
           absolute left-full rounded-md px-2 ml-5
           bg-indigo-100 text-indigo-800 text-sm
           invisible opacity-20 -translate-x-3 transition-all
-          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0c  
+          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+          whitespace-nowrap
       `}
         >
           {text}
@@ -223,5 +247,29 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
   );
 };
 
-export default Sidebar;
-export { SidebarItem, SidebarLinkItem };
+const Navbar = ({ children }: { children: ReactNode }) => {
+  return (
+    <div className="flex min-h-screen bg-slate-50 ">
+      <Sidebar>
+        <SidebarItem
+          icon={<HomeIcon size={20} />}
+          text="Crear Reserva"
+          href="/"
+        />
+        <SidebarItem
+          icon={<Calendar size={20} />}
+          text="Ver Reservas"
+          href="/bookings"
+        />
+        <SidebarLinkItem
+          icon={<LinkIcon size={20} />}
+          text="Ver Reservas"
+          href="https://dreamhousebaradero.com/"
+        />
+      </Sidebar>
+
+      <main className="flex-1 ml-[80px]">{children}</main>
+    </div>
+  );
+};
+export default Navbar;
