@@ -407,6 +407,8 @@ export default async function BookingDetailPage({ params }: Props) {
                     Enviar Comprobante
                   </a>
                 )}
+
+                <DeleteBookingButton bookingId={booking.id} />
               </div>
             </div>
           </div>
