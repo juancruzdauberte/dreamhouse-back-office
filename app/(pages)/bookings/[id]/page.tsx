@@ -26,7 +26,7 @@ export default async function BookingDetailPage({ params }: Props) {
         {/* Header with Back Button */}
         <div className="mb-8">
           <Link
-            href="/bookings"
+            href="/"
             className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors mb-4 no-print"
             data-html2canvas-ignore
           >

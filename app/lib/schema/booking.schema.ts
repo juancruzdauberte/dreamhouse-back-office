@@ -7,8 +7,20 @@ export const CreateBookingSchema = z.object({
   check_out: z.string(),
   booking_state: z.string(),
   booking_adv: z.boolean(),
-  booking_total_price_usd: z.coerce.number(),
-  booking_total_price_ars: z.coerce.number().optional(),
+  booking_total_price_usd: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable()),
+  booking_total_price_ars: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable()),
   prepayment_usd: z
     .union([z.string(), z.number(), z.null(), z.undefined()])
     .transform((val) => {
@@ -41,8 +53,22 @@ export const UpdateBookingSchema = z.object({
   check_out: z.string().optional(),
   booking_state: z.string().optional(),
   booking_adv: z.boolean().optional(),
-  booking_total_price_usd: z.coerce.number().optional(),
-  booking_total_price_ars: z.coerce.number().optional(),
+  booking_total_price_usd: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  booking_total_price_ars: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
   tenant_quantity: z.coerce.number().optional(),
   comission: z
     .union([z.string(), z.number(), z.null(), z.undefined()])

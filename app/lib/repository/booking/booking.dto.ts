@@ -43,7 +43,7 @@ export interface UpdateBookingDTO {
   channel_id?: number;
   tenant_quantity?: number;
   booking_adv?: boolean;
-  booking_total_price_usd?: number;
+  booking_total_price_usd?: number | null;
   booking_total_price_ars?: number | null;
   comission?: number | null;
   prepayment_ars?: number | null;

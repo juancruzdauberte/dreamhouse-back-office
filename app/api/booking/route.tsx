@@ -180,7 +180,7 @@ const formatCurrencyARS = (amount: string | number | null) => {
 
 const BookingPDFTemplate = ({ booking }: Props) => {
   return (
-    <Document title={`Reserva #${booking.id}`}>
+    <Document title={`Booking #${booking.id}`}>
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
@@ -267,7 +267,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
           </View>
 
           {/* Invoice Items */}
-          <View style={[styles.row, { marginBottom: 100 }]}>
+          <View style={[styles.row, { marginBottom: 320 }]}>
             <View style={{ flex: 1 }}>
               <Text style={styles.value}>
                 Estadía ({booking.nights_stay} noches)
