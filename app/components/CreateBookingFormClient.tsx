@@ -21,6 +21,8 @@ export function CreateBookingFormClient({
     selectedChannel,
   } = useBookingStore();
 
+  const [currency, setCurrency] = useState<number | null>(null);
+
   useEffect(() => {
     setChannels(channels);
     setDatesUnavailable(datesUnavailable);
@@ -49,11 +51,35 @@ export function CreateBookingFormClient({
       />
 
       <FormField
-        type="text"
-        name="booking_total_price_usd"
-        label="Precio total USD"
+        type="select"
+        name="currency"
+        label="Moneda"
+        options={[
+          { value: "", label: "Seleccionar" },
+          { value: 1, label: "ARS" },
+          { value: 2, label: "USD" },
+        ]}
         required
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setCurrency(Number(e.target.value))
+        }
       />
+
+      {currency === 1 ? (
+        <FormField
+          type="text"
+          name="booking_total_price_ars"
+          label="Precio total ARS"
+          required
+        />
+      ) : (
+        <FormField
+          type="text"
+          name="booking_total_price_usd"
+          label="Precio total USD"
+          required
+        />
+      )}
 
       <FormField
         type="date"
@@ -141,13 +167,6 @@ export function CreateBookingFormClient({
           { value: "false", label: "No" },
         ]}
         required
-      />
-
-      <FormField
-        type="text"
-        name="prepayment_ars"
-        label="Pago anticipado ARS"
-        placeholder="0.00"
       />
     </ReusableForm>
   );

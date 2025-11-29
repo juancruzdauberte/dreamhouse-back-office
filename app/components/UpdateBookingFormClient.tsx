@@ -1,6 +1,6 @@
 "use client";
 import { useBookingStore } from "../store/bookings.store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormField } from "./FormField";
 import { ReusableForm } from "./ReusableForm";
 import { updateBooking } from "../lib/actions/booking.actions";
@@ -23,6 +23,10 @@ export default function UpdateBookingFormClient({
     setSelectedChannel,
     selectedChannel,
   } = useBookingStore();
+
+  const [currency, setCurrency] = useState<number>(
+    booking.total_price_usd ? 2 : 1
+  );
 
   // Get channel ID from channel_name
   const bookingChannelId =
@@ -93,12 +97,38 @@ export default function UpdateBookingFormClient({
       />
 
       <FormField
-        type="text"
-        name="booking_total_price_usd"
-        label="Precio total USD"
-        defaultValue={booking.total_price_usd}
+        type="select"
+        name="currency"
+        label="Moneda"
+        options={[
+          { value: "", label: "Seleccionar" },
+          { value: 1, label: "ARS" },
+          { value: 2, label: "USD" },
+        ]}
         required
+        defaultValue={currency}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setCurrency(Number(e.target.value))
+        }
       />
+
+      {currency === 1 ? (
+        <FormField
+          type="text"
+          name="booking_total_price_ars"
+          label="Precio total ARS"
+          defaultValue={booking.total_price_ars || ""}
+          required
+        />
+      ) : (
+        <FormField
+          type="text"
+          name="booking_total_price_usd"
+          label="Precio total USD"
+          defaultValue={booking.total_price_usd || ""}
+          required
+        />
+      )}
 
       <FormField
         type="date"
@@ -208,21 +238,43 @@ export default function UpdateBookingFormClient({
         required
       />
 
-      <FormField
-        type="text"
-        name="prepayment_ars"
-        label="Pago anticipado ARS"
-        placeholder="0.00"
-        defaultValue={booking.deposit_payment_ars || ""}
-      />
+      {currency === 1 ? (
+        <>
+          <FormField
+            type="text"
+            name="prepayment_ars"
+            label="Pago anticipado ARS"
+            placeholder="0.00"
+            defaultValue={booking.deposit_payment_ars || ""}
+          />
 
-      <FormField
-        type="text"
-        name="balancepayment_ars"
-        label="Pago saldo ARS"
-        placeholder="0.00"
-        defaultValue={booking.balance_payment_ars || ""}
-      />
+          <FormField
+            type="text"
+            name="balancepayment_ars"
+            label="Pago saldo ARS"
+            placeholder="0.00"
+            defaultValue={booking.balance_payment_ars || ""}
+          />
+        </>
+      ) : (
+        <>
+          <FormField
+            type="text"
+            name="prepayment_usd"
+            label="Pago anticipado USD"
+            placeholder="0.00"
+            defaultValue={booking.deposit_amount_usd || ""}
+          />
+
+          <FormField
+            type="text"
+            name="balancepayment_usd"
+            label="Pago saldo USD"
+            placeholder="0.00"
+            defaultValue={booking.balance_amount_usd || ""}
+          />
+        </>
+      )}
     </ReusableForm>
   );
 }

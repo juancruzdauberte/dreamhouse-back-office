@@ -119,7 +119,7 @@ export default async function BookingsPage({
                     Canal
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                    Total USD
+                    Total
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                     Estado
@@ -178,7 +178,10 @@ export default async function BookingsPage({
                       {booking.channel_name}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                      ${parseFloat(booking.total_price_usd).toLocaleString()}
+                      $
+                      {booking.total_price_usd
+                        ? parseFloat(booking.total_price_usd).toLocaleString()
+                        : parseFloat(booking.total_price_ars!).toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -252,7 +255,7 @@ export default async function BookingsPage({
               </div>
               <div className="flex gap-2">
                 <Link
-                  href={`/bookings?page=${page - 1}`}
+                  href={`/?page=${page - 1}`}
                   className={`px-4 py-2 text-sm font-medium rounded-lg border ${
                     page <= 1
                       ? "bg-slate-100 text-slate-400 border-slate-200 pointer-events-none"
@@ -263,7 +266,7 @@ export default async function BookingsPage({
                   Anterior
                 </Link>
                 <Link
-                  href={`/bookings?page=${page + 1}`}
+                  href={`/?page=${page + 1}`}
                   className={`px-4 py-2 text-sm font-medium rounded-lg border ${
                     page >= totalPages
                       ? "bg-slate-100 text-slate-400 border-slate-200 pointer-events-none"

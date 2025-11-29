@@ -25,13 +25,15 @@ export async function createBooking(
       tenant_quantity: formData.get("tenant_quantity"),
       booking_adv: formData.get("booking_adv") === "true",
       booking_total_price_usd: formData.get("booking_total_price_usd"),
+      booking_total_price_ars: formData.get("booking_total_price_ars"),
+      prepayment_usd: formData.get("prepayment_usd"),
       booking_state: "Confirmada",
       comission: comissionValue === null ? "" : comissionValue,
       prepayment_ars: formData.get("prepayment_ars"),
     });
 
     await DIContainer.getBookingRepository().createBooking(booking);
-    revalidatePath("/bookings");
+    revalidatePath("/");
     return { success: true, message: "Reserva creada exitosamente" };
   } catch (error) {
     console.error("Error creating booking:", error);
@@ -63,15 +65,18 @@ export async function updateBooking(
       tenant_quantity: formData.get("tenant_quantity"),
       booking_adv: formData.get("booking_adv") === "true",
       booking_total_price_usd: formData.get("booking_total_price_usd"),
+      booking_total_price_ars: formData.get("booking_total_price_ars"),
       booking_state: formData.get("booking_state"),
       comission: comissionValue === null ? "" : comissionValue,
       prepayment_ars: formData.get("prepayment_ars"),
+      prepayment_usd: formData.get("prepayment_usd"),
       balancepayment_ars:
         balancepaymentValue === null ? "" : balancepaymentValue,
+      balancepayment_usd: formData.get("balancepayment_usd"),
     });
 
     await DIContainer.getBookingRepository().updateBooking(booking);
-
+    revalidatePath("/");
     return { success: true, message: "Reserva actualizada exitosamente" };
   } catch (error) {
     console.error("Error creating booking:", error);
@@ -88,10 +93,7 @@ export async function deleteBooking(
 ): Promise<{ success: boolean; message: string }> {
   try {
     await DIContainer.getBookingRepository().deleteBooking(bookingId);
-
-    // Revalidate the bookings list to reflect the deletion
-    const { revalidatePath } = await import("next/cache");
-    revalidatePath("/bookings");
+    revalidatePath("/");
 
     return { success: true, message: "Reserva eliminada exitosamente" };
   } catch (error) {

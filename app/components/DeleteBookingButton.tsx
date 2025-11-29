@@ -24,7 +24,7 @@ export default function DeleteBookingButton({
       if (result.success) {
         toast.success(result.message);
         // Redirect to bookings list after successful deletion
-        router.push("/bookings");
+        router.push("/");
       } else {
         toast.error(result.message);
         setIsDeleting(false);
@@ -51,7 +51,7 @@ export default function DeleteBookingButton({
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white text-sm cursor-pointer font-medium rounded-lg transition-colors cursor-pointer ${
+              className={`flex-1 inline-flex items-center justify-center gap-2 p-1.5 bg-red-600 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer ${
                 isDeleting
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:bg-red-700"
@@ -103,7 +103,7 @@ export default function DeleteBookingButton({
             <button
               onClick={() => setShowConfirm(false)}
               disabled={isDeleting}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="flex-1 inline-flex items-center justify-center gap-2 p-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Cancelar
             </button>
@@ -116,7 +116,7 @@ export default function DeleteBookingButton({
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-red-300 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 hover:border-red-400 transition-colors"
+      className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-red-300 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 hover:border-red-400 transition-colors cursor-pointer"
     >
       <svg
         className="w-4 h-4"

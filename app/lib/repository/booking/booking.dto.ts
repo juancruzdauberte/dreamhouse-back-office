@@ -5,9 +5,11 @@ export interface CreateBookingDTO {
   channel_id: number;
   tenant_quantity: number;
   booking_adv: boolean;
-  booking_total_price_usd: number;
-  comission?: number;
-  prepayment_ars?: number;
+  booking_total_price_usd?: number | null;
+  booking_total_price_ars?: number | null;
+  comission?: number | null;
+  prepayment_ars?: number | null;
+  prepayment_usd?: number | null;
 }
 
 export interface BookingDTO {
@@ -42,9 +44,12 @@ export interface UpdateBookingDTO {
   tenant_quantity?: number;
   booking_adv?: boolean;
   booking_total_price_usd?: number;
-  comission?: number;
-  prepayment_ars?: number;
-  balancepayment_ars?: number;
+  booking_total_price_ars?: number | null;
+  comission?: number | null;
+  prepayment_ars?: number | null;
+  prepayment_usd?: number | null;
+  balancepayment_ars?: number | null;
+  balancepayment_usd?: number | null;
   booking_state?: string;
 }
 

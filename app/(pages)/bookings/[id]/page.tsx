@@ -181,8 +181,24 @@ export default async function BookingDetailPage({ params }: Props) {
                     Precio por noche
                   </span>
                   <span className="text-base font-semibold text-slate-900">
-                    ${parseFloat(booking.price_per_night_usd).toLocaleString()}{" "}
-                    USD
+                    {booking.total_price_usd ? (
+                      <>
+                        $
+                        {Math.round(
+                          parseFloat(booking.price_per_night_usd)
+                        ).toLocaleString()}{" "}
+                        USD
+                      </>
+                    ) : (
+                      <>
+                        $
+                        {Math.round(
+                          parseFloat(booking.total_price_ars || "0") /
+                            booking.nights_stay
+                        ).toLocaleString()}{" "}
+                        ARS
+                      </>
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-slate-200">
@@ -190,25 +206,49 @@ export default async function BookingDetailPage({ params }: Props) {
                     {booking.nights_stay} noches
                   </span>
                   <span className="text-base font-semibold text-slate-900">
-                    ${parseFloat(booking.total_price_usd).toLocaleString()} USD
+                    {booking.total_price_usd ? (
+                      <>
+                        ${parseFloat(booking.total_price_usd).toLocaleString()}{" "}
+                        USD
+                      </>
+                    ) : (
+                      <>
+                        ${parseFloat(booking.total_price_ars!).toLocaleString()}{" "}
+                        ARS
+                      </>
+                    )}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-sm text-slate-600">Comisión canal</span>
-                  <span className="text-base font-semibold text-red-600">
-                    -$
-                    {parseFloat(
-                      booking.channel_commission_usd
-                    ).toLocaleString()}{" "}
-                    USD
-                  </span>
-                </div>
+                {parseFloat(booking.channel_commission_usd) > 0 && (
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+                    <span className="text-sm text-slate-600">
+                      Comisión canal
+                    </span>
+                    <span className="text-base font-semibold text-red-600">
+                      -$
+                      {parseFloat(
+                        booking.channel_commission_usd
+                      ).toLocaleString()}{" "}
+                      USD
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center pt-2">
                   <span className="text-base font-semibold text-slate-900">
                     Total
                   </span>
                   <span className="text-2xl font-bold text-emerald-600">
-                    ${parseFloat(booking.total_price_usd).toLocaleString()} USD
+                    {booking.total_price_usd ? (
+                      <>
+                        ${parseFloat(booking.total_price_usd).toLocaleString()}{" "}
+                        USD
+                      </>
+                    ) : (
+                      <>
+                        ${parseFloat(booking.total_price_ars!).toLocaleString()}{" "}
+                        ARS
+                      </>
+                    )}
                   </span>
                 </div>
               </div>
@@ -238,32 +278,48 @@ export default async function BookingDetailPage({ params }: Props) {
                     Anticipo (30%)
                   </p>
                   <p className="text-xl font-bold text-blue-900">
-                    ${parseFloat(booking.deposit_amount_usd).toLocaleString()}{" "}
-                    USD
+                    {booking.deposit_amount_usd ? (
+                      <>
+                        $
+                        {parseFloat(
+                          booking.deposit_amount_usd
+                        ).toLocaleString()}{" "}
+                        USD
+                      </>
+                    ) : (
+                      <>
+                        $
+                        {parseFloat(
+                          booking.deposit_payment_ars || "0"
+                        ).toLocaleString()}{" "}
+                        ARS
+                      </>
+                    )}
                   </p>
-                  {booking.deposit_payment_ars && (
-                    <p className="text-sm text-blue-700 mt-1">
-                      $
-                      {parseFloat(booking.deposit_payment_ars).toLocaleString()}{" "}
-                      ARS
-                    </p>
-                  )}
                 </div>
                 <div className="bg-emerald-50 rounded-lg p-4">
                   <p className="text-sm text-emerald-700 font-medium mb-1">
                     Saldo (70%)
                   </p>
                   <p className="text-xl font-bold text-emerald-900">
-                    ${parseFloat(booking.balance_amount_usd).toLocaleString()}{" "}
-                    USD
+                    {booking.balance_amount_usd ? (
+                      <>
+                        $
+                        {parseFloat(
+                          booking.balance_amount_usd
+                        ).toLocaleString()}{" "}
+                        USD
+                      </>
+                    ) : (
+                      <>
+                        $
+                        {parseFloat(
+                          booking.balance_payment_ars || "0"
+                        ).toLocaleString()}{" "}
+                        ARS
+                      </>
+                    )}
                   </p>
-                  {booking.balance_payment_ars && (
-                    <p className="text-sm text-emerald-700 mt-1">
-                      $
-                      {parseFloat(booking.balance_payment_ars).toLocaleString()}{" "}
-                      ARS
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
