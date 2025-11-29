@@ -168,6 +168,13 @@ export function CreateBookingFormClient({
         ]}
         required
       />
+
+      <FormField
+        type="text"
+        name="guest_phone"
+        label="Telefono"
+        placeholder="+543329305210"
+      />
     </ReusableForm>
   );
 }

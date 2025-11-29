@@ -43,6 +43,13 @@ export const CreateBookingSchema = z.object({
       return typeof val === "string" ? parseFloat(val) : val;
     })
     .pipe(z.number().nullable()),
+  guest_phone: z
+    .union([z.string(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return val;
+    })
+    .pipe(z.string().nullable()),
 });
 
 export const UpdateBookingSchema = z.object({
@@ -53,6 +60,14 @@ export const UpdateBookingSchema = z.object({
   check_out: z.string().optional(),
   booking_state: z.string().optional(),
   booking_adv: z.boolean().optional(),
+  guest_phone: z
+    .union([z.string(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return val;
+    })
+    .pipe(z.string().nullable())
+    .optional(),
   booking_total_price_usd: z
     .union([z.string(), z.number(), z.null(), z.undefined()])
     .transform((val) => {

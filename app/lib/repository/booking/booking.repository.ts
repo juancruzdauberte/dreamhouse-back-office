@@ -15,7 +15,7 @@ export class BookingRepository implements IBookingRepository {
       const fechaActual = new Date();
 
       await pool.execute(
-        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, comision_canal_usd, pago_anticipo_ars, precio_total_cotizado_ars, monto_anticipo_usd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, comision_canal_usd, pago_anticipo_ars, precio_total_cotizado_ars, monto_anticipo_usd, tel_huesped) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           fechaActual,
           bookingData.check_in,
@@ -30,6 +30,7 @@ export class BookingRepository implements IBookingRepository {
           bookingData.prepayment_ars,
           bookingData.booking_total_price_ars,
           bookingData.prepayment_usd,
+          bookingData.guest_phone,
         ]
       );
     } catch (error) {
@@ -67,7 +68,8 @@ export class BookingRepository implements IBookingRepository {
           fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,
-          fr.precio_total_cotizado_ars as total_price_ars
+          fr.precio_total_cotizado_ars as total_price_ars,
+          fr.tel_huesped as guest_phone
         FROM fact_reservas fr 
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk 
         WHERE fr.id_reserva = ?`,
@@ -127,7 +129,8 @@ export class BookingRepository implements IBookingRepository {
           fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,
-          fr.precio_total_cotizado_ars as total_price_ars
+          fr.precio_total_cotizado_ars as total_price_ars,
+          fr.tel_huesped as guest_phone
         FROM fact_reservas fr 
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
         ORDER BY fr.fecha_checkin_fk DESC

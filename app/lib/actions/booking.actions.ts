@@ -30,6 +30,7 @@ export async function createBooking(
       booking_state: "Confirmada",
       comission: comissionValue === null ? "" : comissionValue,
       prepayment_ars: formData.get("prepayment_ars"),
+      guest_phone: formData.get("guest_phone"),
     });
 
     await DIContainer.getBookingRepository().createBooking(booking);
