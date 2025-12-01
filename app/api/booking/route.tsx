@@ -352,7 +352,7 @@ export async function GET(request: Request) {
   return new NextResponse(stream as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="reserva${booking.id}.pdf"`,
+      "Content-Disposition": `inline; filename="booking_dh-${booking.id}.pdf"`,
     },
   });
 }
