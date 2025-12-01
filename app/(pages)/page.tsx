@@ -3,6 +3,7 @@ import ViewPDFBookingButton from "../components/ViewPDFBookingButton";
 import { DIContainer } from "../core/DiContainer";
 import Link from "next/link";
 import EditBookingButton from "../components/EditBookingButton";
+import DateRangeFilter from "../components/DateRangeFilter";
 
 export default async function BookingsPage({
   searchParams,
@@ -13,8 +14,30 @@ export default async function BookingsPage({
   const page = Number(resolvedSearchParams.page) || 1;
   const limit = 10;
 
+  // Default dates: Today and Today + 1 Month
+  const today = new Date();
+  const nextMonth = new Date();
+  nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+  const formatDateToLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const startDate =
+    (resolvedSearchParams.startDate as string) || formatDateToLocal(today);
+  const endDate =
+    (resolvedSearchParams.endDate as string) || formatDateToLocal(nextMonth);
+
   const { bookings, total } =
-    await DIContainer.getBookingRepository().getAllBookings(page, limit);
+    await DIContainer.getBookingRepository().getAllBookings(
+      page,
+      limit,
+      startDate,
+      endDate
+    );
   const stats = await DIContainer.getBookingRepository().getBookingStats();
 
   const totalPages = Math.ceil(total / limit);
@@ -29,13 +52,16 @@ export default async function BookingsPage({
               Gestiona todas las reservas de tu propiedad
             </p>
 
-            <Link
-              href="/bookings/create"
-              className="flex items-center gap-2 mt-2 w-[220px] px-4 py-1.5 bg-indigo-600 text-white text-lg hover:bg-indigo-700 rounded-lg font-bold"
-            >
-              {" "}
-              <CalendarPlus2 /> Crear reserva
-            </Link>
+            <div className="flex gap-4 mt-4">
+              <Link
+                href="/bookings/create"
+                className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-lg hover:bg-indigo-700 rounded-lg font-bold"
+              >
+                {" "}
+                <CalendarPlus2 /> Crear reserva
+              </Link>
+              <DateRangeFilter />
+            </div>
           </div>
 
           <div className="flex gap-4 mb-8">
@@ -255,7 +281,9 @@ export default async function BookingsPage({
               </div>
               <div className="flex gap-2">
                 <Link
-                  href={`/?page=${page - 1}`}
+                  href={`/?page=${
+                    page - 1
+                  }&startDate=${startDate}&endDate=${endDate}`}
                   className={`px-4 py-2 text-sm font-medium rounded-lg border ${
                     page <= 1
                       ? "bg-slate-100 text-slate-400 border-slate-200 pointer-events-none"
@@ -266,7 +294,9 @@ export default async function BookingsPage({
                   Anterior
                 </Link>
                 <Link
-                  href={`/?page=${page + 1}`}
+                  href={`/?page=${
+                    page + 1
+                  }&startDate=${startDate}&endDate=${endDate}`}
                   className={`px-4 py-2 text-sm font-medium rounded-lg border ${
                     page >= totalPages
                       ? "bg-slate-100 text-slate-400 border-slate-200 pointer-events-none"

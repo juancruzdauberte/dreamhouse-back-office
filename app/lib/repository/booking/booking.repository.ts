@@ -96,14 +96,24 @@ export class BookingRepository implements IBookingRepository {
 
   async getAllBookings(
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    startDate?: string,
+    endDate?: string
   ): Promise<{ bookings: BookingDTO[]; total: number }> {
     try {
       const offset = (page - 1) * limit;
+      let whereClause = "";
+      const queryParams: string[] = [];
+
+      if (startDate && endDate) {
+        whereClause = "WHERE fr.fecha_checkin_fk BETWEEN ? AND ?";
+        queryParams.push(startDate, endDate);
+      }
 
       // Get total count
       const [countRows] = await pool.execute<RowDataPacket[]>(
-        "SELECT COUNT(*) as total FROM fact_reservas"
+        `SELECT COUNT(*) as total FROM fact_reservas fr ${whereClause}`,
+        queryParams
       );
       const total = countRows[0].total;
 
@@ -133,9 +143,10 @@ export class BookingRepository implements IBookingRepository {
           fr.tel_huesped as guest_phone
         FROM fact_reservas fr 
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        ${whereClause}
         ORDER BY fr.fecha_checkin_fk DESC
         LIMIT ? OFFSET ?`,
-        [limit.toString(), offset.toString()]
+        [...queryParams, limit.toString(), offset.toString()]
       );
 
       return { bookings: rows as BookingDTO[], total };

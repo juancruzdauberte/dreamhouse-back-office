@@ -12,7 +12,9 @@ export interface IBookingRepository {
   getBooking(id: number): Promise<BookingDTO | null>;
   getAllBookings(
     page?: number,
-    limit?: number
+    limit?: number,
+    startDate?: string,
+    endDate?: string
   ): Promise<{ bookings: BookingDTO[]; total: number }>;
   getChannels(): Promise<ChannelDTO[]>;
   getBookingsDate(): Promise<BookingDatesDTO[]>;
