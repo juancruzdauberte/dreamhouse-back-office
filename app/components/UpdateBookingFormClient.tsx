@@ -273,6 +273,12 @@ export default function UpdateBookingFormClient({
             placeholder="0.00"
             defaultValue={booking.balance_amount_usd || ""}
           />
+          <FormField
+            type="text"
+            name="guest_phone"
+            label="Telefono"
+            defaultValue={booking.guest_phone || ""}
+          />
         </>
       )}
     </ReusableForm>

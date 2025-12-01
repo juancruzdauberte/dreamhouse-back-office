@@ -216,7 +216,7 @@ export class BookingRepository implements IBookingRepository {
   async updateBooking(bookingData: UpdateBookingDTO): Promise<void> {
     try {
       await pool.execute(
-        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, comision_canal_usd = ?, pago_anticipo_ars = ?, monto_anticipo_usd = ?, pago_saldo_ars = ?, monto_saldo_usd = ? WHERE id_reserva = ?",
+        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, comision_canal_usd = ?, pago_anticipo_ars = ?, monto_anticipo_usd = ?, pago_saldo_ars = ?, monto_saldo_usd = ?, tel_huesped = ? WHERE id_reserva = ?",
         [
           bookingData.check_in,
           bookingData.check_out,
@@ -232,6 +232,7 @@ export class BookingRepository implements IBookingRepository {
           bookingData.prepayment_usd,
           bookingData.balancepayment_ars,
           bookingData.balancepayment_usd,
+          bookingData.guest_phone,
           bookingData.id,
         ]
       );

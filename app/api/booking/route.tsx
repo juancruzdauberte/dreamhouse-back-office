@@ -267,20 +267,39 @@ const BookingPDFTemplate = ({ booking }: Props) => {
           </View>
 
           {/* Invoice Items */}
-          <View style={[styles.row, { marginBottom: 320 }]}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.value}>
-                Estadía ({booking.nights_stay} noches)
-              </Text>
-              <Text style={{ fontSize: 9, color: "#64748b", marginTop: 2 }}>
-                {booking.guest_count} huéspedes
+          <View style={{ marginBottom: 280 }}>
+            <View style={[styles.row, { marginBottom: 8 }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.value}>
+                  Estadía ({booking.nights_stay} noches)
+                </Text>
+                <Text style={{ fontSize: 9, color: "#64748b", marginTop: 2 }}>
+                  {booking.guest_count} huéspedes
+                </Text>
+              </View>
+              <Text style={[styles.value, { width: 100, textAlign: "right" }]}>
+                {booking.total_price_usd
+                  ? formatCurrency(booking.total_price_usd)
+                  : formatCurrencyARS(booking.total_price_ars)}
               </Text>
             </View>
-            <Text style={[styles.value, { width: 100, textAlign: "right" }]}>
-              {booking.total_price_usd
-                ? formatCurrency(booking.total_price_usd)
-                : formatCurrencyARS(booking.total_price_ars)}
-            </Text>
+
+            <View style={[styles.row, { marginBottom: 8 }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.value}>Anticipo</Text>
+              </View>
+              <Text
+                style={[
+                  styles.value,
+                  { width: 100, textAlign: "right", color: "#059669" },
+                ]}
+              >
+                -{" "}
+                {booking.total_price_usd
+                  ? formatCurrency(booking.deposit_amount_usd || 0)
+                  : formatCurrencyARS(booking.deposit_payment_ars || 0)}
+              </Text>
+            </View>
           </View>
 
           {/* Invoice Total */}
@@ -295,11 +314,11 @@ const BookingPDFTemplate = ({ booking }: Props) => {
               },
             ]}
           >
-            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalLabel}>Falta por abonar</Text>
             <Text style={styles.totalValue}>
               {booking.total_price_usd
-                ? formatCurrency(booking.total_price_usd)
-                : formatCurrencyARS(booking.total_price_ars)}
+                ? formatCurrency(booking.balance_amount_usd || 0)
+                : formatCurrencyARS(booking.balance_payment_ars || 0)}
             </Text>
           </View>
         </View>

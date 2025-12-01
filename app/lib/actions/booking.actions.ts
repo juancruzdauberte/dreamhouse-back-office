@@ -74,6 +74,7 @@ export async function updateBooking(
       balancepayment_ars:
         balancepaymentValue === null ? "" : balancepaymentValue,
       balancepayment_usd: formData.get("balancepayment_usd"),
+      guest_phone: formData.get("guest_phone"),
     });
 
     await DIContainer.getBookingRepository().updateBooking(booking);
