@@ -271,7 +271,11 @@ const BookingPDFTemplate = ({ booking }: Props) => {
             <View style={[styles.row, { marginBottom: 8 }]}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.value}>
-                  Estadía ({booking.nights_stay} noches)
+                  Estadía (
+                  {booking.nights_stay === 1
+                    ? "1 noche"
+                    : `${booking.nights_stay} noches`}
+                  )
                 </Text>
                 <Text style={{ fontSize: 9, color: "#64748b", marginTop: 2 }}>
                   {booking.guest_count} huéspedes
@@ -286,7 +290,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
 
             <View style={[styles.row, { marginBottom: 8 }]}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.value}>Anticipo</Text>
+                <Text style={styles.value}>Pago Anticipo</Text>
               </View>
               <Text
                 style={[
