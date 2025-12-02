@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "react-datepicker/dist/react-datepicker.css";
+import "react-phone-number-input/style.css";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./providers/AuthProvider";
 import { ToastContainer } from "react-toastify";

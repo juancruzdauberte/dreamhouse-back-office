@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createBooking } from "../lib/actions/booking.actions";
 import { FormField } from "./FormField";
 import { ReusableForm } from "./ReusableForm";
@@ -14,6 +15,7 @@ export function CreateBookingFormClient({
   channels,
   datesUnavailable,
 }: BookingFormClientProps) {
+  const router = useRouter();
   const {
     setChannels,
     setDatesUnavailable,
@@ -30,6 +32,7 @@ export function CreateBookingFormClient({
 
   const handleSuccess = () => {
     setSelectedChannel(0);
+    router.push("/");
   };
 
   return (
@@ -170,10 +173,11 @@ export function CreateBookingFormClient({
       />
 
       <FormField
-        type="text"
+        type="phone"
         name="guest_phone"
         label="Telefono"
-        placeholder="+543329305210"
+        placeholder="3329305210"
+        defaultCountry="AR"
       />
     </ReusableForm>
   );

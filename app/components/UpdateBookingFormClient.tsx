@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useBookingStore } from "../store/bookings.store";
 import { useEffect, useState } from "react";
 import { FormField } from "./FormField";
@@ -17,6 +18,7 @@ export default function UpdateBookingFormClient({
   datesUnavailable,
   booking,
 }: BookingFormClientProps) {
+  const router = useRouter();
   const {
     setChannels,
     setDatesUnavailable,
@@ -47,6 +49,7 @@ export default function UpdateBookingFormClient({
 
   const handleSuccess = () => {
     setSelectedChannel(0);
+    router.push("/");
   };
 
   const formatDateForInput = (dateString: string | Date) => {
@@ -273,14 +276,15 @@ export default function UpdateBookingFormClient({
             placeholder="0.00"
             defaultValue={booking.balance_amount_usd || ""}
           />
-          <FormField
-            type="text"
-            name="guest_phone"
-            label="Telefono"
-            defaultValue={booking.guest_phone || ""}
-          />
         </>
       )}
+      <FormField
+        type="phone"
+        name="guest_phone"
+        label="Telefono"
+        defaultValue={booking.guest_phone || ""}
+        defaultCountry="AR"
+      />
     </ReusableForm>
   );
 }

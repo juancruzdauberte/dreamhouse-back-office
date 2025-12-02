@@ -23,3 +23,27 @@
     background-color: white !important;
   }
 }
+
+/* Phone Input Styles Override */
+.PhoneInput {
+  display: flex;
+  align-items: center;
+}
+
+.PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  padding-left: 8px; /* Space between flag and input */
+  background-color: transparent;
+}
+
+.PhoneInputInput:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.PhoneInputCountry {
+  margin-right: 0.5rem;
+}

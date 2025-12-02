@@ -1,6 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import { parsePhoneNumber } from "libphonenumber-js";
 
 type BaseFieldProps = {
   label: string;
@@ -10,7 +13,7 @@ type BaseFieldProps = {
 };
 
 type InputFieldProps = BaseFieldProps & {
-  type: "text" | "email" | "date" | "number";
+  type: "text" | "email" | "date" | "number" | "phone";
   placeholder?: string;
   defaultValue?: string | number;
   pattern?: string;
@@ -18,6 +21,7 @@ type InputFieldProps = BaseFieldProps & {
   title?: string;
   disablePastDates?: boolean;
   disabledRanges?: { start: Date | string; end: Date | string }[];
+  defaultCountry?: any; // strict typing for Country can be imported if needed
 };
 
 type SelectFieldProps = BaseFieldProps & {
@@ -47,6 +51,28 @@ export function FormField(props: FormFieldProps) {
       return new Date(props.defaultValue);
     }
     return null;
+  });
+
+  const [phoneValue, setPhoneValue] = useState<string | undefined>(() => {
+    if (props.type === "phone" && props.defaultValue) {
+      const val = String(props.defaultValue);
+      if (val.startsWith("+")) {
+        return val;
+      }
+      // Try to parse legacy/local format
+      if (props.defaultCountry) {
+        try {
+          const phoneNumber = parsePhoneNumber(val, props.defaultCountry);
+          if (phoneNumber && phoneNumber.isValid()) {
+            return phoneNumber.number as string;
+          }
+        } catch (error) {
+          console.warn("Failed to parse phone number:", val, error);
+        }
+      }
+      return val; // Return original if parsing fails (might still error in PhoneInput but better than nothing)
+    }
+    return undefined;
   });
 
   const baseClasses =
@@ -108,6 +134,30 @@ export function FormField(props: FormFieldProps) {
           minDate={props.disablePastDates ? new Date() : undefined}
           autoComplete="off"
         />
+      </div>
+    );
+  }
+
+  if (props.type === "phone") {
+    return (
+      <div className={`flex flex-col ${props.className || ""}`}>
+        <label htmlFor={props.name} className={labelClasses}>
+          {props.label}
+          {props.required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <div className="phone-input-container">
+          <PhoneInput
+            placeholder={props.placeholder}
+            value={phoneValue}
+            onChange={setPhoneValue}
+            defaultCountry={props.defaultCountry}
+            className={baseClasses}
+            required={props.required}
+            international
+            countryCallingCodeEditable={false}
+          />
+          <input type="hidden" name={props.name} value={phoneValue || ""} />
+        </div>
       </div>
     );
   }

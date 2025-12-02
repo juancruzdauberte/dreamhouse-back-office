@@ -90,7 +90,11 @@ export default async function BookingDetailPage({ params }: Props) {
                 </svg>
                 Información del Huésped
               </h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div
+                className={`grid grid-cols-2 gap-4 ${
+                  booking.guest_phone && "grid-cols-3"
+                }`}
+              >
                 <div>
                   <p className="text-sm text-slate-600 mb-1">Nombre</p>
                   <p className="text-base font-semibold text-slate-900">
@@ -106,6 +110,14 @@ export default async function BookingDetailPage({ params }: Props) {
                     {booking.guest_count === 1 ? "persona" : "personas"}
                   </p>
                 </div>
+                {booking.guest_phone && (
+                  <div>
+                    <p className="text-sm text-slate-600 mb-1">Teléfono</p>
+                    <p className="text-base font-semibold text-slate-900">
+                      {booking.guest_phone}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
