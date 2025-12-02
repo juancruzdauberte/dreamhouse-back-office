@@ -278,13 +278,15 @@ export default function UpdateBookingFormClient({
           />
         </>
       )}
-      <FormField
-        type="phone"
-        name="guest_phone"
-        label="Telefono"
-        defaultValue={booking.guest_phone || ""}
-        defaultCountry="AR"
-      />
+      {booking.guest_phone && (
+        <FormField
+          type="phone"
+          name="guest_phone"
+          label="Telefono"
+          defaultValue={booking.guest_phone || ""}
+          defaultCountry="AR"
+        />
+      )}
     </ReusableForm>
   );
 }
