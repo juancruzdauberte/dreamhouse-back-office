@@ -48,7 +48,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
           {/* Logo Section */}
           <div className="flex justify-center items-center">
             <Image
-              src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1758318130/dreamhouse.002.b16_ibpty8.jpg"
+              src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
               className={`rounded-lg transition-all ${
                 expanded ? "w-16 h-16" : "w-12 h-12"
               }`}
@@ -61,7 +61,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
           {/* Expand/Collapse Button */}
           <button
             onClick={() => setExpanded((curr) => !curr)}
-            className="p-1.5 rounded-md hover:bg-indigo-50 text-indigo-800 transition-colors self-center"
+            className="p-1.5 rounded-md hover:bg-indigo-50 text-[#2C2C2C] transition-colors self-center"
           >
             {expanded ? <ChevronFirst size={25} /> : <ChevronLast size={25} />}
           </button>
@@ -77,7 +77,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
             <button
               onClick={() => signOut()}
               className={`
-                relative flex items-center py-2 px-3 my-1 w-full
+                relative flex items-center justify-center p-1 w-full
                 font-medium rounded-md cursor-pointer
                 transition-colors group
                 hover:bg-red-50 text-gray-600 hover:text-red-600
@@ -86,7 +86,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
               <LogOut size={20} />
               <span
                 className={`overflow-hidden transition-all ${
-                  expanded ? "w-52 ml-3 text-start" : "w-0"
+                  expanded ? "w-52 text-start" : "w-0"
                 }`}
               >
                 Cerrar Sesión
@@ -147,14 +147,14 @@ const SidebarItem: FC<SidebarItemProps> = ({
         ${!expanded && "justify-center"}
         ${
           isActive
-            ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-            : "hover:bg-indigo-50 text-gray-600"
+            ? "bg-linear-to-tr from-gray-200 to-gray-100 text-[#2C2C2C]"
+            : "hover:bg-gray-50"
         }
     `}
     >
       {icon}
       <span
-        className={`overflow-hidden transition-all ${
+        className={`overflow-hidden transition-all  ${
           expanded ? "w-52 ml-1" : "w-0"
         }`}
       >
@@ -172,7 +172,7 @@ const SidebarItem: FC<SidebarItemProps> = ({
         <div
           className={`
           absolute left-full rounded-md px-2 py-0.5 ml-2
-          bg-indigo-100 text-indigo-800 text-sm
+          bg-[#2C2C2C] text-white text-sm
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
           whitespace-nowrap
@@ -211,8 +211,8 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
         ${!expanded && "justify-center"}
         ${
           isActive
-            ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-            : "hover:bg-indigo-50 text-gray-600"
+            ? "bg-linear-to-tr from-gray-200 to-gray-100 text-[#2C2C2C]"
+            : "hover:bg-gray-50"
         }
     `}
     >
@@ -236,7 +236,7 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
         <div
           className={`
           absolute left-full rounded-md w-18 px-2 py-0.5 ml-2
-          bg-indigo-100 text-indigo-800 text-sm
+          bg-[#2C2C2C] text-white text-sm
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
       `}

@@ -34,7 +34,7 @@ function SignInContent() {
           <div className="text-center space-y-3">
             <div className="border rounded-full border-black w-32 h-32 inline-flex items-center justify-center  shadow-lg mb-2">
               <Image
-                src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1758318130/dreamhouse.002.b16_ibpty8.jpg"
+                src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
                 alt="logo"
                 width={80}
                 height={80}

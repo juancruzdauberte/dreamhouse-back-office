@@ -84,7 +84,7 @@ export function ReusableForm({
         className={`w-full max-w-4xl rounded-xl border border-gray-200 bg-white shadow-xl ${formPadding} ${className}`}
       >
         {title && (
-          <h2 className="mb-6 text-center text-2xl font-bold text-indigo-800 border-b border-gray-200 pb-4">
+          <h2 className="mb-6 text-center text-3xl font-bold text-[#2C2C2C] border-b border-gray-200 pb-4">
             {title}
           </h2>
         )}
@@ -98,7 +98,7 @@ export function ReusableForm({
             className={`group relative overflow-hidden rounded-lg px-8 py-2.5 font-semibold text-white shadow-md transition-all duration-300 focus:outline-none cursor-pointer focus:ring-4 focus:ring-indigo-300 ${
               isSubmitting
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+                : "bg-linear-to-r from-green-400 to-green-500 hover:from-green-600 hover:to-green-600 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
             }`}
           >
             <span className="relative z-10 flex items-center gap-2">

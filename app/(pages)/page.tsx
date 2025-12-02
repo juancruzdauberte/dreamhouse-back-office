@@ -55,7 +55,7 @@ export default async function BookingsPage({
             <div className="flex gap-4 mt-4">
               <Link
                 href="/bookings/create"
-                className="flex items-center gap-2 px-4 py-1.5 bg-indigo-600 text-white text-lg hover:bg-indigo-700 rounded-lg font-bold"
+                className="flex items-center gap-2 px-4 py-1.5 bg-[#2C2C2C] text-white text-lg hover:bg-[#2C2C2C]/80 rounded-lg font-bold"
               >
                 {" "}
                 <CalendarPlus2 /> Crear reserva
@@ -163,7 +163,7 @@ export default async function BookingsPage({
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-10 h-10 bg-gray-500 font-bold rounded-full flex items-center justify-center text-white text-sm">
                           {booking.guest_name.charAt(0).toUpperCase()}
                         </div>
                         <div className="ml-3">
