@@ -141,7 +141,7 @@ const SidebarItem: FC<SidebarItemProps> = ({
     <Link
       href={href}
       className={`
-        relative flex items-center py-2 px-3 my-1
+        relative flex items-center p-0.5 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${!expanded && "justify-center"}
@@ -155,7 +155,7 @@ const SidebarItem: FC<SidebarItemProps> = ({
       {icon}
       <span
         className={`overflow-hidden transition-all ${
-          expanded ? "w-52 ml-3 " : "w-0"
+          expanded ? "w-52 ml-1" : "w-0"
         }`}
       >
         {text}
@@ -171,7 +171,7 @@ const SidebarItem: FC<SidebarItemProps> = ({
       {!expanded && (
         <div
           className={`
-          absolute left-full rounded-md px-2 ml-5
+          absolute left-full rounded-md px-2 py-0.5 ml-2
           bg-indigo-100 text-indigo-800 text-sm
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
@@ -205,7 +205,7 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
       href={href}
       target="_blank"
       className={`
-        relative flex items-center py-2 px-3 my-1
+        relative flex items-center p-0.5 my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${!expanded && "justify-center"}
@@ -235,7 +235,7 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
       {!expanded && (
         <div
           className={`
-          absolute left-full rounded-md w-20 px-2 ml-5
+          absolute left-full rounded-md w-18 px-2 py-0.5 ml-2
           bg-indigo-100 text-indigo-800 text-sm
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
