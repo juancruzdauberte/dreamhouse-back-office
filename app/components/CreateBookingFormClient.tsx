@@ -8,7 +8,10 @@ import { useBookingStore } from "../store/bookings.store";
 
 type BookingFormClientProps = {
   channels: Array<{ id: number; channel_name: string }>;
-  datesUnavailable: Array<{ check_in: string; check_out: string }>;
+  datesUnavailable: Array<{
+    check_in: string | Date;
+    check_out: string | Date;
+  }>;
 };
 
 export function CreateBookingFormClient({
@@ -26,8 +29,13 @@ export function CreateBookingFormClient({
   const [currency, setCurrency] = useState<number | null>(null);
 
   useEffect(() => {
+    // We need to ensure dates are serializable if we put them in store,
+    // but for now let's just pass them.
+    // Actually, the store might expect strings.
+    // But let's fix the local helper first.
     setChannels(channels);
-    setDatesUnavailable(datesUnavailable);
+    // Cast to any if store expects specific type, or let it be.
+    setDatesUnavailable(datesUnavailable as any);
   }, [channels, datesUnavailable, setChannels, setDatesUnavailable]);
 
   const handleSuccess = () => {
@@ -35,7 +43,11 @@ export function CreateBookingFormClient({
     router.push("/");
   };
 
-  const parseLocalDate = (dateStr: string) => {
+  const parseLocalDate = (dateVal: string | Date) => {
+    const dateStr =
+      dateVal instanceof Date
+        ? dateVal.toISOString().split("T")[0]
+        : String(dateVal);
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   };

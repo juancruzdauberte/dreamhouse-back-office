@@ -77,7 +77,11 @@ export default function UpdateBookingFormClient({
     return !(dCheckIn === bookingCheckIn && dCheckOut === bookingCheckOut);
   });
 
-  const parseLocalDate = (dateStr: string) => {
+  const parseLocalDate = (dateVal: string | Date) => {
+    const dateStr =
+      dateVal instanceof Date
+        ? dateVal.toISOString().split("T")[0]
+        : String(dateVal);
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   };
