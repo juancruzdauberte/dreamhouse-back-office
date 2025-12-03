@@ -7,6 +7,11 @@ import { DIContainer } from "../../core/DiContainer";
 
 const { revalidatePath } = await import("next/cache");
 
+import {
+  createGoogleCalendarEvent,
+  updateGoogleCalendarEvent,
+} from "../services/calendar.service";
+
 export async function createBooking(
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
@@ -14,7 +19,6 @@ export async function createBooking(
     const checkInStr = formData.get("check_in") as string;
     const checkOutStr = formData.get("check_out") as string;
 
-    // Convert null values to empty strings for optional fields
     const comissionValue = formData.get("comission");
 
     const booking = CreateBookingSchema.parse({
@@ -31,9 +35,38 @@ export async function createBooking(
       comission: comissionValue === null ? "" : comissionValue,
       prepayment_ars: formData.get("prepayment_ars"),
       guest_phone: formData.get("guest_phone"),
+      noon: formData.get("noon") === "on",
     });
 
     await DIContainer.getBookingRepository().createBooking(booking);
+
+    try {
+      const isUSD = !!booking.booking_total_price_usd;
+      const total = isUSD
+        ? booking.booking_total_price_usd!
+        : booking.booking_total_price_ars!;
+      const pago = isUSD
+        ? booking.prepayment_usd || 0
+        : booking.prepayment_ars || 0;
+      const faltaPagar = total - pago;
+
+      await createGoogleCalendarEvent({
+        nombreCliente: booking.tenant_name,
+        fechaCheckIn: booking.check_in,
+        fechaCheckOut: booking.check_out,
+        total,
+        pago,
+        faltaPagar,
+        medioDia: booking.noon!,
+        currency: isUSD ? "USD" : "ARS",
+      });
+    } catch (calendarError) {
+      console.error(
+        "Error creating calendar event (booking created successfully):",
+        calendarError
+      );
+    }
+
     revalidatePath("/");
     return { success: true, message: "Reserva creada exitosamente" };
   } catch (error) {
@@ -52,8 +85,12 @@ export async function updateBooking(
   try {
     const checkInStr = formData.get("check_in") as string;
     const checkOutStr = formData.get("check_out") as string;
+    const bookingId = Number(formData.get("id"));
 
-    // Convert null values to empty strings for optional fields
+    const oldBooking = await DIContainer.getBookingRepository().getBooking(
+      bookingId
+    );
+
     const comissionValue = formData.get("comission");
     const balancepaymentValue = formData.get("balancepayment_ars");
 
@@ -75,9 +112,46 @@ export async function updateBooking(
         balancepaymentValue === null ? "" : balancepaymentValue,
       balancepayment_usd: formData.get("balancepayment_usd"),
       guest_phone: formData.get("guest_phone"),
+      noon: formData.get("noon") === "on",
     });
 
     await DIContainer.getBookingRepository().updateBooking(booking);
+
+    if (oldBooking) {
+      try {
+        const isUSD = !!booking.booking_total_price_usd;
+        const total = isUSD
+          ? booking.booking_total_price_usd!
+          : booking.booking_total_price_ars!;
+        const pago = isUSD
+          ? booking.prepayment_usd || 0
+          : booking.prepayment_ars || 0;
+        const faltaPagar = total - pago;
+
+        await updateGoogleCalendarEvent({
+          oldBooking: {
+            nombreCliente: oldBooking.guest_name,
+            fechaCheckIn: oldBooking.check_in,
+          },
+          newBooking: {
+            nombreCliente: booking.tenant_name || oldBooking.guest_name,
+            fechaCheckIn: booking.check_in || oldBooking.check_in,
+            fechaCheckOut: booking.check_out || oldBooking.check_out,
+            total,
+            pago,
+            faltaPagar,
+            medioDia: booking.noon!,
+            currency: isUSD ? "USD" : "ARS",
+          },
+        });
+      } catch (calendarError) {
+        console.error(
+          "Error updating calendar event (booking updated successfully):",
+          calendarError
+        );
+      }
+    }
+
     revalidatePath("/");
     return { success: true, message: "Reserva actualizada exitosamente" };
   } catch (error) {

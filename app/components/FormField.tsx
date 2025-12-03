@@ -13,15 +13,16 @@ type BaseFieldProps = {
 };
 
 type InputFieldProps = BaseFieldProps & {
-  type: "text" | "email" | "date" | "number" | "phone";
+  type: "text" | "email" | "date" | "number" | "phone" | "checkbox";
   placeholder?: string;
-  defaultValue?: string | number;
+  defaultValue?: string | number | boolean;
   pattern?: string;
   maxLength?: number;
   title?: string;
   disablePastDates?: boolean;
   disabledRanges?: { start: Date | string; end: Date | string }[];
   defaultCountry?: any; // strict typing for Country can be imported if needed
+  defaultChecked?: boolean;
 };
 
 type SelectFieldProps = BaseFieldProps & {
@@ -48,7 +49,9 @@ export function FormField(props: FormFieldProps) {
         const [year, month, day] = props.defaultValue.split("-").map(Number);
         return new Date(year, month - 1, day);
       }
-      return new Date(props.defaultValue);
+      if (typeof props.defaultValue === "number") {
+        return new Date(props.defaultValue);
+      }
     }
     return null;
   });
@@ -162,6 +165,24 @@ export function FormField(props: FormFieldProps) {
     );
   }
 
+  if (props.type === "checkbox") {
+    return (
+      <div className={`flex items-center gap-2 ${props.className || ""}`}>
+        <input
+          id={props.name}
+          type="checkbox"
+          name={props.name}
+          defaultChecked={!!props.defaultValue || props.defaultChecked}
+          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+        />
+        <label htmlFor={props.name} className="text-sm text-gray-700">
+          {props.label}
+          {props.required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex flex-col ${props.className || ""}`}>
       <label htmlFor={props.name} className={labelClasses}>
@@ -173,7 +194,7 @@ export function FormField(props: FormFieldProps) {
         type={props.type}
         name={props.name}
         required={props.required}
-        defaultValue={props.defaultValue}
+        defaultValue={props.defaultValue as string | number | undefined}
         placeholder={props.placeholder}
         pattern={props.pattern}
         maxLength={props.maxLength}

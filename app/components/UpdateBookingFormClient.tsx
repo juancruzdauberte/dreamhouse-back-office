@@ -49,7 +49,7 @@ export default function UpdateBookingFormClient({
 
   const handleSuccess = () => {
     setSelectedChannel(0);
-    router.push("/");
+    router.push(`/bookings/${booking.id}`);
   };
 
   const formatDateForInput = (dateString: string | Date) => {
@@ -287,6 +287,13 @@ export default function UpdateBookingFormClient({
           defaultCountry="AR"
         />
       )}
+
+      <FormField
+        type="checkbox"
+        name="noon"
+        label="Medio Día"
+        defaultChecked={Boolean(booking.noon)}
+      />
     </ReusableForm>
   );
 }

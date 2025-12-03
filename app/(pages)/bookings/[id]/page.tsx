@@ -287,7 +287,7 @@ export default async function BookingDetailPage({ params }: Props) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4">
                   <p className="text-sm text-blue-700 font-medium mb-1">
-                    Anticipo (30%)
+                    Anticipo
                   </p>
                   <p className="text-xl font-bold text-blue-900">
                     {booking.deposit_amount_usd ? (
@@ -311,7 +311,7 @@ export default async function BookingDetailPage({ params }: Props) {
                 </div>
                 <div className="bg-emerald-50 rounded-lg p-4">
                   <p className="text-sm text-emerald-700 font-medium mb-1">
-                    Saldo (70%)
+                    Saldo
                   </p>
                   <p className="text-xl font-bold text-emerald-900">
                     {booking.balance_amount_usd ? (
@@ -363,25 +363,41 @@ export default async function BookingDetailPage({ params }: Props) {
               </p>
             </div>
 
-            {/* Advertising */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
-                Publicidad
-              </h3>
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  booking.advertising_booking
-                    ? "bg-green-100 text-green-800"
-                    : "bg-slate-100 text-slate-800"
-                }`}
-              >
-                {booking.advertising_booking ? "Sí" : "No"}
-              </span>
+            <div className="flex justify-between px-5">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+                  Publicidad
+                </h3>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    booking.advertising_booking
+                      ? "bg-green-100 text-green-800"
+                      : "bg-slate-100 text-slate-800"
+                  }`}
+                >
+                  {booking.advertising_booking ? "Sí" : "No"}
+                </span>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
+                  Medio Día
+                </h3>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    booking.noon
+                      ? "bg-green-100 text-green-800"
+                      : "bg-slate-100 text-slate-800"
+                  }`}
+                >
+                  {booking.noon ? "Sí" : "No"}
+                </span>
+              </div>
             </div>
 
             {/* Actions */}
             <div
-              className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6 no-print"
+              className="bg-linear-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6 no-print"
               data-html2canvas-ignore
             >
               <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">

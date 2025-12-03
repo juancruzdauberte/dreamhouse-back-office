@@ -179,6 +179,8 @@ export function CreateBookingFormClient({
         placeholder="3329305210"
         defaultCountry="AR"
       />
+
+      <FormField type="checkbox" name="noon" label="Medio Día" />
     </ReusableForm>
   );
 }

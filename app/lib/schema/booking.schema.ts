@@ -50,6 +50,7 @@ export const CreateBookingSchema = z.object({
       return val;
     })
     .pipe(z.string().nullable()),
+  noon: z.boolean().optional(),
 });
 
 export const UpdateBookingSchema = z.object({
@@ -125,4 +126,5 @@ export const UpdateBookingSchema = z.object({
     })
     .pipe(z.number().nullable())
     .optional(),
+  noon: z.boolean().optional(),
 });
