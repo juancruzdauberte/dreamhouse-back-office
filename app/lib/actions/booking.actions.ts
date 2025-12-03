@@ -151,7 +151,7 @@ export async function updateBooking(
         );
       }
     }
-
+    revalidatePath("/bookings/create");
     revalidatePath(`/bookings/${bookingId}/edit`);
     return { success: true, message: "Reserva actualizada exitosamente" };
   } catch (error) {
