@@ -67,7 +67,7 @@ export async function createBooking(
       );
     }
 
-    revalidatePath("/");
+    revalidatePath("/bookings/create");
     return { success: true, message: "Reserva creada exitosamente" };
   } catch (error) {
     console.error("Error creating booking:", error);
@@ -152,7 +152,7 @@ export async function updateBooking(
       }
     }
 
-    revalidatePath("/");
+    revalidatePath(`/bookings/${bookingId}/edit`);
     return { success: true, message: "Reserva actualizada exitosamente" };
   } catch (error) {
     console.error("Error creating booking:", error);
