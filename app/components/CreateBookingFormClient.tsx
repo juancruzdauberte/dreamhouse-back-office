@@ -35,6 +35,11 @@ export function CreateBookingFormClient({
     router.push("/");
   };
 
+  const parseLocalDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   return (
     <ReusableForm
       action={createBooking}
@@ -91,10 +96,11 @@ export function CreateBookingFormClient({
         disablePastDates={true}
         required
         disabledRanges={datesUnavailable.map((d) => {
-          const end = new Date(d.check_out);
+          const start = parseLocalDate(d.check_in);
+          const end = parseLocalDate(d.check_out);
           end.setDate(end.getDate() - 1);
           return {
-            start: d.check_in,
+            start: start,
             end: end,
           };
         })}
@@ -107,10 +113,11 @@ export function CreateBookingFormClient({
         disablePastDates={true}
         required
         disabledRanges={datesUnavailable.map((d) => {
-          const end = new Date(d.check_out);
+          const start = parseLocalDate(d.check_in);
+          const end = parseLocalDate(d.check_out);
           end.setDate(end.getDate() - 1);
           return {
-            start: d.check_in,
+            start: start,
             end: end,
           };
         })}

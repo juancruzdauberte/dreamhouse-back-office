@@ -77,6 +77,11 @@ export default function UpdateBookingFormClient({
     return !(dCheckIn === bookingCheckIn && dCheckOut === bookingCheckOut);
   });
 
+  const parseLocalDate = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   return (
     <ReusableForm
       action={updateBooking}
@@ -141,10 +146,11 @@ export default function UpdateBookingFormClient({
         disablePastDates={false}
         required
         disabledRanges={filteredDatesUnavailable.map((d) => {
-          const end = new Date(d.check_out);
-          end.setDate(end.getDate());
+          const start = parseLocalDate(d.check_in);
+          const end = parseLocalDate(d.check_out);
+          end.setDate(end.getDate() - 1);
           return {
-            start: d.check_in,
+            start: start,
             end: end,
           };
         })}
@@ -158,10 +164,11 @@ export default function UpdateBookingFormClient({
         disablePastDates={false}
         required
         disabledRanges={filteredDatesUnavailable.map((d) => {
-          const end = new Date(d.check_out);
-          end.setDate(end.getDate());
+          const start = parseLocalDate(d.check_in);
+          const end = parseLocalDate(d.check_out);
+          end.setDate(end.getDate() - 1);
           return {
-            start: d.check_in,
+            start: start,
             end: end,
           };
         })}

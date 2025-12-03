@@ -47,10 +47,12 @@ export async function createGoogleCalendarEvent({
 
     const calendar = google.calendar({ version: "v3", auth });
 
-    const startDate = new Date(`${fechaCheckIn}T12:00:00`);
-    const endDate = medioDia
-      ? new Date(`${fechaCheckOut}T18:00:00`)
-      : new Date(`${fechaCheckOut}T10:00:00`);
+    // Construct datetime strings directly to avoid timezone conversion issues
+    // We want the event to be exactly at these times in the Buenos Aires timezone
+    const startDateTime = `${fechaCheckIn}T12:00:00`;
+    const endDateTime = medioDia
+      ? `${fechaCheckOut}T18:00:00`
+      : `${fechaCheckOut}T10:00:00`;
 
     const description = `<b>TOTAL</b>: $${total.toLocaleString(
       "es-AR"
@@ -64,11 +66,11 @@ export async function createGoogleCalendarEvent({
       summary: `${nombreCliente}`,
       description: description,
       start: {
-        dateTime: startDate.toISOString(),
+        dateTime: startDateTime,
         timeZone: "America/Argentina/Buenos_Aires",
       },
       end: {
-        dateTime: endDate.toISOString(),
+        dateTime: endDateTime,
         timeZone: "America/Argentina/Buenos_Aires",
       },
       attendees: emailCliente ? [{ email: emailCliente }] : undefined,
@@ -161,10 +163,10 @@ export async function updateGoogleCalendarEvent({
       return { success: false, message: "Event not found" };
     }
 
-    const startDate = new Date(`${newBooking.fechaCheckIn}T12:00:00`);
-    const endDate = newBooking.medioDia
-      ? new Date(`${newBooking.fechaCheckOut}T18:00:00`)
-      : new Date(`${newBooking.fechaCheckOut}T10:00:00`);
+    const startDateTime = `${newBooking.fechaCheckIn}T12:00:00`;
+    const endDateTime = newBooking.medioDia
+      ? `${newBooking.fechaCheckOut}T18:00:00`
+      : `${newBooking.fechaCheckOut}T10:00:00`;
 
     const description = `<b>TOTAL</b>: $${newBooking.total.toLocaleString(
       "es-AR"
@@ -174,19 +176,17 @@ export async function updateGoogleCalendarEvent({
       newBooking.currency
     }\n<b>FALTA PAGAR</b>: $${newBooking.faltaPagar.toLocaleString("es-AR")}${
       newBooking.currency
-    }${newBooking.medioDia ? "\n<b>OBS</b>: Pagó medio día" : ""}${
-      newBooking.emailCliente ? `\n\nEmail: ${newBooking.emailCliente}` : ""
-    }`;
+    }${newBooking.medioDia && "\n<b>OBS</b>: Pagó medio día"}`;
 
     const eventPatch = {
       summary: newBooking.nombreCliente,
       description: description,
       start: {
-        dateTime: startDate.toISOString(),
+        dateTime: startDateTime,
         timeZone: "America/Argentina/Buenos_Aires",
       },
       end: {
-        dateTime: endDate.toISOString(),
+        dateTime: endDateTime,
         timeZone: "America/Argentina/Buenos_Aires",
       },
       attendees: newBooking.emailCliente
