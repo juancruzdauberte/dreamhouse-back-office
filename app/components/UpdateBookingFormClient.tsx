@@ -49,6 +49,7 @@ export default function UpdateBookingFormClient({
 
   const handleSuccess = () => {
     setSelectedChannel(0);
+    router.refresh();
     router.push(`/bookings/${booking.id}`);
   };
 

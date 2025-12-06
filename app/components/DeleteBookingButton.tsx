@@ -24,6 +24,7 @@ export default function DeleteBookingButton({
       if (result.success) {
         toast.success(result.message);
         // Redirect to bookings list after successful deletion
+        router.refresh();
         router.push("/");
       } else {
         toast.error(result.message);

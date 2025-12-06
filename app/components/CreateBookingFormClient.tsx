@@ -40,6 +40,7 @@ export function CreateBookingFormClient({
 
   const handleSuccess = () => {
     setSelectedChannel(0);
+    router.refresh();
     router.push("/");
   };
 
