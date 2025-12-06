@@ -169,7 +169,8 @@ export async function deleteBooking(
 ): Promise<{ success: boolean; message: string }> {
   try {
     await DIContainer.getBookingRepository().deleteBooking(bookingId);
-    revalidatePath("/");
+       revalidatePath("/bookings/create");
+
 
     return { success: true, message: "Reserva eliminada exitosamente" };
   } catch (error) {

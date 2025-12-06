@@ -47,8 +47,6 @@ export async function createGoogleCalendarEvent({
 
     const calendar = google.calendar({ version: "v3", auth });
 
-    // Construct datetime strings directly to avoid timezone conversion issues
-    // We want the event to be exactly at these times in the Buenos Aires timezone
     const startDateTime = `${fechaCheckIn}T12:00:00`;
     const endDateTime = medioDia
       ? `${fechaCheckOut}T18:00:00`
