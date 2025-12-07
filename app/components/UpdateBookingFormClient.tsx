@@ -153,6 +153,7 @@ export default function UpdateBookingFormClient({
         disabledRanges={filteredDatesUnavailable.map((d) => {
           const start = parseLocalDate(d.check_in);
           const end = parseLocalDate(d.check_out);
+          // For check_in: Block [start, end - 1 day]
           end.setDate(end.getDate() - 1);
           return {
             start: start,
@@ -171,7 +172,8 @@ export default function UpdateBookingFormClient({
         disabledRanges={filteredDatesUnavailable.map((d) => {
           const start = parseLocalDate(d.check_in);
           const end = parseLocalDate(d.check_out);
-          end.setDate(end.getDate() - 1);
+          // For check_out: Block [start + 1 day, end]
+          start.setDate(start.getDate() + 1);
           return {
             start: start,
             end: end,

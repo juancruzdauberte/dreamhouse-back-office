@@ -111,6 +111,9 @@ export function CreateBookingFormClient({
         disabledRanges={datesUnavailable.map((d) => {
           const start = parseLocalDate(d.check_in);
           const end = parseLocalDate(d.check_out);
+          // For check_in: can't start on an existing start or during a stay.
+          // Can start on the existing end (checkout day).
+          // Block: [start, end - 1 day]
           end.setDate(end.getDate() - 1);
           return {
             start: start,
@@ -128,7 +131,10 @@ export function CreateBookingFormClient({
         disabledRanges={datesUnavailable.map((d) => {
           const start = parseLocalDate(d.check_in);
           const end = parseLocalDate(d.check_out);
-          end.setDate(end.getDate() - 1);
+          // For check_out: can't end during a stay or on an existing end.
+          // Can end on the existing start (checkin day).
+          // Block: [start + 1 day, end]
+          start.setDate(start.getDate() + 1);
           return {
             start: start,
             end: end,
