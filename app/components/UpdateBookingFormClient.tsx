@@ -82,7 +82,7 @@ export default function UpdateBookingFormClient({
     const dateStr =
       dateVal instanceof Date
         ? dateVal.toISOString().split("T")[0]
-        : String(dateVal);
+        : String(dateVal).split("T")[0];
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   };
