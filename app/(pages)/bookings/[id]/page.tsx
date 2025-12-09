@@ -207,7 +207,7 @@ export default async function BookingDetailPage({ params }: Props) {
                         {Math.round(
                           parseFloat(booking.total_price_ars || "0") /
                             booking.nights_stay
-                        ).toLocaleString()}{" "}
+                        ).toLocaleString("es-AR")}{" "}
                         ARS
                       </>
                     )}
@@ -225,7 +225,10 @@ export default async function BookingDetailPage({ params }: Props) {
                       </>
                     ) : (
                       <>
-                        ${parseFloat(booking.total_price_ars!).toLocaleString()}{" "}
+                        $
+                        {parseFloat(booking.total_price_ars!).toLocaleString(
+                          "es-AR"
+                        )}{" "}
                         ARS
                       </>
                     )}
@@ -257,7 +260,10 @@ export default async function BookingDetailPage({ params }: Props) {
                       </>
                     ) : (
                       <>
-                        ${parseFloat(booking.total_price_ars!).toLocaleString()}{" "}
+                        $
+                        {parseFloat(booking.total_price_ars!).toLocaleString(
+                          "es-AR"
+                        )}{" "}
                         ARS
                       </>
                     )}
@@ -303,7 +309,7 @@ export default async function BookingDetailPage({ params }: Props) {
                         $
                         {parseFloat(
                           booking.deposit_payment_ars || "0"
-                        ).toLocaleString()}{" "}
+                        ).toLocaleString("es-AR")}{" "}
                         ARS
                       </>
                     )}
@@ -327,7 +333,7 @@ export default async function BookingDetailPage({ params }: Props) {
                         $
                         {parseFloat(
                           booking.balance_payment_ars || "0"
-                        ).toLocaleString()}{" "}
+                        ).toLocaleString("es-AR")}{" "}
                         ARS
                       </>
                     )}
