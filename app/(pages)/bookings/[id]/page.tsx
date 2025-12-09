@@ -193,7 +193,7 @@ export default async function BookingDetailPage({ params }: Props) {
                     Precio por noche
                   </span>
                   <span className="text-base font-semibold text-slate-900">
-                    {booking.total_price_usd ? (
+                    {parseFloat(booking.total_price_usd) > 0 ? (
                       <>
                         $
                         {Math.round(
@@ -218,7 +218,7 @@ export default async function BookingDetailPage({ params }: Props) {
                     {booking.nights_stay} noches
                   </span>
                   <span className="text-base font-semibold text-slate-900">
-                    {booking.total_price_usd ? (
+                    {parseFloat(booking.total_price_usd) > 0 ? (
                       <>
                         ${parseFloat(booking.total_price_usd).toLocaleString()}{" "}
                         USD
@@ -250,7 +250,7 @@ export default async function BookingDetailPage({ params }: Props) {
                     Total
                   </span>
                   <span className="text-2xl font-bold text-emerald-600">
-                    {booking.total_price_usd ? (
+                    {parseFloat(booking.total_price_usd) > 0 ? (
                       <>
                         ${parseFloat(booking.total_price_usd).toLocaleString()}{" "}
                         USD
@@ -290,7 +290,7 @@ export default async function BookingDetailPage({ params }: Props) {
                     Anticipo
                   </p>
                   <p className="text-xl font-bold text-blue-900">
-                    {booking.deposit_amount_usd ? (
+                    {parseFloat(booking.deposit_amount_usd) > 0 ? (
                       <>
                         $
                         {parseFloat(
@@ -314,7 +314,7 @@ export default async function BookingDetailPage({ params }: Props) {
                     Saldo
                   </p>
                   <p className="text-xl font-bold text-emerald-900">
-                    {booking.balance_amount_usd ? (
+                    {parseFloat(booking.balance_amount_usd) > 0 ? (
                       <>
                         $
                         {parseFloat(

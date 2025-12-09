@@ -102,6 +102,22 @@ export function CreateBookingFormClient({
         />
       )}
 
+      {currency === 1 ? (
+        <FormField
+          type="text"
+          name="prepayment_ars"
+          label="Precio antepago ARS"
+          required
+        />
+      ) : (
+        <FormField
+          type="text"
+          name="prepayment_usd"
+          label="Precio antepago USD"
+          required
+        />
+      )}
+
       <FormField
         type="date"
         name="check_in"

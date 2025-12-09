@@ -282,7 +282,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
                 </Text>
               </View>
               <Text style={[styles.value, { width: 100, textAlign: "right" }]}>
-                {booking.total_price_usd
+                {parseFloat(booking.total_price_usd || "0")
                   ? formatCurrency(booking.total_price_usd)
                   : formatCurrencyARS(booking.total_price_ars)}
               </Text>
@@ -299,7 +299,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
                 ]}
               >
                 -{" "}
-                {booking.total_price_usd
+                {parseFloat(booking.total_price_usd || "0")
                   ? formatCurrency(booking.deposit_amount_usd || 0)
                   : formatCurrencyARS(booking.deposit_payment_ars || 0)}
               </Text>
@@ -320,7 +320,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
           >
             <Text style={styles.totalLabel}>Falta por abonar</Text>
             <Text style={styles.totalValue}>
-              {booking.total_price_usd
+              {parseFloat(booking.total_price_usd || "0")
                 ? formatCurrency(booking.balance_amount_usd || 0)
                 : formatCurrencyARS(booking.balance_payment_ars || 0)}
             </Text>

@@ -58,7 +58,7 @@ export async function createGoogleCalendarEvent({
       "es-AR"
     )} ${currency}\n<b>FALTA PAGAR</b>: $${faltaPagar.toLocaleString(
       "es-AR"
-    )} ${currency}${medioDia && "\n <b>OBS</b>: Pagó medio día"}`;
+    )} ${currency}${medioDia ? "\n <b>OBS</b>: Pagó medio día" : ""}`;
 
     const event = {
       summary: `${nombreCliente}`,
@@ -174,7 +174,7 @@ export async function updateGoogleCalendarEvent({
       newBooking.currency
     }\n<b>FALTA PAGAR</b>: $${newBooking.faltaPagar.toLocaleString("es-AR")}${
       newBooking.currency
-    }${newBooking.medioDia && "\n<b>OBS</b>: Pagó medio día"}`;
+    }${newBooking.medioDia ? "\n<b>OBS</b>: Pagó medio día" : ""}`;
 
     const eventPatch = {
       summary: newBooking.nombreCliente,

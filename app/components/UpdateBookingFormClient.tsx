@@ -27,7 +27,7 @@ export default function UpdateBookingFormClient({
   } = useBookingStore();
 
   const [currency, setCurrency] = useState<number>(
-    booking.total_price_usd ? 2 : 1
+    parseFloat(booking.total_price_usd || "0") > 0 ? 2 : 1
   );
 
   // Get channel ID from channel_name

@@ -205,7 +205,7 @@ export default async function BookingsPage({
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-900">
                       $
-                      {booking.total_price_usd
+                      {parseFloat(booking.total_price_usd)
                         ? parseFloat(booking.total_price_usd).toLocaleString()
                         : parseFloat(booking.total_price_ars!).toLocaleString()}
                     </td>
