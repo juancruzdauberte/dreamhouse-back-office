@@ -67,26 +67,26 @@ export default async function BookingsPage({
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         <div className="max-w-full flex justify-between">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col">
             <h1 className="text-4xl font-bold text-slate-800 ">Reservas</h1>
-            <p className="text-slate-600">
-              Gestiona todas las reservas de tu propiedad
-            </p>
 
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-5 mt-4">
               <Link
                 href="/bookings/create"
-                className="flex items-center gap-2 px-4 py-1.5 bg-[#2C2C2C] text-white text-lg hover:bg-[#2C2C2C]/80 rounded-lg font-bold"
+                className="flex items-center self-end gap-2 px-4 py-1.5 bg-[#2C2C2C] text-white text-lg hover:bg-[#2C2C2C]/80 rounded-lg font-bold"
               >
                 {" "}
                 <CalendarPlus2 /> Crear reserva
               </Link>
-              <DateRangeFilter />
+              <div className="flex flex-col gap-1">
+                <p className="text-sm italic">Filtrar por fecha:</p>
+                <DateRangeFilter />
+              </div>
             </div>
           </div>
 
           <div className="flex gap-4 mb-8">
-            <div className="bg-white w-[220px] rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="bg-white w-[220px] max-h-[120px] rounded-xl p-6 shadow-sm border border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-600">
@@ -114,7 +114,7 @@ export default async function BookingsPage({
               </div>
             </div>
 
-            <div className="bg-white rounded-xl w-[220px] p-6 shadow-sm border border-slate-200">
+            <div className="bg-white rounded-xl w-[220px] max-h-[120px] p-6 shadow-sm border border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-600">
@@ -142,14 +142,23 @@ export default async function BookingsPage({
               </div>
             </div>
 
-            <div className="bg-white rounded-xl w-[280px] p-6 shadow-sm border border-slate-200">
+            <div className="bg-white rounded-xl w-[280px] max-h-[150px] p-6 shadow-sm border border-slate-200">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-600">
                     Proxima Reserva:
                   </p>
-                  <p className="text-3xl font-bold text-blue-500 mt-1">
+                  <p className="text-3xl font-bold text-blue-700 mt-1">
                     {closestBooking?.guest_name.toUpperCase().split(" ")[0]}
+                  </p>
+                  <p className="text-sm font-medium text-black mt-1">
+                    {closestBooking?.check_in &&
+                      new Date(
+                        closestBooking?.check_in
+                      ).toLocaleDateString()}{" "}
+                    -{" "}
+                    {closestBooking?.check_out &&
+                      new Date(closestBooking?.check_out).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
