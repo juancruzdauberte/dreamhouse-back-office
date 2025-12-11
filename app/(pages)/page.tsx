@@ -153,12 +153,14 @@ export default async function BookingsPage({
                   </p>
                   <p className="text-sm font-medium text-black mt-1">
                     {closestBooking?.check_in &&
-                      new Date(
-                        closestBooking?.check_in
-                      ).toLocaleDateString()}{" "}
+                      new Date(closestBooking?.check_in).toLocaleDateString(
+                        "es-AR"
+                      )}{" "}
                     -{" "}
                     {closestBooking?.check_out &&
-                      new Date(closestBooking?.check_out).toLocaleDateString()}
+                      new Date(closestBooking?.check_out).toLocaleDateString(
+                        "es-AR"
+                      )}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
