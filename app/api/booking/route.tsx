@@ -233,12 +233,20 @@ const BookingPDFTemplate = ({ booking }: Props) => {
               <Text style={styles.label}>Check-out</Text>
               <Text style={styles.value}>{formatDate(booking.check_out)}</Text>
             </View>
+          </View>
+          <View style={styles.row}>
             <View style={styles.col}>
               <Text style={styles.label}>Noches</Text>
               <Text style={[styles.value, styles.valueHighlight]}>
                 {booking.nights_stay === 1
                   ? "1 noche"
                   : `${booking.nights_stay} noches`}
+              </Text>
+            </View>
+            <View style={styles.col}>
+              <Text style={styles.label}>Medio día</Text>
+              <Text style={[styles.value, styles.valueHighlight]}>
+                {booking.noon === 1 ? "Sí" : "No"}
               </Text>
             </View>
           </View>
@@ -267,7 +275,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
           </View>
 
           {/* Invoice Items */}
-          <View style={{ marginBottom: 280 }}>
+          <View style={{ marginBottom: 260 }}>
             <View style={[styles.row, { marginBottom: 8 }]}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.value}>
@@ -275,7 +283,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
                   {booking.nights_stay === 1
                     ? "1 noche"
                     : `${booking.nights_stay} noches`}
-                  )
+                  {booking.noon === 1 ? " + medio día" : ""})
                 </Text>
                 <Text style={{ fontSize: 9, color: "#64748b", marginTop: 2 }}>
                   {booking.guest_count} huéspedes
