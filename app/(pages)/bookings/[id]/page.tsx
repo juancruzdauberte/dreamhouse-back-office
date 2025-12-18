@@ -198,7 +198,7 @@ export default async function BookingDetailPage({ params }: Props) {
                         $
                         {Math.round(
                           parseFloat(booking.price_per_night_usd)
-                        ).toLocaleString()}{" "}
+                        ).toLocaleString("es-AR")}{" "}
                         USD
                       </>
                     ) : (
@@ -220,7 +220,10 @@ export default async function BookingDetailPage({ params }: Props) {
                   <span className="text-base font-semibold text-slate-900">
                     {parseFloat(booking.total_price_usd) > 0 ? (
                       <>
-                        ${parseFloat(booking.total_price_usd).toLocaleString()}{" "}
+                        $
+                        {parseFloat(booking.total_price_usd).toLocaleString(
+                          "es-AR"
+                        )}{" "}
                         USD
                       </>
                     ) : (
@@ -243,7 +246,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       -$
                       {parseFloat(
                         booking.channel_commission_usd
-                      ).toLocaleString()}{" "}
+                      ).toLocaleString("es-AR")}{" "}
                       USD
                     </span>
                   </div>
@@ -255,7 +258,10 @@ export default async function BookingDetailPage({ params }: Props) {
                   <span className="text-2xl font-bold text-emerald-600">
                     {parseFloat(booking.total_price_usd) > 0 ? (
                       <>
-                        ${parseFloat(booking.total_price_usd).toLocaleString()}{" "}
+                        $
+                        {parseFloat(booking.total_price_usd).toLocaleString(
+                          "es-AR"
+                        )}{" "}
                         USD
                       </>
                     ) : (
@@ -299,9 +305,9 @@ export default async function BookingDetailPage({ params }: Props) {
                     {parseFloat(booking.deposit_amount_usd) > 0 ? (
                       <>
                         $
-                        {parseFloat(
-                          booking.deposit_amount_usd
-                        ).toLocaleString()}{" "}
+                        {parseFloat(booking.deposit_amount_usd).toLocaleString(
+                          "es-AR"
+                        )}{" "}
                         USD
                       </>
                     ) : (
@@ -323,9 +329,9 @@ export default async function BookingDetailPage({ params }: Props) {
                     {parseFloat(booking.balance_amount_usd) > 0 ? (
                       <>
                         $
-                        {parseFloat(
-                          booking.balance_amount_usd
-                        ).toLocaleString()}{" "}
+                        {parseFloat(booking.balance_amount_usd).toLocaleString(
+                          "es-AR"
+                        )}{" "}
                         USD
                       </>
                     ) : (

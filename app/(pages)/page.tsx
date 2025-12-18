@@ -43,25 +43,8 @@ export default async function BookingsPage({
   const totalPages = Math.ceil(total / limit);
 
   // Find closest upcoming booking
-  const todayNormalized = new Date();
-  todayNormalized.setHours(0, 0, 0, 0);
-
-  let closestBookingId: number | undefined;
-
-  const futureBookings = bookings.filter((b) => {
-    const checkInTime = new Date(b.check_in).getTime();
-    // Check if it's "today or later" (within 12h of midnight just in case of UTC/Local diff)
-    return checkInTime >= todayNormalized.getTime() - 43200000;
-  });
-
-  if (futureBookings.length > 0) {
-    const sortedFuture = [...futureBookings].sort(
-      (a, b) => new Date(a.check_in).getTime() - new Date(b.check_in).getTime()
-    );
-    closestBookingId = sortedFuture[0].id;
-  }
-
-  const closestBooking = bookings.find((b) => b.id === closestBookingId);
+  const closestBooking =
+    await DIContainer.getBookingRepository().getClosestUpcomingBooking();
 
   return (
     <div className="min-h-screen p-6">
@@ -165,7 +148,7 @@ export default async function BookingsPage({
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Link
-                    href={`/bookings/${closestBookingId}`}
+                    href={`/bookings/${closestBooking?.id}`}
                     className="inline-flex items-center justify-center text-indigo-600 rounded-lg hover:bg-indigo-200 transition-colors w-12 h-12"
                     title="Ver detalles"
                   >
@@ -214,7 +197,7 @@ export default async function BookingsPage({
                   <tr
                     key={booking.id}
                     className={`hover:bg-slate-50/70 transition-colors ${
-                      booking.id === closestBookingId
+                      booking.id === closestBooking?.id
                         ? "bg-slate-200/50 hover:bg-slate-200/50"
                         : ""
                     }`}

@@ -107,14 +107,12 @@ export function CreateBookingFormClient({
           type="text"
           name="prepayment_ars"
           label="Precio antepago ARS"
-          required
         />
       ) : (
         <FormField
           type="text"
           name="prepayment_usd"
           label="Precio antepago USD"
-          required
         />
       )}
 

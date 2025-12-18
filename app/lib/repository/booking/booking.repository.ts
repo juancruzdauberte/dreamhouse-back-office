@@ -279,4 +279,51 @@ export class BookingRepository implements IBookingRepository {
       throw error;
     }
   }
+  async getClosestUpcomingBooking(): Promise<BookingDTO | null> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT 
+          fr.id_reserva as id,
+          fr.fecha_reserva_fk as booking_date,
+          fr.fecha_checkin_fk as check_in,
+          fr.fecha_checkout_fk as check_out,
+          dm.nombre_canal as channel_name,
+          fr.cant_huespedes as guest_count,
+          fr.noches_estadia as nights_stay,
+          fr.estado_reserva as status,
+          fr.nombre_huesped_ref as guest_name,
+          fr.precio_noche_cotizado_usd as price_per_night_usd,
+          fr.precio_total_cotizado_usd as total_price_usd,
+          fr.monto_anticipo_usd as deposit_amount_usd,
+          fr.monto_saldo_usd as balance_amount_usd,
+          fr.pago_anticipo_ars as deposit_payment_ars,
+          fr.tipo_cambio_anticipo as deposit_exchange_rate,
+          fr.pago_saldo_ars as balance_payment_ars,
+          fr.tipo_cambio_saldo as balance_exchange_rate,
+          fr.comision_canal_usd as channel_commission_usd,
+          fr.reserva_por_adv as advertising_booking,
+          fr.precio_total_cotizado_ars as total_price_ars,
+          fr.tel_huesped as guest_phone,
+          fr.medio_dia as noon
+        FROM fact_reservas fr 
+        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk 
+        WHERE fr.fecha_checkin_fk >= ? 
+        ORDER BY fr.fecha_checkin_fk ASC
+        LIMIT 1`,
+        [today]
+      );
+
+      if (rows.length === 0) {
+        return null;
+      }
+
+      return rows[0] as BookingDTO;
+    } catch (error) {
+      console.error("Error getting closest upcoming booking:", error);
+      return null;
+    }
+  }
 }

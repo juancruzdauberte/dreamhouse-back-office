@@ -25,4 +25,5 @@ export interface IBookingRepository {
     totalNights: number;
   }>;
   deleteBooking(id: number): Promise<void>;
+  getClosestUpcomingBooking(): Promise<BookingDTO | null>;
 }

@@ -171,11 +171,13 @@ const formatDate = (dateString: string) => {
 };
 
 const formatCurrency = (amount: string | number) => {
-  return `$${parseFloat(amount.toString()).toLocaleString()} USD`;
+  return `$${parseFloat(amount.toString()).toLocaleString("es-AR")} USD`;
 };
 
 const formatCurrencyARS = (amount: string | number | null) => {
-  return amount ? `$${parseFloat(amount.toString()).toLocaleString()} ARS` : "";
+  return amount
+    ? `$${parseFloat(amount.toString()).toLocaleString("es-AR")} ARS`
+    : "";
 };
 
 const BookingPDFTemplate = ({ booking }: Props) => {
