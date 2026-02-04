@@ -10,10 +10,11 @@ type BaseFieldProps = {
   name: string;
   required?: boolean;
   className?: string;
+  readOnly?: boolean;
 };
 
 type InputFieldProps = BaseFieldProps & {
-  type: "text" | "email" | "date" | "number" | "phone" | "checkbox";
+  type: "text" | "email" | "date" | "number" | "phone" | "checkbox" | "hidden";
   placeholder?: string;
   defaultValue?: string | number | boolean;
   pattern?: string;
@@ -78,8 +79,9 @@ export function FormField(props: FormFieldProps) {
     return undefined;
   });
 
-  const baseClasses =
-    "w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-900 transition-all duration-200 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-200 hover:border-gray-400";
+  const baseClasses = `w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-900 transition-all duration-200 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-200 hover:border-gray-400 ${
+    props.readOnly ? "bg-gray-100" : ""
+  }`;
 
   const labelClasses = "block text-xs font-medium text-gray-700 mb-1";
 
@@ -199,6 +201,7 @@ export function FormField(props: FormFieldProps) {
         pattern={props.pattern}
         maxLength={props.maxLength}
         title={props.title}
+        readOnly={props.readOnly}
         className={baseClasses}
       />
     </div>

@@ -10,6 +10,7 @@ interface CreateEventParams {
   faltaPagar: number;
   medioDia: boolean;
   currency: "USD" | "ARS";
+  idBooking?: number;
 }
 
 export async function createGoogleCalendarEvent({
@@ -22,6 +23,7 @@ export async function createGoogleCalendarEvent({
   faltaPagar,
   medioDia,
   currency,
+  idBooking,
 }: CreateEventParams) {
   try {
     const auth = new google.auth.JWT({
@@ -33,7 +35,7 @@ export async function createGoogleCalendarEvent({
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     if (!calendarId) {
       throw new Error(
-        "GOOGLE_CALENDAR_ID is not defined in environment variables"
+        "GOOGLE_CALENDAR_ID is not defined in environment variables",
       );
     }
 
@@ -41,7 +43,7 @@ export async function createGoogleCalendarEvent({
 
     if (!clientEmail) {
       throw new Error(
-        "GOOGLE_CLIENT_EMAIL is not defined in environment variables"
+        "GOOGLE_CLIENT_EMAIL is not defined in environment variables",
       );
     }
 
@@ -53,15 +55,15 @@ export async function createGoogleCalendarEvent({
       : `${fechaCheckOut}T10:00:00`;
 
     const description = `<b>TOTAL</b>: $${total.toLocaleString(
-      "es-AR"
+      "es-AR",
     )} ${currency}\n<b>PAGÓ</b>: $${pago.toLocaleString(
-      "es-AR"
+      "es-AR",
     )} ${currency}\n<b>FALTA PAGAR</b>: $${faltaPagar.toLocaleString(
-      "es-AR"
+      "es-AR",
     )} ${currency}${medioDia ? "\n <b>OBS</b>: Pagó medio día" : ""}`;
 
     const event = {
-      summary: `${nombreCliente}`,
+      summary: `${nombreCliente}-${idBooking}`,
       description: description,
       start: {
         dateTime: startDateTime,
@@ -94,10 +96,10 @@ export async function createGoogleCalendarEvent({
         const list = await calendar.calendarList.list();
         console.log(
           "DEBUG: Service Account has access to these calendars:",
-          list.data.items?.map((c) => c.id)
+          list.data.items?.map((c) => c.id),
         );
         console.log(
-          "If your target calendar ID is not in this list, the Service Account cannot see it."
+          "If your target calendar ID is not in this list, the Service Account cannot see it.",
         );
       } catch (listError) {
         console.error("Error trying to list calendars for debug:", listError);
@@ -117,7 +119,6 @@ interface UpdateEventParams {
 }
 
 export async function updateGoogleCalendarEvent({
-  oldBooking,
   newBooking,
 }: UpdateEventParams) {
   try {
@@ -132,29 +133,14 @@ export async function updateGoogleCalendarEvent({
 
     const calendar = google.calendar({ version: "v3", auth });
 
-    // 1. Search for the existing event
-    // We search by date range (the original check-in date)
-    let checkInDateStr: string;
-    if (oldBooking.fechaCheckIn instanceof Date) {
-      checkInDateStr = oldBooking.fechaCheckIn.toISOString().split("T")[0];
-    } else {
-      // Assuming it's a string, take the first part if it has T, or use as is
-      checkInDateStr = String(oldBooking.fechaCheckIn).split("T")[0];
-    }
-
-    const timeMin = new Date(`${checkInDateStr}T00:00:00`).toISOString();
-    const timeMax = new Date(`${checkInDateStr}T23:59:59`).toISOString();
-
     const listResponse = await calendar.events.list({
       calendarId,
-      timeMin,
-      timeMax,
-      singleEvents: true,
+      q: newBooking.idBooking?.toString(),
     });
 
     const events = listResponse.data.items || [];
     const eventToUpdate = events.find(
-      (e) => e.summary === oldBooking.nombreCliente
+      (e) => e.summary && e.summary.endsWith(`-${newBooking.idBooking}`),
     );
 
     if (!eventToUpdate || !eventToUpdate.id) {
@@ -167,9 +153,9 @@ export async function updateGoogleCalendarEvent({
       : `${newBooking.fechaCheckOut}T10:00:00`;
 
     const description = `<b>TOTAL</b>: $${newBooking.total.toLocaleString(
-      "es-AR"
+      "es-AR",
     )} ${newBooking.currency}\n<b>PAGÓ</b>: $${newBooking.pago.toLocaleString(
-      "es-AR"
+      "es-AR",
     )} ${
       newBooking.currency
     }\n<b>FALTA PAGAR</b>: $${newBooking.faltaPagar.toLocaleString("es-AR")}${
@@ -192,7 +178,6 @@ export async function updateGoogleCalendarEvent({
         : undefined,
     };
 
-    // 3. Update the event
     const updateResponse = await calendar.events.patch({
       calendarId,
       eventId: eventToUpdate.id,
@@ -202,7 +187,6 @@ export async function updateGoogleCalendarEvent({
     return { success: true, link: updateResponse.data.htmlLink };
   } catch (error: any) {
     console.error("Error updating Google Calendar event:", error);
-    // Don't throw, just return success: false so we don't break the booking update
     return { success: false, error: error.message };
   }
 }

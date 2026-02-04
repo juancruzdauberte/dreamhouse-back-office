@@ -6,6 +6,7 @@ export const CreateBookingSchema = z.object({
   check_in: z.string(),
   check_out: z.string(),
   booking_state: z.string(),
+  booking_id: z.coerce.number(),
   booking_adv: z.boolean(),
   booking_total_price_usd: z
     .union([z.string(), z.number(), z.null(), z.undefined()])

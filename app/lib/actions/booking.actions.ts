@@ -13,7 +13,7 @@ import {
 } from "../services/calendar.service";
 
 export async function createBooking(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; message: string }> {
   try {
     const checkInStr = formData.get("check_in") as string;
@@ -36,9 +36,11 @@ export async function createBooking(
       prepayment_ars: formData.get("prepayment_ars"),
       guest_phone: formData.get("guest_phone"),
       noon: formData.get("noon") === "on",
+      booking_id: formData.get("booking_id"),
     });
 
-    await DIContainer.getBookingRepository().createBooking(booking);
+    const bookingId =
+      await DIContainer.getBookingRepository().createBooking(booking);
 
     try {
       const isUSD = !!booking.booking_total_price_usd;
@@ -59,11 +61,12 @@ export async function createBooking(
         faltaPagar,
         medioDia: booking.noon!,
         currency: isUSD ? "USD" : "ARS",
+        idBooking: bookingId,
       });
     } catch (calendarError) {
       console.error(
         "Error creating calendar event (booking created successfully):",
-        calendarError
+        calendarError,
       );
     }
 
@@ -80,16 +83,15 @@ export async function createBooking(
 }
 
 export async function updateBooking(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; message: string }> {
   try {
     const checkInStr = formData.get("check_in") as string;
     const checkOutStr = formData.get("check_out") as string;
     const bookingId = Number(formData.get("id"));
 
-    const oldBooking = await DIContainer.getBookingRepository().getBooking(
-      bookingId
-    );
+    const oldBooking =
+      await DIContainer.getBookingRepository().getBooking(bookingId);
 
     const comissionValue = formData.get("comission");
     const balancepaymentValue = formData.get("balancepayment_ars");
@@ -142,12 +144,13 @@ export async function updateBooking(
             faltaPagar,
             medioDia: booking.noon!,
             currency: isUSD ? "USD" : "ARS",
+            idBooking: bookingId,
           },
         });
       } catch (calendarError) {
         console.error(
           "Error updating calendar event (booking updated successfully):",
-          calendarError
+          calendarError,
         );
       }
     }
@@ -165,12 +168,11 @@ export async function updateBooking(
 }
 
 export async function deleteBooking(
-  bookingId: number
+  bookingId: number,
 ): Promise<{ success: boolean; message: string }> {
   try {
     await DIContainer.getBookingRepository().deleteBooking(bookingId);
-       revalidatePath("/bookings/create");
-
+    revalidatePath("/bookings/create");
 
     return { success: true, message: "Reserva eliminada exitosamente" };
   } catch (error) {

@@ -27,10 +27,9 @@ export default function UpdateBookingFormClient({
   } = useBookingStore();
 
   const [currency, setCurrency] = useState<number>(
-    parseFloat(booking.total_price_usd || "0") > 0 ? 2 : 1
+    parseFloat(booking.total_price_usd || "0") > 0 ? 2 : 1,
   );
 
-  // Get channel ID from channel_name
   const bookingChannelId =
     channels.find((ch) => ch.channel_name === booking.channel_name)?.id || 0;
 
@@ -125,24 +124,6 @@ export default function UpdateBookingFormClient({
         }
       />
 
-      {currency === 1 ? (
-        <FormField
-          type="text"
-          name="booking_total_price_ars"
-          label="Precio total ARS"
-          defaultValue={booking.total_price_ars || ""}
-          required
-        />
-      ) : (
-        <FormField
-          type="text"
-          name="booking_total_price_usd"
-          label="Precio total USD"
-          defaultValue={booking.total_price_usd || ""}
-          required
-        />
-      )}
-
       <FormField
         type="date"
         name="check_in"
@@ -180,6 +161,64 @@ export default function UpdateBookingFormClient({
           };
         })}
       />
+
+      {currency === 1 ? (
+        <FormField
+          type="text"
+          name="booking_total_price_ars"
+          label="Precio total ARS"
+          defaultValue={booking.total_price_ars || ""}
+          required
+        />
+      ) : (
+        <FormField
+          type="text"
+          name="booking_total_price_usd"
+          label="Precio total USD"
+          defaultValue={booking.total_price_usd || ""}
+          required
+        />
+      )}
+
+      {currency === 1 ? (
+        <>
+          <FormField
+            type="text"
+            name="prepayment_ars"
+            label="Pago anticipado ARS"
+            placeholder="0.00"
+            defaultValue={booking.deposit_payment_ars || ""}
+          />
+
+          <FormField
+            type="text"
+            name="balancepayment_ars"
+            label="Pago saldo ARS"
+            placeholder="0.00"
+            defaultValue={booking.balance_payment_ars || ""}
+            readOnly
+          />
+        </>
+      ) : (
+        <>
+          <FormField
+            type="text"
+            name="prepayment_usd"
+            label="Pago anticipado USD"
+            placeholder="0.00"
+            defaultValue={booking.deposit_amount_usd || ""}
+          />
+
+          <FormField
+            type="text"
+            name="balancepayment_usd"
+            label="Pago saldo USD"
+            placeholder="0.00"
+            defaultValue={booking.balance_amount_usd || ""}
+            readOnly
+          />
+        </>
+      )}
 
       <FormField
         type="select"
@@ -255,43 +294,6 @@ export default function UpdateBookingFormClient({
         required
       />
 
-      {currency === 1 ? (
-        <>
-          <FormField
-            type="text"
-            name="prepayment_ars"
-            label="Pago anticipado ARS"
-            placeholder="0.00"
-            defaultValue={booking.deposit_payment_ars || ""}
-          />
-
-          <FormField
-            type="text"
-            name="balancepayment_ars"
-            label="Pago saldo ARS"
-            placeholder="0.00"
-            defaultValue={booking.balance_payment_ars || ""}
-          />
-        </>
-      ) : (
-        <>
-          <FormField
-            type="text"
-            name="prepayment_usd"
-            label="Pago anticipado USD"
-            placeholder="0.00"
-            defaultValue={booking.deposit_amount_usd || ""}
-          />
-
-          <FormField
-            type="text"
-            name="balancepayment_usd"
-            label="Pago saldo USD"
-            placeholder="0.00"
-            defaultValue={booking.balance_amount_usd || ""}
-          />
-        </>
-      )}
       {booking.guest_phone && (
         <FormField
           type="phone"

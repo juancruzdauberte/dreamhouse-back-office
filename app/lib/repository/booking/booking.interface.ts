@@ -7,14 +7,14 @@ import {
 } from "./booking.dto";
 
 export interface IBookingRepository {
-  createBooking(bookingData: CreateBookingDTO): Promise<void>;
+  createBooking(bookingData: CreateBookingDTO): Promise<number>;
   updateBooking(bookingData: UpdateBookingDTO): Promise<void>;
   getBooking(id: number): Promise<BookingDTO | null>;
   getAllBookings(
     page?: number,
     limit?: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Promise<{ bookings: BookingDTO[]; total: number }>;
   getChannels(): Promise<ChannelDTO[]>;
   getBookingsDate(): Promise<BookingDatesDTO[]>;

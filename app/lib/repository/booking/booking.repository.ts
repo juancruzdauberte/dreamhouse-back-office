@@ -10,11 +10,11 @@ import {
 import { IBookingRepository } from "./booking.interface";
 
 export class BookingRepository implements IBookingRepository {
-  async createBooking(bookingData: CreateBookingDTO): Promise<void> {
+  async createBooking(bookingData: CreateBookingDTO): Promise<number> {
     try {
       const fechaActual = new Date();
 
-      await pool.execute(
+      const [result] = await pool.execute<any>(
         "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, comision_canal_usd, pago_anticipo_ars, precio_total_cotizado_ars, monto_anticipo_usd, tel_huesped, medio_dia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           fechaActual,
@@ -32,14 +32,15 @@ export class BookingRepository implements IBookingRepository {
           bookingData.prepayment_usd,
           bookingData.guest_phone,
           bookingData.noon,
-        ]
+        ],
       );
+      return result.insertId;
     } catch (error) {
       console.error("=== ERROR IN REPOSITORY ===");
       console.error("Error details:", error);
       console.error(
         "Error message:",
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : "Unknown error",
       );
       console.error("=== END ERROR ===");
       throw error;
@@ -75,7 +76,7 @@ export class BookingRepository implements IBookingRepository {
         FROM fact_reservas fr 
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk 
         WHERE fr.id_reserva = ?`,
-        [id]
+        [id],
       );
 
       if (rows.length === 0) {
@@ -89,7 +90,7 @@ export class BookingRepository implements IBookingRepository {
       console.error("Error details:", error);
       console.error(
         "Error message:",
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : "Unknown error",
       );
       console.error("=== END ERROR ===");
       throw error;
@@ -100,7 +101,7 @@ export class BookingRepository implements IBookingRepository {
     page: number = 1,
     limit: number = 10,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Promise<{ bookings: BookingDTO[]; total: number }> {
     try {
       const offset = (page - 1) * limit;
@@ -115,7 +116,7 @@ export class BookingRepository implements IBookingRepository {
       // Get total count
       const [countRows] = await pool.execute<RowDataPacket[]>(
         `SELECT COUNT(*) as total FROM fact_reservas fr ${whereClause}`,
-        queryParams
+        queryParams,
       );
       const total = countRows[0].total;
 
@@ -149,7 +150,7 @@ export class BookingRepository implements IBookingRepository {
         ${whereClause}
         ORDER BY fr.fecha_checkin_fk DESC
         LIMIT ? OFFSET ?`,
-        [...queryParams, limit.toString(), offset.toString()]
+        [...queryParams, limit.toString(), offset.toString()],
       );
 
       return { bookings: rows as BookingDTO[], total };
@@ -158,7 +159,7 @@ export class BookingRepository implements IBookingRepository {
       console.error("Error details:", error);
       console.error(
         "Error message:",
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : "Unknown error",
       );
       console.error("=== END ERROR ===");
       return { bookings: [], total: 0 };
@@ -168,7 +169,7 @@ export class BookingRepository implements IBookingRepository {
   async getChannels(): Promise<ChannelDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        "SELECT id_canal as id, nombre_canal as channel_name FROM dim_canales"
+        "SELECT id_canal as id, nombre_canal as channel_name FROM dim_canales",
       );
       if (rows.length === 0) console.log("No se encontraron canales");
 
@@ -182,7 +183,7 @@ export class BookingRepository implements IBookingRepository {
   async getBookingsDate(): Promise<BookingDatesDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        "SELECT fecha_checkin_fk as check_in, fecha_checkout_fk as check_out FROM fact_reservas"
+        "SELECT fecha_checkin_fk as check_in, fecha_checkout_fk as check_out FROM fact_reservas",
       );
       if (rows.length === 0) console.log("No se encontraron reservas");
 
@@ -206,7 +207,7 @@ export class BookingRepository implements IBookingRepository {
           SUM(CASE WHEN estado_reserva = 'Confirmada' THEN 1 ELSE 0 END) as confirmed_bookings,
           SUM(precio_total_cotizado_usd) as total_revenue,
           SUM(noches_estadia) as total_nights
-        FROM fact_reservas`
+        FROM fact_reservas`,
       );
 
       const stats = rows[0];
@@ -249,14 +250,14 @@ export class BookingRepository implements IBookingRepository {
           bookingData.guest_phone,
           bookingData.noon,
           bookingData.id,
-        ]
+        ],
       );
     } catch (error) {
       console.error("=== ERROR IN REPOSITORY ===");
       console.error("Error details:", error);
       console.error(
         "Error message:",
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : "Unknown error",
       );
       console.error("=== END ERROR ===");
       throw error;
@@ -273,7 +274,7 @@ export class BookingRepository implements IBookingRepository {
       console.error("Error details:", error);
       console.error(
         "Error message:",
-        error instanceof Error ? error.message : "Unknown error"
+        error instanceof Error ? error.message : "Unknown error",
       );
       console.error("=== END ERROR ===");
       throw error;
@@ -313,7 +314,7 @@ export class BookingRepository implements IBookingRepository {
         WHERE fr.fecha_checkin_fk >= ? 
         ORDER BY fr.fecha_checkin_fk ASC
         LIMIT 1`,
-        [today]
+        [today],
       );
 
       if (rows.length === 0) {

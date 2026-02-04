@@ -29,12 +29,7 @@ export function CreateBookingFormClient({
   const [currency, setCurrency] = useState<number | null>(null);
 
   useEffect(() => {
-    // We need to ensure dates are serializable if we put them in store,
-    // but for now let's just pass them.
-    // Actually, the store might expect strings.
-    // But let's fix the local helper first.
     setChannels(channels);
-    // Cast to any if store expects specific type, or let it be.
     setDatesUnavailable(datesUnavailable as any);
   }, [channels, datesUnavailable, setChannels, setDatesUnavailable]);
 

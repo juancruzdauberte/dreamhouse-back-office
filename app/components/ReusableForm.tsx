@@ -1,11 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import Link from "next/link";
 
 type ReusableFormProps = {
   action: (
-    formData: FormData
+    formData: FormData,
   ) => void | Promise<void | { success: boolean; message: string }>;
   children: React.ReactNode;
   title?: string;
@@ -36,12 +35,12 @@ export function ReusableForm({
     gridCols === 1
       ? "grid-cols-1"
       : gridCols === 2
-      ? "grid-cols-1 md:grid-cols-2"
-      : gridCols === 3
-      ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-      : gridCols === 4
-      ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-      : "grid-cols-1 md:grid-cols-2 lg:grid-cols-5";
+        ? "grid-cols-1 md:grid-cols-2"
+        : gridCols === 3
+          ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          : gridCols === 4
+            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+            : "grid-cols-1 md:grid-cols-2 lg:grid-cols-5";
 
   const containerClass = centered
     ? "flex items-center justify-center p-4"
