@@ -163,7 +163,7 @@ export async function updateGoogleCalendarEvent({
     }${newBooking.medioDia ? "\n<b>OBS</b>: Pagó medio día" : ""}`;
 
     const eventPatch = {
-      summary: newBooking.nombreCliente,
+      summary: `${newBooking.nombreCliente}-${newBooking.idBooking}`,
       description: description,
       start: {
         dateTime: startDateTime,
