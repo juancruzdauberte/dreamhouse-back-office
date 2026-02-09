@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏡 Dreamhouse Back-Office
 
-## Getting Started
+Un sistema de gestión "back-office" robusto y moderno construido con **Next.js 16**, diseñado para optimizar las reservas de propiedades, gestionar ocupaciones y manejar tareas administrativas con eficiencia y estilo.
 
-First, run the development server:
+Este proyecto demuestra una arquitectura full-stack escalable utilizando **App Router**, **Server Actions** y un estricto **Patrón Repositorio (Repository Pattern)** para el acceso a datos, asegurando la separación de responsabilidades y la seguridad de tipos.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Características Principales
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Autenticación y Seguridad**: Inicio de sesión seguro vía **NextAuth.js** (Credenciales y Google OAuth).
+- **Gestión de Reservas**: Operaciones CRUD completas para reservas de propiedades.
+- **Integración Dinámica de Calendario**: Integración con **Google Calendar API** para sincronizar reservas.
+- **Generación de PDF**: Generación automatizada de facturas y contratos en PDF usando `@react-pdf/renderer` y `html2pdf.js`.
+- **Interfaz Interactiva**: Diseño responsivo con **Tailwind CSS v4**, presentando formularios interactivos, selectores de fecha y notificaciones toast.
+- **Gestión de Estado**: Estado del lado del cliente optimizado usando **Zustand**.
+- **Validación de Datos**: Validación de esquemas estricta con **Zod** tanto para la API como para formularios del cliente.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 Tech Stack (Tecnologías)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Core
 
-## Learn More
+- **Framework**: [Next.js 16 (App Router)](https://nextjs.org/)
+- **Lenguaje**: [TypeScript](https://www.typescriptlang.org/)
+- **Librería**: [React 19](https://react.dev/)
 
-To learn more about Next.js, take a look at the following resources:
+### Estilos y UI
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Tailwind CSS v4**: Framework CSS utility-first para desarrollo rápido de UI.
+- **Lucide React**: Iconos hermosos y consistentes.
+- **React Datepicker**: Selección de fechas amigable.
+- **React Toastify**: Notificaciones elegantes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Backend y Base de Datos
 
-## Deploy on Vercel
+- **MySQL**: Base de datos relacional para datos estructurados.
+- **MySQL2**: Driver rápido de node.js para MySQL.
+- **Patrón Repositorio**: Capa de acceso a datos abstraída para mantenibilidad.
+- **Server Actions**: Llamadas directas a la lógica del backend desde componentes.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Utilidades
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Zod**: Declaración y validación de esquemas first-class en TypeScript.
+- **Google APIs**: Integración con servicios de Google.
+
+## 🏗 Arquitectura
+
+Este proyecto sigue una arquitectura modular enfatizando la separación de responsabilidades:
+
+- **`app/`**: Estructura del App Router de Next.js.
+  - **`(pages)`**: Grupos de rutas para una estructura de páginas organizada.
+  - **`api/`**: Manejadores de rutas API para integraciones externas.
+  - **`components/`**: Componentes de UI reutilizables.
+  - **`lib/`**: Lógica de negocio core y utilidades.
+    - **`repository/`**: Capa de acceso a datos (Patrón Repositorio) aislando la lógica de base de datos.
+    - **`actions/`**: Server Actions para manejar envíos de formularios y mutaciones de datos.
+- **`providers/`**: Proveedores de contexto (Session, Toast, etc.).
+- **`store/`**: Stores de gestión de estado global (Zustand).
+
+### Implementación del Patrón Repositorio
+
+Utilizamos el Patrón Repositorio para desacoplar la lógica de negocio de la implementación de la base de datos. Esto permite pruebas más fáciles y potenciales cambios futuros de base de datos sin afectar la lógica central de la aplicación.
