@@ -36,7 +36,7 @@ export default async function BookingsPage({
       page,
       limit,
       startDate,
-      endDate
+      endDate,
     );
   const stats = await DIContainer.getBookingRepository().getBookingStats();
 
@@ -137,12 +137,12 @@ export default async function BookingsPage({
                   <p className="text-sm font-medium text-black mt-1">
                     {closestBooking?.check_in &&
                       new Date(closestBooking?.check_in).toLocaleDateString(
-                        "es-AR"
+                        "es-AR",
                       )}{" "}
                     -{" "}
                     {closestBooking?.check_out &&
                       new Date(closestBooking?.check_out).toLocaleDateString(
-                        "es-AR"
+                        "es-AR",
                       )}
                   </p>
                 </div>
@@ -245,14 +245,13 @@ export default async function BookingsPage({
                       {booking.channel_name}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                      $
                       {parseFloat(booking.total_price_usd)
-                        ? parseFloat(booking.total_price_usd).toLocaleString(
-                            "es-AR"
-                          )
-                        : parseFloat(booking.total_price_ars!).toLocaleString(
-                            "es-AR"
-                          )}
+                        ? `U$${parseFloat(
+                            booking.total_price_usd,
+                          ).toLocaleString("es-AR")} `
+                        : `$${parseFloat(
+                            booking.total_price_ars!,
+                          ).toLocaleString("es-AR")}`}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -260,8 +259,8 @@ export default async function BookingsPage({
                           booking.status === "Confirmada"
                             ? "bg-green-100 text-green-800"
                             : booking.status === "Pendiente"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                         }`}
                       >
                         {booking.status}
