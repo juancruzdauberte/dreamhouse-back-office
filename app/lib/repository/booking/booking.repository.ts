@@ -311,7 +311,7 @@ export class BookingRepository implements IBookingRepository {
           fr.medio_dia as noon
         FROM fact_reservas fr 
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk 
-        WHERE fr.fecha_checkin_fk >= ? 
+        WHERE fr.fecha_checkin_fk >= ? AND fr.estado_reserva = 'Confirmada'
         ORDER BY fr.fecha_checkin_fk ASC
         LIMIT 1`,
         [today],
