@@ -43,10 +43,12 @@ export function ReusableForm({
             : "grid-cols-1 md:grid-cols-2 lg:grid-cols-5";
 
   const containerClass = centered
-    ? "flex items-center justify-center p-4"
+    ? "flex items-center justify-center p-2"
     : "p-4";
 
-  const formPadding = compact ? "p-6" : "p-8";
+  const formPadding = compact ? "p-4" : "p-8";
+
+  const maxWidthClass = gridCols >= 3 ? "max-w-6xl" : "max-w-4xl";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,10 +82,10 @@ export function ReusableForm({
     <div className={containerClass}>
       <form
         onSubmit={handleSubmit}
-        className={`w-full max-w-4xl rounded-xl border border-gray-200 bg-white shadow-xl ${formPadding} ${className}`}
+        className={`w-full ${maxWidthClass} rounded-2xl border border-gray-100 bg-white/95 backdrop-blur-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300 ${formPadding} ${className}`}
       >
         {title && (
-          <h2 className="mb-6 text-center text-3xl font-bold text-[#2C2C2C] border-b border-gray-200 pb-4">
+          <h2 className="mb-8 text-center text-2xl font-bold tracking-tight text-gray-800 border-b border-gray-100 pb-6">
             {title}
           </h2>
         )}
@@ -94,10 +96,10 @@ export function ReusableForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`group relative overflow-hidden rounded-lg px-8 py-2.5 font-semibold text-white shadow-md transition-all duration-300 focus:outline-none cursor-pointer focus:ring-4 focus:ring-indigo-300 ${
+            className={`group relative overflow-hidden rounded-lg px-8 py-2.5 font-medium text-white shadow-lg shadow-green-500/30 transition-all duration-300 focus:outline-none cursor-pointer focus:ring-4 focus:ring-green-500/20 active:scale-[0.98] ${
               isSubmitting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-linear-to-r from-green-400 to-green-500 hover:from-green-600 hover:to-green-600 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+                ? "bg-gray-400 cursor-not-allowed shadow-none"
+                : "bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 hover:shadow-xl hover:shadow-green-500/40 hover:-translate-y-0.5"
             }`}
           >
             <span className="relative z-10 flex items-center gap-2">

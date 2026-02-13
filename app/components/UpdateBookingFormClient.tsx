@@ -92,11 +92,10 @@ export default function UpdateBookingFormClient({
       title={`Actualizar Reserva #${booking.id}`}
       submitText="Actualizar"
       submitinText="Actualizando"
-      gridCols={2}
+      gridCols={3}
       centered
       onSuccess={handleSuccess}
     >
-      {/* Hidden field for booking ID */}
       <input type="hidden" name="id" value={booking.id} />
 
       <FormField
@@ -125,6 +124,20 @@ export default function UpdateBookingFormClient({
       />
 
       <FormField
+        type="select"
+        name="booking_state"
+        label="Estado de la Reserva"
+        defaultValue={booking.status}
+        options={[
+          { value: "", label: "Seleccionar" },
+          { value: "Confirmada", label: "Confirmada" },
+          { value: "Pendiente", label: "Pendiente" },
+          { value: "Cancelada", label: "Cancelada" },
+        ]}
+        required
+      />
+
+      <FormField
         type="date"
         name="check_in"
         label="Check in"
@@ -134,7 +147,6 @@ export default function UpdateBookingFormClient({
         disabledRanges={filteredDatesUnavailable.map((d) => {
           const start = parseLocalDate(d.check_in);
           const end = parseLocalDate(d.check_out);
-          // For check_in: Block [start, end - 1 day]
           end.setDate(end.getDate() - 1);
           return {
             start: start,
@@ -153,13 +165,30 @@ export default function UpdateBookingFormClient({
         disabledRanges={filteredDatesUnavailable.map((d) => {
           const start = parseLocalDate(d.check_in);
           const end = parseLocalDate(d.check_out);
-          // For check_out: Block [start + 1 day, end]
           start.setDate(start.getDate() + 1);
           return {
             start: start,
             end: end,
           };
         })}
+      />
+
+      <FormField
+        type="select"
+        name="channel_id"
+        label="Canal"
+        defaultValue={bookingChannelId}
+        options={[
+          { value: "", label: "Seleccionar" },
+          ...(channels?.map((ch) => ({
+            value: ch.id,
+            label: ch.channel_name,
+          })) || []),
+        ]}
+        required
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setSelectedChannel(Number(e.target.value))
+        }
       />
 
       {currency === 1 ? (
@@ -184,31 +213,23 @@ export default function UpdateBookingFormClient({
         <>
           <FormField
             type="text"
-            name="prepayment_ars"
-            label="Pago anticipado ARS"
-            placeholder="0.00"
-            defaultValue={booking.deposit_payment_ars || ""}
-          />
-
-          <FormField
-            type="text"
             name="balancepayment_ars"
             label="Pago saldo ARS"
             placeholder="0.00"
             defaultValue={booking.balance_payment_ars || ""}
             readOnly
           />
+
+          <FormField
+            type="text"
+            name="prepayment_ars"
+            label="Pago anticipado ARS"
+            placeholder="0.00"
+            defaultValue={booking.deposit_payment_ars || ""}
+          />
         </>
       ) : (
         <>
-          <FormField
-            type="text"
-            name="prepayment_usd"
-            label="Pago anticipado USD"
-            placeholder="0.00"
-            defaultValue={booking.deposit_amount_usd || ""}
-          />
-
           <FormField
             type="text"
             name="balancepayment_usd"
@@ -217,26 +238,15 @@ export default function UpdateBookingFormClient({
             defaultValue={booking.balance_amount_usd || ""}
             readOnly
           />
+          <FormField
+            type="text"
+            name="prepayment_usd"
+            label="Pago anticipado USD"
+            placeholder="0.00"
+            defaultValue={booking.deposit_amount_usd || ""}
+          />
         </>
       )}
-
-      <FormField
-        type="select"
-        name="channel_id"
-        label="Canal"
-        defaultValue={bookingChannelId}
-        options={[
-          { value: "", label: "Seleccionar" },
-          ...(channels?.map((ch) => ({
-            value: ch.id,
-            label: ch.channel_name,
-          })) || []),
-        ]}
-        required
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-          setSelectedChannel(Number(e.target.value))
-        }
-      />
 
       {selectedChannel === 1 && (
         <FormField
@@ -276,20 +286,6 @@ export default function UpdateBookingFormClient({
           { value: "", label: "Seleccionar" },
           { value: "true", label: "Si" },
           { value: "false", label: "No" },
-        ]}
-        required
-      />
-
-      <FormField
-        type="select"
-        name="booking_state"
-        label="Estado de la Reserva"
-        defaultValue={booking.status}
-        options={[
-          { value: "", label: "Seleccionar" },
-          { value: "Confirmada", label: "Confirmada" },
-          { value: "Pendiente", label: "Pendiente" },
-          { value: "Cancelada", label: "Cancelada" },
         ]}
         required
       />

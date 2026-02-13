@@ -54,7 +54,7 @@ export function CreateBookingFormClient({
       title="Crear Rerserva"
       submitText="Crear"
       submitinText="Creando"
-      gridCols={2}
+      gridCols={3}
       centered
       onSuccess={handleSuccess}
     >
@@ -80,7 +80,22 @@ export function CreateBookingFormClient({
           setCurrency(Number(e.target.value))
         }
       />
-
+      <FormField
+        type="select"
+        name="channel_id"
+        label="Canal"
+        options={[
+          { value: "", label: "Seleccionar" },
+          ...(channels?.map((ch) => ({
+            value: ch.id,
+            label: ch.channel_name,
+          })) || []),
+        ]}
+        required
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          setSelectedChannel(Number(e.target.value))
+        }
+      />
       {currency === 1 ? (
         <FormField
           type="text"
@@ -110,64 +125,6 @@ export function CreateBookingFormClient({
           label="Precio antepago USD"
         />
       )}
-
-      <FormField
-        type="date"
-        name="check_in"
-        label="Check in"
-        disablePastDates={true}
-        required
-        disabledRanges={datesUnavailable.map((d) => {
-          const start = parseLocalDate(d.check_in);
-          const end = parseLocalDate(d.check_out);
-          // For check_in: can't start on an existing start or during a stay.
-          // Can start on the existing end (checkout day).
-          // Block: [start, end - 1 day]
-          end.setDate(end.getDate() - 1);
-          return {
-            start: start,
-            end: end,
-          };
-        })}
-      />
-
-      <FormField
-        type="date"
-        name="check_out"
-        label="Check out"
-        disablePastDates={true}
-        required
-        disabledRanges={datesUnavailable.map((d) => {
-          const start = parseLocalDate(d.check_in);
-          const end = parseLocalDate(d.check_out);
-          // For check_out: can't end during a stay or on an existing end.
-          // Can end on the existing start (checkin day).
-          // Block: [start + 1 day, end]
-          start.setDate(start.getDate() + 1);
-          return {
-            start: start,
-            end: end,
-          };
-        })}
-      />
-
-      <FormField
-        type="select"
-        name="channel_id"
-        label="Canal"
-        options={[
-          { value: "", label: "Seleccionar" },
-          ...(channels?.map((ch) => ({
-            value: ch.id,
-            label: ch.channel_name,
-          })) || []),
-        ]}
-        required
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-          setSelectedChannel(Number(e.target.value))
-        }
-      />
-
       {selectedChannel === 1 && (
         <FormField
           type="text"
@@ -176,7 +133,6 @@ export function CreateBookingFormClient({
           placeholder="0.00"
         />
       )}
-
       <FormField
         type="select"
         name="tenant_quantity"
@@ -195,6 +151,41 @@ export function CreateBookingFormClient({
         ]}
         required
       />
+
+      <FormField
+        type="date"
+        name="check_in"
+        label="Check in"
+        disablePastDates={true}
+        required
+        disabledRanges={datesUnavailable.map((d) => {
+          const start = parseLocalDate(d.check_in);
+          const end = parseLocalDate(d.check_out);
+          end.setDate(end.getDate() - 1);
+          return {
+            start: start,
+            end: end,
+          };
+        })}
+      />
+
+      <FormField
+        type="date"
+        name="check_out"
+        label="Check out"
+        disablePastDates={true}
+        required
+        disabledRanges={datesUnavailable.map((d) => {
+          const start = parseLocalDate(d.check_in);
+          const end = parseLocalDate(d.check_out);
+          start.setDate(start.getDate() + 1);
+          return {
+            start: start,
+            end: end,
+          };
+        })}
+      />
+
       <FormField
         type="select"
         name="booking_adv"
