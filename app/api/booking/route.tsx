@@ -10,6 +10,7 @@ import {
 import { BookingDTO } from "../../lib/repository/booking/booking.dto";
 import { NextResponse } from "next/server";
 import { DIContainer } from "../../core/DiContainer";
+import { toTitleCase } from "../../utils/utils";
 
 const styles = StyleSheet.create({
   page: {
@@ -211,7 +212,9 @@ const BookingPDFTemplate = ({ booking }: Props) => {
           <View style={styles.row}>
             <View style={styles.col}>
               <Text style={styles.label}>Nombre</Text>
-              <Text style={styles.value}>{booking.guest_name}</Text>
+              <Text style={styles.value}>
+                {toTitleCase(booking.guest_name)}
+              </Text>
             </View>
             <View style={styles.col}>
               <Text style={styles.label}>Cantidad de Huéspedes</Text>
@@ -350,7 +353,7 @@ export async function GET(request: Request) {
   }
 
   const booking = await DIContainer.getBookingRepository().getBooking(
-    Number(id)
+    Number(id),
   );
 
   if (!booking) {
