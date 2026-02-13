@@ -129,7 +129,7 @@ export function FormField(props: FormFieldProps) {
         </label>
         <DatePicker
           selected={dateValue}
-          onChange={(date) => setDateValue(date)}
+          onChange={(date: Date | null) => setDateValue(date)}
           name={props.name}
           dateFormat="yyyy-MM-dd"
           className={baseClasses}
