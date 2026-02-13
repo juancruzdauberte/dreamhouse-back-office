@@ -1,9 +1,10 @@
 import { DIContainer } from "../../../core/DiContainer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import DeleteBookingButton from "../../../components/DeleteBookingButton";
-import ViewPDFBookingButton from "../../../components/ViewPDFBookingButton";
-import EditBookingButton from "../../../components/EditBookingButton";
+import DeleteBookingButton from "../../../components/widget/DeleteBookingButton";
+import ViewPDFBookingButton from "../../../components/widget/ViewPDFBookingButton";
+import EditBookingButton from "../../../components/widget/EditBookingButton";
+import { toTitleCase } from "../../../utils/utils";
 
 type Props = {
   params: Promise<{
@@ -13,7 +14,7 @@ type Props = {
 export default async function BookingDetailPage({ params }: Props) {
   const { id } = await params;
   const booking = await DIContainer.getBookingRepository().getBooking(
-    Number(id)
+    Number(id),
   );
 
   if (!booking) {
@@ -59,8 +60,8 @@ export default async function BookingDetailPage({ params }: Props) {
                 booking.status === "Confirmada"
                   ? "bg-green-100 text-green-800"
                   : booking.status === "Pendiente"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-red-100 text-red-800"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-red-100 text-red-800"
               }`}
             >
               {booking.status}
@@ -76,7 +77,7 @@ export default async function BookingDetailPage({ params }: Props) {
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-indigo-600"
+                  className="w-5 h-5 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -98,7 +99,7 @@ export default async function BookingDetailPage({ params }: Props) {
                 <div>
                   <p className="text-sm text-slate-600 mb-1">Nombre</p>
                   <p className="text-base font-semibold text-slate-900">
-                    {booking.guest_name}
+                    {toTitleCase(booking.guest_name)}
                   </p>
                 </div>
                 <div>
@@ -125,7 +126,7 @@ export default async function BookingDetailPage({ params }: Props) {
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-indigo-600"
+                  className="w-5 h-5 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -162,7 +163,7 @@ export default async function BookingDetailPage({ params }: Props) {
                 </div>
                 <div>
                   <p className="text-sm text-slate-600 mb-1">Noches</p>
-                  <p className="text-base font-semibold text-indigo-600">
+                  <p className="text-base font-semibold text-blue-600">
                     {booking.nights_stay} noches
                   </p>
                 </div>
@@ -173,7 +174,7 @@ export default async function BookingDetailPage({ params }: Props) {
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-indigo-600"
+                  className="w-5 h-5 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -197,7 +198,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {Math.round(
-                          parseFloat(booking.price_per_night_usd)
+                          parseFloat(booking.price_per_night_usd),
                         ).toLocaleString("es-AR")}{" "}
                         USD
                       </>
@@ -206,7 +207,7 @@ export default async function BookingDetailPage({ params }: Props) {
                         $
                         {Math.round(
                           parseFloat(booking.total_price_ars || "0") /
-                            booking.nights_stay
+                            booking.nights_stay,
                         ).toLocaleString("es-AR")}{" "}
                         ARS
                       </>
@@ -222,7 +223,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(booking.total_price_usd).toLocaleString(
-                          "es-AR"
+                          "es-AR",
                         )}{" "}
                         USD
                       </>
@@ -230,7 +231,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(booking.total_price_ars!).toLocaleString(
-                          "es-AR"
+                          "es-AR",
                         )}{" "}
                         ARS
                       </>
@@ -245,7 +246,7 @@ export default async function BookingDetailPage({ params }: Props) {
                     <span className="text-base font-semibold text-red-600">
                       -$
                       {parseFloat(
-                        booking.channel_commission_usd
+                        booking.channel_commission_usd,
                       ).toLocaleString("es-AR")}{" "}
                       USD
                     </span>
@@ -260,7 +261,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(booking.total_price_usd).toLocaleString(
-                          "es-AR"
+                          "es-AR",
                         )}{" "}
                         USD
                       </>
@@ -268,7 +269,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(booking.total_price_ars!).toLocaleString(
-                          "es-AR"
+                          "es-AR",
                         )}{" "}
                         ARS
                       </>
@@ -282,7 +283,7 @@ export default async function BookingDetailPage({ params }: Props) {
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 text-indigo-600"
+                  className="w-5 h-5 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -306,7 +307,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(booking.deposit_amount_usd).toLocaleString(
-                          "es-AR"
+                          "es-AR",
                         )}{" "}
                         USD
                       </>
@@ -314,7 +315,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(
-                          booking.deposit_payment_ars || "0"
+                          booking.deposit_payment_ars || "0",
                         ).toLocaleString("es-AR")}{" "}
                         ARS
                       </>
@@ -330,7 +331,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(booking.balance_amount_usd).toLocaleString(
-                          "es-AR"
+                          "es-AR",
                         )}{" "}
                         USD
                       </>
@@ -338,7 +339,7 @@ export default async function BookingDetailPage({ params }: Props) {
                       <>
                         $
                         {parseFloat(
-                          booking.balance_payment_ars || "0"
+                          booking.balance_payment_ars || "0",
                         ).toLocaleString("es-AR")}{" "}
                         ARS
                       </>
@@ -356,7 +357,7 @@ export default async function BookingDetailPage({ params }: Props) {
               <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                 Canal de Reserva
               </h3>
-              <p className="text-lg font-bold text-indigo-600">
+              <p className="text-lg font-bold text-blue-600">
                 {booking.channel_name}
               </p>
             </div>
@@ -431,7 +432,7 @@ export default async function BookingDetailPage({ params }: Props) {
                     href={`https://wa.me/${
                       booking.guest_phone
                     }?text=${encodeURIComponent(
-                      `Hola ${booking.guest_name}, te envío el comprobante de tu reserva: ${process.env.NEXT_PUBLIC_APP_URL}/api/booking?id=${booking.id}`
+                      `Hola ${booking.guest_name}, te envío el comprobante de tu reserva: ${process.env.NEXT_PUBLIC_APP_URL}/api/booking?id=${booking.id}`,
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
