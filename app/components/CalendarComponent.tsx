@@ -32,16 +32,15 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 
   useEffect(() => {
     const formattedEvents = bookings.map((booking) => {
-      let backgroundColor = "#3788d8"; // Default blue
+      let backgroundColor = "#3788d8";
       let borderColor = "#3788d8";
       let textColor = "#ffffff";
 
-      // Customize colors based on status or channel (example logic)
       if (booking.status === "Confirmada") {
-        backgroundColor = "#008009"; // Booking.com green-ish
+        backgroundColor = "#008009";
         borderColor = "#008009";
       } else if (booking.status === "Pendiente") {
-        backgroundColor = "#febb02"; // Warning yellow
+        backgroundColor = "#febb02";
         borderColor = "#febb02";
         textColor = "#333333";
       } else if (booking.status === "Cancelada") {
@@ -49,17 +48,21 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         borderColor = "#d9534f";
       }
 
-      // Adjust check-out date for FullCalendar (exclusive end date)
-      const checkOutDate = new Date(booking.check_out);
-      checkOutDate.setDate(checkOutDate.getDate() + 1);
+      const checkInStr = booking.check_in.split("T")[0];
+      const checkOutStr = booking.check_out.split("T")[0];
+
+      const [year, month, day] = checkOutStr.split("-").map(Number);
+      const checkOutDate = new Date(Date.UTC(year, month - 1, day));
+      checkOutDate.setUTCDate(checkOutDate.getUTCDate() + 1);
+      const endStr = checkOutDate.toISOString().split("T")[0];
 
       const guestName = toTitleCase(booking.guest_name);
 
       return {
         id: String(booking.id),
         title: `${guestName} (${booking.channel_name})`,
-        start: booking.check_in,
-        end: checkOutDate.toISOString().split("T")[0],
+        start: checkInStr,
+        end: endStr,
         allDay: true,
         backgroundColor,
         borderColor,
@@ -104,19 +107,13 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     const newStart = arg.startStr.split("T")[0];
     const newEnd = arg.endStr.split("T")[0];
 
-    // Get current params to compare
     const currentStart = searchParams.get("startDate");
     const currentEnd = searchParams.get("endDate");
 
-    // Only update if differ significantly (avoid loops if dateSet fires on mount with same dates)
-    // FullCalendar might pass dates with time, split keeps just YYYY-MM-DD
     if (newStart !== currentStart || newEnd !== currentEnd) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("startDate", newStart);
       params.set("endDate", newEnd);
-      // Use replace to prevent cluttering history stack with every month change, or push if you want history.
-      // Usually replace is better for filters, but push is expectation for "navigation".
-      // Let's use push so back button works for months.
       startTransition(() => {
         router.push(`?${params.toString()}`, { scroll: false });
       });
@@ -294,7 +291,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           fixedWeekCount={false}
           showNonCurrentDates={false}
           dayMaxEvents={3}
-          displayEventTime={false} // Hide time in events
+          displayEventTime={false}
         />
       </div>
     </div>
