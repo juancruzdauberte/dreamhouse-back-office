@@ -35,79 +35,105 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
 
   return (
     <aside
-      className={`h-screen w-[80px] fixed left-0 transition-all ${
-        expanded && "w-[250px]"
+      className={`h-screen fixed left-0 top-0 z-50 bg-white border-r border-slate-200 shadow-xl transition-all duration-300 ease-in-out ${
+        expanded ? "w-[280px]" : "w-[90px]"
       }`}
     >
-      <nav className="h-full flex flex-col bg-white border-r border-gray-100 shadow-md">
-        <div
-          className={`p-4 pb-2 flex flex-col gap-3 ${
-            expanded && "flex-row justify-between pr-8 pl-8"
-          }`}
-        >
-          {/* Logo Section */}
-          <div className="flex justify-center items-center">
-            <Image
-              src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
-              className={`rounded-lg transition-all ${
-                expanded ? "w-16 h-16" : "w-12 h-12"
-              }`}
-              width={64}
-              height={64}
-              alt="Dreamhouse Logo"
-            />
-          </div>
-
-          {/* Expand/Collapse Button */}
-          <button
-            onClick={() => setExpanded((curr) => !curr)}
-            className="p-1.5 rounded-md hover:bg-indigo-50 text-[#2C2C2C] transition-colors self-center"
+      <nav className="h-full flex flex-col justify-between">
+        <div>
+          <div
+            className={`p-4 flex items-center relative transition-all duration-300 ${
+              expanded ? "justify-between" : "justify-center flex-col"
+            }`}
           >
-            {expanded ? <ChevronFirst size={25} /> : <ChevronLast size={25} />}
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="border-b border-gray-200 mx-3 mb-2"></div>
-
-        <SidebarContext.Provider value={{ expanded }}>
-          <ul className="flex-1 px-3">{children}</ul>
-
-          <div className="flex p-3">
-            <button
-              onClick={() => signOut()}
-              className={`
-                relative flex items-center justify-center p-1 w-full
-                font-medium rounded-md cursor-pointer
-                transition-colors group
-                hover:bg-red-50 text-gray-600 hover:text-red-600
-              `}
+            <div
+              className={`flex items-center gap-2 overflow-hidden transition-all duration-300 ${
+                expanded ? "w-auto" : "w-0 mt-2"
+              }`}
             >
-              <LogOut size={20} />
+              <Image
+                src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
+                className="object-cover border border-slate-300 rounded-full"
+                width={50}
+                height={50}
+                alt="Dreamhouse Logo"
+              />
               <span
-                className={`overflow-hidden transition-all ${
-                  expanded ? "w-52 text-start" : "w-0"
-                }`}
+                className={`font-bold text-lg text-slate-800 whitespace-nowrap ${!expanded && "hidden"}`}
               >
-                Cerrar Sesión
+                Dreamhouse
               </span>
+            </div>
+            {/* Logo for collapsed state */}
+            {!expanded && (
+              <div className="mt-10 transition-all duration-300">
+                <Image
+                  src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
+                  className="object-cover border border-slate-300 rounded-full"
+                  width={50}
+                  height={50}
+                  alt="Dreamhouse Logo"
+                />
+              </div>
+            )}
 
-              {!expanded && (
-                <div
-                  className={`
-                  absolute left-full rounded-md px-2 ml-5
-                  bg-red-100 text-red-800 text-sm
-                  invisible opacity-20 -translate-x-3 transition-all
-                  group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-                  whitespace-nowrap
-              `}
-                >
-                  Cerrar Sesión
-                </div>
+            <button
+              onClick={() => setExpanded((curr) => !curr)}
+              className={`p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-300 absolute shadow-md border border-blue-100 z-50 ${
+                expanded
+                  ? "right-3 top-6 cursor-pointer"
+                  : "left-1/2 -translate-x-1/2 top-3 cursor-pointer"
+              }`}
+            >
+              {expanded ? (
+                <ChevronFirst size={20} />
+              ) : (
+                <ChevronLast size={20} />
               )}
             </button>
           </div>
-        </SidebarContext.Provider>
+
+          <div className="border-b border-slate-100 mx-4 my-2"></div>
+
+          <SidebarContext.Provider value={{ expanded }}>
+            <ul className="flex-1 px-3 space-y-1">{children}</ul>
+          </SidebarContext.Provider>
+        </div>
+
+        <div className="border-t border-slate-100 p-3">
+          <button
+            onClick={() => signOut()}
+            className={`
+              flex items-center w-full p-3
+              font-medium rounded-lg cursor-pointer
+              transition-all duration-200 group
+              hover:bg-red-50 text-slate-600 hover:text-red-600
+              ${!expanded && "justify-center"}
+            `}
+          >
+            <LogOut size={20} />
+            <span
+              className={`overflow-hidden transition-all duration-300 ${
+                expanded ? "w-52 ml-3 text-start" : "w-0"
+              }`}
+            >
+              Cerrar Sesión
+            </span>
+            {!expanded && (
+              <div
+                className={`
+                  absolute left-full rounded-md px-2 py-1 ml-6
+                  bg-slate-900 text-white text-xs
+                  invisible opacity-20 -translate-x-3 transition-all
+                  group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+                  whitespace-nowrap z-50 pointer-events-none
+              `}
+              >
+                Cerrar Sesión
+              </div>
+            )}
+          </button>
+        </div>
       </nav>
     </aside>
   );
@@ -131,6 +157,7 @@ const SidebarItem: FC<SidebarItemProps> = ({
   const context = useContext(SidebarContext);
   const pathname = usePathname();
   const isActive = pathname === href;
+
   if (!context) {
     throw new Error("SidebarItem must be used within a Sidebar");
   }
@@ -141,21 +168,22 @@ const SidebarItem: FC<SidebarItemProps> = ({
     <Link
       href={href}
       className={`
-        relative flex items-center p-0.5 my-1
+        relative flex items-center my-1
         font-medium rounded-md cursor-pointer
         transition-colors group
         ${!expanded && "justify-center"}
+        ${expanded && "p-2"}
         ${
           isActive
-            ? "bg-linear-to-tr from-gray-200 to-gray-100 text-[#2C2C2C]"
-            : "hover:bg-gray-50"
+            ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+            : "hover:bg-blue-50 text-slate-600 hover:text-blue-600"
         }
     `}
     >
       {icon}
       <span
-        className={`overflow-hidden transition-all  ${
-          expanded ? "w-52 ml-1" : "w-0"
+        className={`overflow-hidden transition-all duration-300 ${
+          expanded ? "w-52 ml-3" : "w-0"
         }`}
       >
         {text}
@@ -171,11 +199,11 @@ const SidebarItem: FC<SidebarItemProps> = ({
       {!expanded && (
         <div
           className={`
-          absolute left-full rounded-md px-2 py-0.5 ml-2
-          bg-[#2C2C2C] text-white text-sm
+          absolute left-full rounded-md px-2 py-1 ml-3
+          bg-blue-900 text-white text-xs
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-          whitespace-nowrap
+          whitespace-nowrap z-50 pointer-events-none
       `}
         >
           {text}
@@ -194,6 +222,7 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
   const context = useContext(SidebarContext);
   const pathname = usePathname();
   const isActive = pathname === href;
+
   if (!context) {
     throw new Error("SidebarItem must be used within a Sidebar");
   }
@@ -205,21 +234,22 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
       href={href}
       target="_blank"
       className={`
-        relative flex items-center p-0.5 my-1
-        font-medium rounded-md cursor-pointer
+        relative flex items-center my-1
+        font-medium rounded-lg cursor-pointer
         transition-colors group
         ${!expanded && "justify-center"}
+         ${expanded && "p-2"}
         ${
           isActive
-            ? "bg-linear-to-tr from-gray-200 to-gray-100 text-[#2C2C2C]"
-            : "hover:bg-gray-50"
+            ? "bg-blues-600 text-white shadow-md shadow-blue-200"
+            : "hover:bg-blue-50 text-slate-600 hover:text-blue-600"
         }
     `}
     >
       {icon}
       <span
-        className={`overflow-hidden transition-all ${
-          expanded ? "w-52 ml-3 " : "w-0"
+        className={`overflow-hidden transition-all duration-300 ${
+          expanded ? "w-52 ml-3" : "w-0"
         }`}
       >
         {text}
@@ -235,10 +265,11 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
       {!expanded && (
         <div
           className={`
-          absolute left-full rounded-md w-18 px-2 py-0.5 ml-2
-          bg-[#2C2C2C] text-white text-sm
+          absolute left-full rounded-md px-2 py-1 ml-3
+          bg-blue-900 text-white text-xs
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+          whitespace-nowrap z-50 pointer-events-none
       `}
         >
           {text}
@@ -250,7 +281,7 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
 
 const Navbar = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="flex min-h-screen bg-slate-50 ">
+    <div className="flex min-h-screen bg-slate-50">
       <Sidebar>
         <SidebarItem
           icon={<Calendar size={20} />}
@@ -270,7 +301,9 @@ const Navbar = ({ children }: { children: ReactNode }) => {
         />
       </Sidebar>
 
-      <main className="flex-1 ml-[80px]">{children}</main>
+      <main className="flex-1 ml-[80px] p-8 w-full transition-all duration-300">
+        {children}
+      </main>
     </div>
   );
 };
