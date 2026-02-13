@@ -44,12 +44,18 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         borderColor = "#febb02";
         textColor = "#333333";
       } else if (booking.status === "Cancelada") {
-        backgroundColor = "#d9534f"; // Red
+        backgroundColor = "#d9534f";
         borderColor = "#d9534f";
       }
 
-      const checkInStr = booking.check_in.split("T")[0];
-      const checkOutStr = booking.check_out.split("T")[0];
+      const normalizeDate = (d: string | Date | unknown): string => {
+        if (!d) return "";
+        if (d instanceof Date) return d.toISOString().split("T")[0];
+        return String(d).split("T")[0];
+      };
+
+      const checkInStr = normalizeDate(booking.check_in);
+      const checkOutStr = normalizeDate(booking.check_out);
 
       const [year, month, day] = checkOutStr.split("-").map(Number);
       const checkOutDate = new Date(Date.UTC(year, month - 1, day));
