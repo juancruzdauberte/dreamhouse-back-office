@@ -39,7 +39,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
       className={`h-screen fixed left-0 top-0 z-50 bg-white border-r border-slate-200 shadow-xl transition-all duration-300 ease-in-out ${
-        expanded ? "w-[280px]" : "w-[90px]"
+        expanded ? "w-[210px]" : "w-[90px]"
       }`}
     >
       <nav className="h-full flex flex-col justify-between">
