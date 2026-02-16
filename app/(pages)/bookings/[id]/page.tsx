@@ -122,7 +122,6 @@ export default async function BookingDetailPage({ params }: Props) {
               </div>
             </div>
 
-            {/* Stay Details */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
@@ -164,7 +163,8 @@ export default async function BookingDetailPage({ params }: Props) {
                 <div>
                   <p className="text-sm text-slate-600 mb-1">Noches</p>
                   <p className="text-base font-semibold text-blue-600">
-                    {booking.nights_stay} noches
+                    {booking.nights_stay}{" "}
+                    {booking.nights_stay === 1 ? "noche" : "noches"}
                   </p>
                 </div>
               </div>

@@ -22,6 +22,7 @@ import Image from "next/image";
 
 type SidebarContextType = {
   expanded: boolean;
+  setExpanded: (expanded: boolean) => void;
 };
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -35,6 +36,8 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
 
   return (
     <aside
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
       className={`h-screen fixed left-0 top-0 z-50 bg-white border-r border-slate-200 shadow-xl transition-all duration-300 ease-in-out ${
         expanded ? "w-[280px]" : "w-[90px]"
       }`}
@@ -48,7 +51,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
           >
             <div
               className={`flex items-center gap-2 overflow-hidden transition-all duration-300 ${
-                expanded ? "w-auto" : "w-0 mt-2"
+                expanded ? "w-auto" : "w-0"
               }`}
             >
               <Image
@@ -64,9 +67,8 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
                 Dreamhouse
               </span>
             </div>
-            {/* Logo for collapsed state */}
             {!expanded && (
-              <div className="mt-10 transition-all duration-300">
+              <div className="transition-all duration-300">
                 <Image
                   src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
                   className="object-cover border border-slate-300 rounded-full"
@@ -76,26 +78,11 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
                 />
               </div>
             )}
-
-            <button
-              onClick={() => setExpanded((curr) => !curr)}
-              className={`p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-300 absolute shadow-md border border-blue-100 z-50 ${
-                expanded
-                  ? "right-3 top-6 cursor-pointer"
-                  : "left-1/2 -translate-x-1/2 top-3 cursor-pointer"
-              }`}
-            >
-              {expanded ? (
-                <ChevronFirst size={20} />
-              ) : (
-                <ChevronLast size={20} />
-              )}
-            </button>
           </div>
 
           <div className="border-b border-slate-100 mx-4 my-2"></div>
 
-          <SidebarContext.Provider value={{ expanded }}>
+          <SidebarContext.Provider value={{ expanded, setExpanded }}>
             <ul className="flex-1 px-3 space-y-1">{children}</ul>
           </SidebarContext.Provider>
         </div>
@@ -162,11 +149,16 @@ const SidebarItem: FC<SidebarItemProps> = ({
     throw new Error("SidebarItem must be used within a Sidebar");
   }
 
-  const { expanded } = context;
+  const { expanded, setExpanded } = context;
 
   return (
     <Link
       href={href}
+      onClick={() => {
+        if (expanded) {
+          setExpanded(false);
+        }
+      }}
       className={`
         relative flex items-center my-1
         font-medium rounded-md cursor-pointer
@@ -227,12 +219,17 @@ const SidebarLinkItem: FC<SidebarItemProps> = ({
     throw new Error("SidebarItem must be used within a Sidebar");
   }
 
-  const { expanded } = context;
+  const { expanded, setExpanded } = context;
 
   return (
     <a
       href={href}
       target="_blank"
+      onClick={() => {
+        if (expanded) {
+          setExpanded(false);
+        }
+      }}
       className={`
         relative flex items-center my-1
         font-medium rounded-lg cursor-pointer
