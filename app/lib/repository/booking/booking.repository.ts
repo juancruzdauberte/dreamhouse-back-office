@@ -183,7 +183,7 @@ export class BookingRepository implements IBookingRepository {
   async getBookingsDate(): Promise<BookingDatesDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        "SELECT fecha_checkin_fk as check_in, fecha_checkout_fk as check_out FROM fact_reservas",
+        "SELECT fecha_checkin_fk as check_in, fecha_checkout_fk as check_out FROM fact_reservas WHERE estado_reserva != 'Cancelada' AND estado_reserva != 'Pendiente'",
       );
       if (rows.length === 0) console.log("No se encontraron reservas");
 

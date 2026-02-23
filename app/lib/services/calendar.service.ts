@@ -190,3 +190,47 @@ export async function updateGoogleCalendarEvent({
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteGoogleCalendarEvent(
+  idBooking: number,
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const calendarId = process.env.GOOGLE_CALENDAR_ID;
+    if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID missing");
+
+    const auth = new google.auth.JWT({
+      email: process.env.GOOGLE_CLIENT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+      scopes: ["https://www.googleapis.com/auth/calendar"],
+    });
+
+    const calendar = google.calendar({ version: "v3", auth });
+
+    const listResponse = await calendar.events.list({
+      calendarId,
+      q: idBooking.toString(),
+    });
+
+    const events = listResponse.data.items || [];
+    const eventToDelete = events.find(
+      (e) => e.summary && e.summary.endsWith(`-${idBooking}`),
+    );
+
+    if (!eventToDelete || !eventToDelete.id) {
+      console.warn(
+        `No se encontró el evento de Google Calendar para la reserva #${idBooking}`,
+      );
+      return { success: false, message: "Event not found" };
+    }
+
+    await calendar.events.delete({
+      calendarId,
+      eventId: eventToDelete.id,
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error eliminando evento de Google Calendar:", error);
+    return { success: false, message: error.message };
+  }
+}

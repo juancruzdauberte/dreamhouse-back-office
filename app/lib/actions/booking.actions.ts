@@ -10,6 +10,7 @@ const { revalidatePath } = await import("next/cache");
 import {
   createGoogleCalendarEvent,
   updateGoogleCalendarEvent,
+  deleteGoogleCalendarEvent,
 } from "../services/calendar.service";
 
 export async function createBooking(
@@ -121,35 +122,40 @@ export async function updateBooking(
 
     if (oldBooking) {
       try {
-        const isUSD = !!booking.booking_total_price_usd;
-        const total = isUSD
-          ? booking.booking_total_price_usd!
-          : booking.booking_total_price_ars!;
-        const pago = isUSD
-          ? booking.prepayment_usd || 0
-          : booking.prepayment_ars || 0;
-        const faltaPagar = total - pago;
+        if (booking.booking_state === "Cancelada") {
+          // Si la reserva se cancela, eliminamos el evento del calendario
+          await deleteGoogleCalendarEvent(bookingId);
+        } else {
+          const isUSD = !!booking.booking_total_price_usd;
+          const total = isUSD
+            ? booking.booking_total_price_usd!
+            : booking.booking_total_price_ars!;
+          const pago = isUSD
+            ? booking.prepayment_usd || 0
+            : booking.prepayment_ars || 0;
+          const faltaPagar = total - pago;
 
-        await updateGoogleCalendarEvent({
-          oldBooking: {
-            nombreCliente: oldBooking.guest_name,
-            fechaCheckIn: oldBooking.check_in,
-          },
-          newBooking: {
-            nombreCliente: booking.tenant_name || oldBooking.guest_name,
-            fechaCheckIn: booking.check_in || oldBooking.check_in,
-            fechaCheckOut: booking.check_out || oldBooking.check_out,
-            total,
-            pago,
-            faltaPagar,
-            medioDia: booking.noon!,
-            currency: isUSD ? "USD" : "ARS",
-            idBooking: bookingId,
-          },
-        });
+          await updateGoogleCalendarEvent({
+            oldBooking: {
+              nombreCliente: oldBooking.guest_name,
+              fechaCheckIn: oldBooking.check_in,
+            },
+            newBooking: {
+              nombreCliente: booking.tenant_name || oldBooking.guest_name,
+              fechaCheckIn: booking.check_in || oldBooking.check_in,
+              fechaCheckOut: booking.check_out || oldBooking.check_out,
+              total,
+              pago,
+              faltaPagar,
+              medioDia: booking.noon!,
+              currency: isUSD ? "USD" : "ARS",
+              idBooking: bookingId,
+            },
+          });
+        }
       } catch (calendarError) {
         console.error(
-          "Error updating calendar event (booking updated successfully):",
+          "Error al gestionar el evento de calendario (booking actualizado correctamente):",
           calendarError,
         );
       }
@@ -171,6 +177,16 @@ export async function deleteBooking(
   bookingId: number,
 ): Promise<{ success: boolean; message: string }> {
   try {
+    // Eliminar el evento de Google Calendar antes de borrar la reserva
+    try {
+      await deleteGoogleCalendarEvent(bookingId);
+    } catch (calendarError) {
+      console.error(
+        "Error eliminando evento de calendario (la reserva se eliminará igualmente):",
+        calendarError,
+      );
+    }
+
     await DIContainer.getBookingRepository().deleteBooking(bookingId);
     revalidatePath("/bookings/create");
 
