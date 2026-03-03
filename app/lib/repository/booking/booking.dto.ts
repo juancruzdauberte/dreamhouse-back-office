@@ -68,3 +68,18 @@ export interface BookingDatesDTO {
   check_in: string;
   check_out: string;
 }
+
+export interface RevenueByMonthDTO {
+  month: string;
+  revenue: number;
+}
+
+export interface BookingsByMonthDTO {
+  month: string;
+  bookings: number;
+}
+
+export interface BookingsByChannelDTO {
+  channel_name: string;
+  bookings: number;
+}

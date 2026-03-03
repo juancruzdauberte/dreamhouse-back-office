@@ -1,12 +1,11 @@
 "use client";
 
 import {
-  ChevronLast,
-  ChevronFirst,
   LogOut,
   Calendar,
   LinkIcon,
   CalendarPlus2,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,6 +18,12 @@ import {
   type FC,
 } from "react";
 import Image from "next/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type SidebarContextType = {
   expanded: boolean;
@@ -38,90 +43,75 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
     <aside
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      className={`h-screen fixed left-0 top-0 z-50 bg-white border-r border-slate-200 shadow-xl transition-all duration-300 ease-in-out ${
-        expanded ? "w-[210px]" : "w-[90px]"
+      className={`h-screen fixed left-0 top-0 z-50 bg-white border-r border-slate-200 shadow-md transition-all duration-300 ease-in-out ${
+        expanded ? "w-[240px]" : "w-[80px]"
       }`}
     >
-      <nav className="h-full flex flex-col justify-between">
-        <div>
-          <div
-            className={`p-4 flex items-center relative transition-all duration-300 ${
-              expanded ? "justify-between" : "justify-center flex-col"
-            }`}
-          >
+      <TooltipProvider>
+        <nav className="h-full flex flex-col justify-between">
+          <div>
             <div
-              className={`flex items-center gap-2 overflow-hidden transition-all duration-300 ${
-                expanded ? "w-auto" : "w-0"
+              className={`p-4 flex items-center relative transition-all duration-300 ${
+                expanded ? "justify-start px-6 gap-4" : "justify-center"
               }`}
             >
-              <Image
-                src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
-                className="object-cover border border-slate-300 rounded-full"
-                width={50}
-                height={50}
-                alt="Dreamhouse Logo"
-              />
+              <div className="flex-shrink-0">
+                <Image
+                  src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
+                  className="object-cover border border-slate-200 rounded-full"
+                  width={40}
+                  height={40}
+                  alt="Dreamhouse Logo"
+                />
+              </div>
+
               <span
-                className={`font-bold text-lg text-slate-800 whitespace-nowrap ${!expanded && "hidden"}`}
+                className={`font-semibold tracking-tight text-lg text-slate-800 transition-all duration-300 overflow-hidden whitespace-nowrap block ${
+                  expanded ? "max-w-[150px] opacity-100" : "max-w-0 opacity-0"
+                }`}
               >
                 Dreamhouse
               </span>
             </div>
-            {!expanded && (
-              <div className="transition-all duration-300">
-                <Image
-                  src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
-                  className="object-cover border border-slate-300 rounded-full"
-                  width={50}
-                  height={50}
-                  alt="Dreamhouse Logo"
-                />
-              </div>
-            )}
+
+            <div className="border-b border-slate-100 mx-4 my-2"></div>
+
+            <SidebarContext.Provider value={{ expanded, setExpanded }}>
+              <ul className="flex-1 px-3 py-2 space-y-1">{children}</ul>
+            </SidebarContext.Provider>
           </div>
 
-          <div className="border-b border-slate-100 mx-4 my-2"></div>
-
-          <SidebarContext.Provider value={{ expanded, setExpanded }}>
-            <ul className="flex-1 px-3 space-y-1">{children}</ul>
-          </SidebarContext.Provider>
-        </div>
-
-        <div className="border-t border-slate-100 p-3">
-          <button
-            onClick={() => signOut()}
-            className={`
-              flex items-center w-full p-3
-              font-medium rounded-lg cursor-pointer
-              transition-all duration-200 group
-              hover:bg-red-50 text-slate-600 hover:text-red-600
-              ${!expanded && "justify-center"}
-            `}
-          >
-            <LogOut size={20} />
-            <span
-              className={`overflow-hidden transition-all duration-300 ${
-                expanded ? "w-52 ml-3 text-start" : "w-0"
-              }`}
-            >
-              Cerrar Sesión
-            </span>
-            {!expanded && (
-              <div
-                className={`
-                  absolute left-full rounded-md px-2 py-1 ml-6
-                  bg-slate-900 text-white text-xs
-                  invisible opacity-20 -translate-x-3 transition-all
-                  group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-                  whitespace-nowrap z-50 pointer-events-none
-              `}
+          <div className="p-3 border-t border-slate-100">
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => signOut()}
+                  className={`flex w-full items-center p-3 rounded-xl font-medium text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 ${
+                    expanded ? "justify-start" : "justify-center"
+                  }`}
+                >
+                  <LogOut size={20} className="flex-shrink-0" />
+                  <span
+                    className={`overflow-hidden transition-all duration-300 whitespace-nowrap block ${
+                      expanded
+                        ? "max-w-[150px] opacity-100 ml-3"
+                        : "max-w-0 opacity-0 ml-0"
+                    }`}
+                  >
+                    Cerrar Sesión
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className={`ml-2 font-medium ${expanded ? "hidden" : ""}`}
               >
                 Cerrar Sesión
-              </div>
-            )}
-          </button>
-        </div>
-      </nav>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </nav>
+      </TooltipProvider>
     </aside>
   );
 };
@@ -130,16 +120,14 @@ type SidebarItemProps = {
   icon: ReactNode;
   text: string;
   href: string;
-  active?: boolean;
-  alert?: boolean;
-  target?: string;
+  isExternal?: boolean;
 };
 
 const SidebarItem: FC<SidebarItemProps> = ({
   icon,
   text,
   href,
-  alert = false,
+  isExternal = false,
 }) => {
   const context = useContext(SidebarContext);
   const pathname = usePathname();
@@ -151,128 +139,59 @@ const SidebarItem: FC<SidebarItemProps> = ({
 
   const { expanded, setExpanded } = context;
 
-  return (
-    <Link
-      href={href}
-      onClick={() => {
-        if (expanded) {
-          setExpanded(false);
-        }
-      }}
+  const content = (
+    <div
+      onClick={() => expanded && setExpanded(false)}
       className={`
-        relative flex items-center my-1
-        font-medium rounded-md cursor-pointer
-        transition-colors group
-        ${!expanded && "justify-center"}
-        ${expanded && "p-2"}
+        relative flex items-center p-3 my-1
+        font-medium rounded-xl cursor-pointer
+        transition-all duration-200 group
+        ${expanded ? "justify-start" : "justify-center text-center"}
         ${
           isActive
-            ? "bg-blue-600 text-white shadow-md shadow-blue-200"
-            : "hover:bg-blue-50 text-slate-600 hover:text-blue-600"
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
         }
-    `}
+      `}
     >
-      {icon}
+      <div className="flex-shrink-0">{icon}</div>
       <span
-        className={`overflow-hidden transition-all duration-300 ${
-          expanded ? "w-52 ml-3" : "w-0"
+        className={`overflow-hidden transition-all duration-300 whitespace-nowrap block ${
+          expanded ? "max-w-[200px] opacity-100 ml-3" : "max-w-0 opacity-0 ml-0"
         }`}
       >
         {text}
       </span>
-      {alert && (
-        <div
-          className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${
-            expanded ? "" : "top-2"
-          }`}
-        />
-      )}
-
-      {!expanded && (
-        <div
-          className={`
-          absolute left-full rounded-md px-2 py-1 ml-3
-          bg-blue-900 text-white text-xs
-          invisible opacity-20 -translate-x-3 transition-all
-          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-          whitespace-nowrap z-50 pointer-events-none
-      `}
-        >
-          {text}
-        </div>
-      )}
-    </Link>
+    </div>
   );
-};
 
-const SidebarLinkItem: FC<SidebarItemProps> = ({
-  icon,
-  text,
-  href,
-  alert = false,
-}) => {
-  const context = useContext(SidebarContext);
-  const pathname = usePathname();
-  const isActive = pathname === href;
-
-  if (!context) {
-    throw new Error("SidebarItem must be used within a Sidebar");
-  }
-
-  const { expanded, setExpanded } = context;
-
-  return (
+  const wrappedContent = isExternal ? (
     <a
       href={href}
       target="_blank"
-      onClick={() => {
-        if (expanded) {
-          setExpanded(false);
-        }
-      }}
-      className={`
-        relative flex items-center my-1
-        font-medium rounded-lg cursor-pointer
-        transition-colors group
-        ${!expanded && "justify-center"}
-         ${expanded && "p-2"}
-        ${
-          isActive
-            ? "bg-blues-600 text-white shadow-md shadow-blue-200"
-            : "hover:bg-blue-50 text-slate-600 hover:text-blue-600"
-        }
-    `}
+      rel="noopener noreferrer"
+      className="block w-full"
     >
-      {icon}
-      <span
-        className={`overflow-hidden transition-all duration-300 ${
-          expanded ? "w-52 ml-3" : "w-0"
-        }`}
-      >
-        {text}
-      </span>
-      {alert && (
-        <div
-          className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${
-            expanded ? "" : "top-2"
-          }`}
-        />
-      )}
+      {content}
+    </a>
+  ) : (
+    <Link href={href} className="block w-full">
+      {content}
+    </Link>
+  );
 
-      {!expanded && (
-        <div
-          className={`
-          absolute left-full rounded-md px-2 py-1 ml-3
-          bg-blue-900 text-white text-xs
-          invisible opacity-20 -translate-x-3 transition-all
-          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-          whitespace-nowrap z-50 pointer-events-none
-      `}
+  return (
+    <li className="w-full">
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{wrappedContent}</TooltipTrigger>
+        <TooltipContent
+          side="right"
+          className={`ml-2 font-medium ${expanded ? "hidden" : ""}`}
         >
           {text}
-        </div>
-      )}
-    </a>
+        </TooltipContent>
+      </Tooltip>
+    </li>
   );
 };
 
@@ -286,19 +205,27 @@ const Navbar = ({ children }: { children: ReactNode }) => {
           href="/"
         />
         <SidebarItem
+          icon={<ChartNoAxesCombined size={20} />}
+          text="Dashboard"
+          href="/dashboard"
+        />
+        <SidebarItem
           icon={<CalendarPlus2 size={20} />}
           text="Crear Reserva"
           href="/bookings/create"
         />
 
-        <SidebarLinkItem
+        <div className="my-2 border-t border-slate-100/80 mx-2" />
+
+        <SidebarItem
           icon={<LinkIcon size={20} />}
-          text="Ver web"
+          text="Sitio Web"
           href="https://dreamhousebaradero.com/"
+          isExternal
         />
       </Sidebar>
 
-      <main className="flex-1 ml-[80px] p-8 w-full transition-all duration-300">
+      <main className="flex-1 ml-[80px] w-full transition-all duration-300">
         {children}
       </main>
     </div>

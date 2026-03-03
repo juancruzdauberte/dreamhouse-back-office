@@ -4,6 +4,9 @@ import {
   ChannelDTO,
   CreateBookingDTO,
   UpdateBookingDTO,
+  RevenueByMonthDTO,
+  BookingsByMonthDTO,
+  BookingsByChannelDTO,
 } from "./booking.dto";
 
 export interface IBookingRepository {
@@ -19,11 +22,14 @@ export interface IBookingRepository {
   getChannels(): Promise<ChannelDTO[]>;
   getBookingsDate(): Promise<BookingDatesDTO[]>;
   getBookingStats(): Promise<{
-    totalBookings: number;
+    totalRevenueArs: number;
     confirmedBookings: number;
     totalRevenue: number;
     totalNights: number;
   }>;
   deleteBooking(id: number): Promise<void>;
   getClosestUpcomingBooking(): Promise<BookingDTO | null>;
+  getRevenueByMonthUSD(): Promise<RevenueByMonthDTO[]>;
+  getBookingsByMonth(): Promise<BookingsByMonthDTO[]>;
+  getBookingsByChannel(): Promise<BookingsByChannelDTO[]>;
 }

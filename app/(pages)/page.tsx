@@ -79,10 +79,10 @@ export default async function BookingsPage({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-600">
-                    Total Reservas
+                    Ingresos (ARS)
                   </p>
                   <p className="text-3xl font-bold text-slate-800 mt-1">
-                    {stats.totalBookings}
+                    ${stats.totalRevenueArs?.toLocaleString("es-AR")}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">

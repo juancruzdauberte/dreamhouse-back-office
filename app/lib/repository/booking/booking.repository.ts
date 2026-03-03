@@ -6,6 +6,9 @@ import {
   ChannelDTO,
   CreateBookingDTO,
   UpdateBookingDTO,
+  RevenueByMonthDTO,
+  BookingsByMonthDTO,
+  BookingsByChannelDTO,
 } from "./booking.dto";
 import { IBookingRepository } from "./booking.interface";
 
@@ -195,7 +198,7 @@ export class BookingRepository implements IBookingRepository {
   }
 
   async getBookingStats(): Promise<{
-    totalBookings: number;
+    totalRevenueArs: number;
     confirmedBookings: number;
     totalRevenue: number;
     totalNights: number;
@@ -203,7 +206,7 @@ export class BookingRepository implements IBookingRepository {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
         `SELECT 
-          COUNT(*) as total_bookings,
+          SUM(precio_total_cotizado_ars) as total_revenue_ars,
           SUM(CASE WHEN estado_reserva = 'Confirmada' THEN 1 ELSE 0 END) as confirmed_bookings,
           SUM(precio_total_cotizado_usd) as total_revenue,
           SUM(noches_estadia) as total_nights
@@ -212,7 +215,7 @@ export class BookingRepository implements IBookingRepository {
 
       const stats = rows[0];
       return {
-        totalBookings: stats.total_bookings || 0,
+        totalRevenueArs: Number(stats.total_revenue_ars) || 0,
         confirmedBookings: Number(stats.confirmed_bookings) || 0,
         totalRevenue: Number(stats.total_revenue) || 0,
         totalNights: Number(stats.total_nights) || 0,
@@ -220,7 +223,7 @@ export class BookingRepository implements IBookingRepository {
     } catch (error) {
       console.error("Error getting booking stats:", error);
       return {
-        totalBookings: 0,
+        totalRevenueArs: 0,
         confirmedBookings: 0,
         totalRevenue: 0,
         totalNights: 0,
@@ -325,6 +328,65 @@ export class BookingRepository implements IBookingRepository {
     } catch (error) {
       console.error("Error getting closest upcoming booking:", error);
       return null;
+    }
+  }
+  async getRevenueByMonthUSD(): Promise<RevenueByMonthDTO[]> {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT 
+          DATE_FORMAT(fecha_checkin_fk, '%Y-%m') as month,
+          SUM(precio_total_cotizado_usd) as revenue
+         FROM fact_reservas
+         WHERE estado_reserva != 'Cancelada'
+         GROUP BY DATE_FORMAT(fecha_checkin_fk, '%Y-%m')
+         ORDER BY month ASC
+         LIMIT 12`,
+      );
+
+      return rows as RevenueByMonthDTO[];
+    } catch (error) {
+      console.error("Error getting revenue by month:", error);
+      return [];
+    }
+  }
+
+  async getBookingsByMonth(): Promise<BookingsByMonthDTO[]> {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT 
+          DATE_FORMAT(fecha_checkin_fk, '%Y-%m') as month,
+          COUNT(*) as bookings
+         FROM fact_reservas
+         WHERE estado_reserva != 'Cancelada'
+         GROUP BY DATE_FORMAT(fecha_checkin_fk, '%Y-%m')
+         ORDER BY month ASC
+         LIMIT 12`,
+      );
+
+      return rows as BookingsByMonthDTO[];
+    } catch (error) {
+      console.error("Error getting bookings by month:", error);
+      return [];
+    }
+  }
+
+  async getBookingsByChannel(): Promise<BookingsByChannelDTO[]> {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT 
+          dm.nombre_canal as channel_name,
+          COUNT(fr.id_reserva) as bookings
+         FROM fact_reservas fr
+         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+         WHERE fr.estado_reserva != 'Cancelada'
+         GROUP BY dm.nombre_canal
+         ORDER BY bookings DESC`,
+      );
+
+      return rows as BookingsByChannelDTO[];
+    } catch (error) {
+      console.error("Error getting bookings by channel:", error);
+      return [];
     }
   }
 }
