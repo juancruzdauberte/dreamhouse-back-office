@@ -22,7 +22,7 @@ export default async function BookingDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 bg-white">
       <div className="max-w-5xl mx-auto" id="booking-details-content">
         {/* Header with Back Button */}
         <div className="mb-8">
@@ -74,7 +74,7 @@ export default async function BookingDetailPage({ params }: Props) {
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Guest Information */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-blue-600"
@@ -122,7 +122,7 @@ export default async function BookingDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-blue-600"
@@ -171,7 +171,7 @@ export default async function BookingDetailPage({ params }: Props) {
             </div>
 
             {/* Pricing Details */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-blue-600"
@@ -280,7 +280,7 @@ export default async function BookingDetailPage({ params }: Props) {
             </div>
 
             {/* Payment Details */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-blue-600"
@@ -353,7 +353,7 @@ export default async function BookingDetailPage({ params }: Props) {
           {/* Right Column - Additional Info */}
           <div className="space-y-6">
             {/* Channel Info */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-card rounded-xl border border-border p-6">
               <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                 Canal de Reserva
               </h3>
@@ -363,7 +363,7 @@ export default async function BookingDetailPage({ params }: Props) {
             </div>
 
             {/* Booking Date */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-card rounded-xl border border-border p-6">
               <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                 Fecha de Reserva
               </h3>
@@ -377,7 +377,7 @@ export default async function BookingDetailPage({ params }: Props) {
             </div>
 
             <div className="flex justify-between px-5">
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <div className="bg-card rounded-xl border border-border p-6">
                 <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                   Publicidad
                 </h3>
@@ -392,7 +392,7 @@ export default async function BookingDetailPage({ params }: Props) {
                 </span>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+              <div className="bg-card rounded-xl border border-border p-6">
                 <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                   Medio Día
                 </h3>

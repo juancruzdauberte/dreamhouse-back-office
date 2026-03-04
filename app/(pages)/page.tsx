@@ -57,10 +57,10 @@ export default async function BookingsPage({
     await DIContainer.getBookingRepository().getClosestUpcomingBooking();
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 bg-white">
       <div className="max-w-full flex gap-14">
         <div className="flex flex-col">
-          <h1 className="text-4xl font-bold text-slate-800 ">Reservas</h1>
+          <h1 className="text-4xl font-bold text-foreground">Reservas</h1>
 
           <div className="flex gap-5 mt-4">
             <Link
@@ -73,16 +73,16 @@ export default async function BookingsPage({
           </div>
         </div>
 
-        <div className="bg-white rounded-xl w-[280px] max-h-[150px] p-6 shadow-sm border border-slate-200">
+        <div className="bg-card rounded-xl w-[280px] max-h-[150px] p-6 border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-600">
+              <p className="text-sm font-medium text-muted-foreground">
                 Proxima Reserva:
               </p>
-              <p className="text-3xl font-bold text-blue-700 mt-1">
+              <p className="text-3xl font-bold text-primary mt-1">
                 {closestBooking?.guest_name.toUpperCase().split(" ")[0]}
               </p>
-              <p className="text-sm font-medium text-black mt-1">
+              <p className="text-sm font-medium text-foreground mt-1">
                 {closestBooking?.check_in &&
                   new Date(closestBooking?.check_in).toLocaleDateString(
                     "es-AR",
@@ -94,10 +94,10 @@ export default async function BookingsPage({
                   )}
               </p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
               <Link
                 href={`/bookings/${closestBooking?.id}`}
-                className="inline-flex items-center justify-center text-blue-600 rounded-lg hover:bg-blue-200 transition-colors w-12 h-12"
+                className="inline-flex items-center justify-center text-primary rounded-lg hover:bg-primary/20 transition-colors w-12 h-12"
                 title="Ver detalles"
               >
                 <Eye className="w-6 h-6" />

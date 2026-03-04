@@ -82,24 +82,24 @@ export function ReusableForm({
     <div className={containerClass}>
       <form
         onSubmit={handleSubmit}
-        className={`w-full ${maxWidthClass} rounded-2xl border border-gray-100 bg-white/95 backdrop-blur-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300 ${formPadding} ${className}`}
+        className={`w-full ${maxWidthClass} rounded-2xl border border-border bg-card backdrop-blur-sm transition-shadow duration-300 ${formPadding} ${className}`}
       >
         {title && (
-          <h2 className="mb-8 text-center text-2xl font-bold tracking-tight text-gray-800 border-b border-gray-100 pb-6">
+          <h2 className="mb-8 text-center text-2xl font-bold tracking-tight text-foreground border-b border-border pb-6">
             {title}
           </h2>
         )}
 
         <div className={`grid gap-4 ${gridClass}`}>{children}</div>
 
-        <div className="mt-6 flex justify-center gap-4 border-t border-gray-200 pt-6">
+        <div className="mt-6 flex justify-center gap-4 border-t border-border pt-6">
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`group relative overflow-hidden rounded-lg px-8 py-2.5 font-medium text-white shadow-lg shadow-green-500/30 transition-all duration-300 focus:outline-none cursor-pointer focus:ring-4 focus:ring-green-500/20 active:scale-[0.98] ${
+            className={`group relative overflow-hidden rounded-lg px-8 py-2.5 font-medium text-primary-foreground transition-all duration-300 focus:outline-none cursor-pointer focus:ring-4 focus:ring-ring/20 active:scale-[0.98] ${
               isSubmitting
-                ? "bg-gray-400 cursor-not-allowed shadow-none"
-                : "bg-linear-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 hover:shadow-xl hover:shadow-green-500/40 hover:-translate-y-0.5"
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary hover:bg-primary/90 hover:-translate-y-0.5"
             }`}
           >
             <span className="relative z-10 flex items-center gap-2">

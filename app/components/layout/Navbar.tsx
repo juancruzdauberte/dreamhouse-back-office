@@ -14,6 +14,7 @@ import {
   useContext,
   createContext,
   useState,
+  useMemo,
   type ReactNode,
   type FC,
 } from "react";
@@ -38,12 +39,13 @@ type SidebarProps = {
 
 const Sidebar: FC<SidebarProps> = ({ children }) => {
   const [expanded, setExpanded] = useState(false);
+  const contextValue = useMemo(() => ({ expanded, setExpanded }), [expanded]);
 
   return (
     <aside
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      className={`h-screen fixed left-0 top-0 z-50 bg-white border-r border-slate-200 shadow-md transition-all duration-300 ease-in-out ${
+      className={`h-screen fixed left-0 top-0 z-50 bg-background border-r border-border transition-all duration-300 ease-in-out ${
         expanded ? "w-[240px]" : "w-[80px]"
       }`}
     >
@@ -55,10 +57,10 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
                 expanded ? "justify-start px-6 gap-4" : "justify-center"
               }`}
             >
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Image
                   src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
-                  className="object-cover border border-slate-200 rounded-full"
+                  className="object-cover border border-border rounded-full"
                   width={40}
                   height={40}
                   alt="Dreamhouse Logo"
@@ -74,9 +76,9 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
               </span>
             </div>
 
-            <div className="border-b border-slate-100 mx-4 my-2"></div>
+            <div className="border-b border-border mx-4 my-2"></div>
 
-            <SidebarContext.Provider value={{ expanded, setExpanded }}>
+            <SidebarContext.Provider value={contextValue}>
               <ul className="flex-1 px-3 py-2 space-y-1">{children}</ul>
             </SidebarContext.Provider>
           </div>
@@ -86,11 +88,11 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
               <TooltipTrigger asChild>
                 <button
                   onClick={() => signOut()}
-                  className={`flex w-full items-center p-3 rounded-xl font-medium text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 ${
+                  className={`flex w-full items-center p-3 rounded-xl font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive ${
                     expanded ? "justify-start" : "justify-center"
                   }`}
                 >
-                  <LogOut size={20} className="flex-shrink-0" />
+                  <LogOut size={20} className="shrink-0" />
                   <span
                     className={`overflow-hidden transition-all duration-300 whitespace-nowrap block ${
                       expanded
@@ -149,12 +151,12 @@ const SidebarItem: FC<SidebarItemProps> = ({
         ${expanded ? "justify-start" : "justify-center text-center"}
         ${
           isActive
-            ? "bg-primary text-primary-foreground shadow-sm"
-            : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground"
         }
       `}
     >
-      <div className="flex-shrink-0">{icon}</div>
+      <div className="shrink-0">{icon}</div>
       <span
         className={`overflow-hidden transition-all duration-300 whitespace-nowrap block ${
           expanded ? "max-w-[200px] opacity-100 ml-3" : "max-w-0 opacity-0 ml-0"
@@ -197,7 +199,7 @@ const SidebarItem: FC<SidebarItemProps> = ({
 
 const Navbar = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar>
         <SidebarItem
           icon={<Calendar size={20} />}
@@ -215,7 +217,7 @@ const Navbar = ({ children }: { children: ReactNode }) => {
           href="/bookings/create"
         />
 
-        <div className="my-2 border-t border-slate-100/80 mx-2" />
+        <div className="my-2 border-t border-border/80 mx-2" />
 
         <SidebarItem
           icon={<LinkIcon size={20} />}

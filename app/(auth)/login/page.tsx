@@ -26,13 +26,13 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center from-blue-50 via-white to-purple-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         {/* Card principal */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-8 border border-gray-100">
+        <div className="bg-card rounded-2xl p-8 space-y-8 border border-border">
           {/* Logo y título */}
           <div className="text-center space-y-3">
-            <div className="border rounded-full border-black w-32 h-32 inline-flex items-center justify-center  shadow-lg mb-2">
+            <div className="border border-border rounded-full w-32 h-32 inline-flex items-center justify-center mb-2">
               <Image
                 src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
                 alt="logo"
@@ -40,8 +40,10 @@ function SignInContent() {
                 height={80}
               />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Bienvenido</h1>
-            <p className="text-gray-600">Inicia sesión para continuar</p>
+            <h1 className="text-3xl font-bold text-foreground">Bienvenido</h1>
+            <p className="text-muted-foreground">
+              Inicia sesión para continuar
+            </p>
           </div>
 
           {/* Botón de Google */}
@@ -49,7 +51,7 @@ function SignInContent() {
             <button
               onClick={handleSignIn}
               disabled={isSigningIn}
-              className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+              className="w-full flex items-center justify-center gap-3 bg-card border-2 border-border hover:border-border/80 text-foreground font-semibold py-4 px-6 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
             >
               {isSigningIn ? (
                 <>
@@ -84,10 +86,10 @@ function SignInContent() {
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
+                <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">
+                <span className="px-4 bg-card text-muted-foreground">
                   Inicio de sesión seguro
                 </span>
               </div>
