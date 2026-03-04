@@ -253,6 +253,22 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         .fc-day-today {
           background-color: #f3f9ff !important;
         }
+        .fc-day-today .fc-daygrid-day-frame {
+          position: relative;
+        }
+        .fc-day-today .fc-daygrid-day-frame::before {
+          content: "HOY";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 2.5rem;
+          color: rgba(0, 113, 194, 0.15);
+          font-weight: 800;
+          pointer-events: none;
+          z-index: 0;
+          letter-spacing: 0.1em;
+        }
         .fc-daygrid-event-dot {
           border-width: 3px;
         }
