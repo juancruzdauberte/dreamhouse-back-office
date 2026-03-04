@@ -217,6 +217,10 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           background-color: #005999 !important;
           border-color: #005999 !important;
         }
+        .fc-button-primary:focus-visible {
+          outline: 2px solid #005999 !important;
+          outline-offset: 2px;
+        }
         .fc-button-primary:disabled {
           background-color: #a3d7fc !important;
           border-color: #a3d7fc !important;
@@ -285,11 +289,25 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             margin-bottom: 1rem !important;
           }
         }
+        @media (prefers-reduced-motion: reduce) {
+          .fc-event,
+          .fc * {
+            transition: none !important;
+            animation: none !important;
+          }
+          .fc-event:hover {
+            transform: none;
+          }
+        }
       `}</style>
       <div className="calendar-container relative">
         {isPending && (
-          <div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-lg transition-all duration-300">
-            <Spinner size={50} text="Cargando reservas..." />
+          <div
+            className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center backdrop-blur-[1px] rounded-lg transition-opacity duration-300"
+            aria-live="polite"
+          >
+            <span className="sr-only">Cargando reservas…</span>
+            <Spinner size={50} text="Cargando reservas…" />
           </div>
         )}
         <FullCalendar

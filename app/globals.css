@@ -94,6 +94,7 @@
 }
 
 :root {
+  color-scheme: light;
   --radius: 0.5rem;
   --background: oklch(0.99 0.005 80);
   --foreground: oklch(0.25 0.02 250);
@@ -168,5 +169,14 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: rgba(30, 41, 59, 0.12);
+    text-rendering: optimizeLegibility;
+  }
+
+  a,
+  button,
+  [role="button"] {
+    touch-action: manipulation;
   }
 }

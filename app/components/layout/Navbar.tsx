@@ -45,7 +45,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
     <aside
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      className={`h-screen fixed left-0 top-0 z-50 bg-background border-r border-border transition-all duration-300 ease-in-out ${
+      className={`h-screen fixed left-0 top-0 z-50 bg-background/95 supports-backdrop-filter:bg-background/85 backdrop-blur border-r border-border transition-[width] duration-300 ease-in-out ${
         expanded ? "w-[240px]" : "w-[80px]"
       }`}
     >
@@ -53,7 +53,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
         <nav className="h-full flex flex-col justify-between">
           <div>
             <div
-              className={`p-4 flex items-center relative transition-all duration-300 ${
+              className={`p-4 flex items-center relative transition-[padding,gap] duration-300 ${
                 expanded ? "justify-start px-6 gap-4" : "justify-center"
               }`}
             >
@@ -68,7 +68,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
               </div>
 
               <span
-                className={`font-semibold tracking-tight text-lg text-slate-800 transition-all duration-300 overflow-hidden whitespace-nowrap block ${
+                className={`font-semibold tracking-tight text-lg text-slate-800 transition-[max-width,opacity] duration-300 overflow-hidden whitespace-nowrap block ${
                   expanded ? "max-w-[150px] opacity-100" : "max-w-0 opacity-0"
                 }`}
               >
@@ -88,13 +88,14 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
               <TooltipTrigger asChild>
                 <button
                   onClick={() => signOut()}
-                  className={`flex w-full items-center p-3 rounded-xl font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive ${
+                  aria-label="Cerrar sesión"
+                  className={`flex w-full items-center p-3 rounded-xl font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                     expanded ? "justify-start" : "justify-center"
                   }`}
                 >
-                  <LogOut size={20} className="shrink-0" />
+                  <LogOut size={20} className="shrink-0" aria-hidden="true" />
                   <span
-                    className={`overflow-hidden transition-all duration-300 whitespace-nowrap block ${
+                    className={`overflow-hidden transition-[max-width,opacity,margin] duration-300 whitespace-nowrap block ${
                       expanded
                         ? "max-w-[150px] opacity-100 ml-3"
                         : "max-w-0 opacity-0 ml-0"
@@ -142,29 +143,18 @@ const SidebarItem: FC<SidebarItemProps> = ({
   const { expanded, setExpanded } = context;
 
   const content = (
-    <div
-      onClick={() => expanded && setExpanded(false)}
-      className={`
-        relative flex items-center p-3 my-1
-        font-medium rounded-xl cursor-pointer
-        transition-all duration-200 group
-        ${expanded ? "justify-start" : "justify-center text-center"}
-        ${
-          isActive
-            ? "bg-primary text-primary-foreground"
-            : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground"
-        }
-      `}
-    >
-      <div className="shrink-0">{icon}</div>
+    <>
+      <span className="shrink-0" aria-hidden="true">
+        {icon}
+      </span>
       <span
-        className={`overflow-hidden transition-all duration-300 whitespace-nowrap block ${
+        className={`overflow-hidden transition-[max-width,opacity,margin] duration-300 whitespace-nowrap block ${
           expanded ? "max-w-[200px] opacity-100 ml-3" : "max-w-0 opacity-0 ml-0"
         }`}
       >
         {text}
       </span>
-    </div>
+    </>
   );
 
   const wrappedContent = isExternal ? (
@@ -172,12 +162,39 @@ const SidebarItem: FC<SidebarItemProps> = ({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="block w-full"
+      aria-label={text}
+      onClick={() => expanded && setExpanded(false)}
+      className={`
+        relative flex w-full items-center p-3 my-1
+        font-medium rounded-xl transition-[background-color,color,transform] duration-200
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background
+        ${expanded ? "justify-start" : "justify-center text-center"}
+        ${
+          isActive
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground"
+        }
+      `}
     >
       {content}
     </a>
   ) : (
-    <Link href={href} className="block w-full">
+    <Link
+      href={href}
+      aria-label={text}
+      onClick={() => expanded && setExpanded(false)}
+      className={`
+        relative flex w-full items-center p-3 my-1
+        font-medium rounded-xl transition-[background-color,color,transform] duration-200
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background
+        ${expanded ? "justify-start" : "justify-center text-center"}
+        ${
+          isActive
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground"
+        }
+      `}
+    >
       {content}
     </Link>
   );
@@ -227,7 +244,10 @@ const Navbar = ({ children }: { children: ReactNode }) => {
         />
       </Sidebar>
 
-      <main className="flex-1 ml-[80px] w-full transition-all duration-300">
+      <main
+        id="main-content"
+        className="flex-1 ml-[80px] w-full overflow-x-hidden"
+      >
         {children}
       </main>
     </div>

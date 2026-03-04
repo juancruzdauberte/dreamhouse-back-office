@@ -13,6 +13,11 @@ dreamhouse-back-office-9aef5d113927.json
 # testing
 /coverage
 
+#AI
+AGENTS.md
+.agent*
+.interface*
+
 # next.js
 /.next/
 /out/
