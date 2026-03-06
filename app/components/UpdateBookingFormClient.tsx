@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useBookingStore } from "../store/bookings.store";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { FormField } from "./FormField";
 import { ReusableForm } from "./ReusableForm";
 import { updateBooking } from "../lib/actions/booking.actions";
@@ -19,32 +18,16 @@ export default function UpdateBookingFormClient({
   booking,
 }: BookingFormClientProps) {
   const router = useRouter();
-  const {
-    setChannels,
-    setDatesUnavailable,
-    setSelectedChannel,
-    selectedChannel,
-  } = useBookingStore();
 
   const [currency, setCurrency] = useState<number>(
     parseFloat(booking.total_price_usd || "0") > 0 ? 2 : 1,
   );
 
-  const bookingChannelId =
-    channels.find((ch) => ch.channel_name === booking.channel_name)?.id || 0;
-
-  useEffect(() => {
-    setChannels(channels);
-    setDatesUnavailable(datesUnavailable);
-    setSelectedChannel(bookingChannelId);
-  }, [
-    channels,
-    datesUnavailable,
-    bookingChannelId,
-    setChannels,
-    setDatesUnavailable,
-    setSelectedChannel,
-  ]);
+  const bookingChannelId = useMemo(
+    () => channels.find((ch) => ch.channel_name === booking.channel_name)?.id || 0,
+    [booking.channel_name, channels],
+  );
+  const [selectedChannel, setSelectedChannel] = useState<number>(bookingChannelId);
 
   const handleSuccess = () => {
     setSelectedChannel(0);
@@ -62,20 +45,24 @@ export default function UpdateBookingFormClient({
     return `${year}-${month}-${day}`;
   };
 
-  const filteredDatesUnavailable = datesUnavailable.filter((d) => {
-    const dCheckIn =
-      typeof d.check_in === "string"
-        ? d.check_in.split("T")[0]
-        : new Date(d.check_in).toISOString().split("T")[0];
-    const dCheckOut =
-      typeof d.check_out === "string"
-        ? d.check_out.split("T")[0]
-        : new Date(d.check_out).toISOString().split("T")[0];
-    const bookingCheckIn = formatDateForInput(booking.check_in);
-    const bookingCheckOut = formatDateForInput(booking.check_out);
+  const filteredDatesUnavailable = useMemo(
+    () =>
+      datesUnavailable.filter((d) => {
+        const dCheckIn =
+          typeof d.check_in === "string"
+            ? d.check_in.split("T")[0]
+            : new Date(d.check_in).toISOString().split("T")[0];
+        const dCheckOut =
+          typeof d.check_out === "string"
+            ? d.check_out.split("T")[0]
+            : new Date(d.check_out).toISOString().split("T")[0];
+        const bookingCheckIn = formatDateForInput(booking.check_in);
+        const bookingCheckOut = formatDateForInput(booking.check_out);
 
-    return !(dCheckIn === bookingCheckIn && dCheckOut === bookingCheckOut);
-  });
+        return !(dCheckIn === bookingCheckIn && dCheckOut === bookingCheckOut);
+      }),
+    [booking.check_in, booking.check_out, datesUnavailable],
+  );
 
   const parseLocalDate = (dateVal: string | Date) => {
     const dateStr =
@@ -85,6 +72,30 @@ export default function UpdateBookingFormClient({
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   };
+
+  const checkInDisabledRanges = useMemo(
+    () =>
+      filteredDatesUnavailable.map((dateRange) => {
+        const start = parseLocalDate(dateRange.check_in);
+        const end = parseLocalDate(dateRange.check_out);
+        end.setDate(end.getDate() - 1);
+
+        return { start, end };
+      }),
+    [filteredDatesUnavailable],
+  );
+
+  const checkOutDisabledRanges = useMemo(
+    () =>
+      filteredDatesUnavailable.map((dateRange) => {
+        const start = parseLocalDate(dateRange.check_in);
+        const end = parseLocalDate(dateRange.check_out);
+        start.setDate(start.getDate() + 1);
+
+        return { start, end };
+      }),
+    [filteredDatesUnavailable],
+  );
 
   return (
     <ReusableForm
@@ -144,15 +155,7 @@ export default function UpdateBookingFormClient({
         defaultValue={formatDateForInput(booking.check_in)}
         disablePastDates={false}
         required
-        disabledRanges={filteredDatesUnavailable.map((d) => {
-          const start = parseLocalDate(d.check_in);
-          const end = parseLocalDate(d.check_out);
-          end.setDate(end.getDate() - 1);
-          return {
-            start: start,
-            end: end,
-          };
-        })}
+        disabledRanges={checkInDisabledRanges}
       />
 
       <FormField
@@ -162,15 +165,7 @@ export default function UpdateBookingFormClient({
         defaultValue={formatDateForInput(booking.check_out)}
         disablePastDates={false}
         required
-        disabledRanges={filteredDatesUnavailable.map((d) => {
-          const start = parseLocalDate(d.check_in);
-          const end = parseLocalDate(d.check_out);
-          start.setDate(start.getDate() + 1);
-          return {
-            start: start,
-            end: end,
-          };
-        })}
+        disabledRanges={checkOutDisabledRanges}
       />
 
       <FormField

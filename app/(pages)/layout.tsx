@@ -1,14 +1,20 @@
-import { AuthGuard } from "../components/AuthGuard";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "../api/auth/[...nextauth]/route";
 import Navbar from "../components/layout/Navbar";
 
-export default function PagesLayout({
+export default async function PagesLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
+
   return (
-    <AuthGuard>
-      <Navbar>{children}</Navbar>
-    </AuthGuard>
+    <Navbar>{children}</Navbar>
   );
 }

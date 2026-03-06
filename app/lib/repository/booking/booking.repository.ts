@@ -100,32 +100,14 @@ export class BookingRepository implements IBookingRepository {
     }
   }
 
-  async getAllBookings(
-    page: number = 1,
-    limit: number = 10,
-    startDate?: string,
-    endDate?: string,
-  ): Promise<{ bookings: BookingDTO[]; total: number }> {
+  async getBookingsForCalendar(
+    startDate: string,
+    endDate: string,
+    limit: number = 200,
+  ): Promise<BookingDTO[]> {
     try {
-      const offset = (page - 1) * limit;
-      let whereClause = "";
-      const queryParams: string[] = [];
-
-      if (startDate && endDate) {
-        whereClause = "WHERE fr.fecha_checkin_fk BETWEEN ? AND ?";
-        queryParams.push(startDate, endDate);
-      }
-
-      // Get total count
-      const [countRows] = await pool.execute<RowDataPacket[]>(
-        `SELECT COUNT(*) as total FROM fact_reservas fr ${whereClause}`,
-        queryParams,
-      );
-      const total = countRows[0].total;
-
-      // Get paginated bookings
       const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT 
+        `SELECT
           fr.id_reserva as id,
           fr.fecha_reserva_fk as booking_date,
           fr.fecha_checkin_fk as check_in,
@@ -148,24 +130,18 @@ export class BookingRepository implements IBookingRepository {
           fr.precio_total_cotizado_ars as total_price_ars,
           fr.tel_huesped as guest_phone,
           fr.medio_dia as noon
-        FROM fact_reservas fr 
+        FROM fact_reservas fr
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
-        ${whereClause}
+        WHERE fr.fecha_checkin_fk BETWEEN ? AND ?
         ORDER BY fr.fecha_checkin_fk DESC
-        LIMIT ? OFFSET ?`,
-        [...queryParams, limit.toString(), offset.toString()],
+        LIMIT ?`,
+        [startDate, endDate, limit.toString()],
       );
 
-      return { bookings: rows as BookingDTO[], total };
+      return rows as BookingDTO[];
     } catch (error) {
-      console.error("=== ERROR IN REPOSITORY ===");
-      console.error("Error details:", error);
-      console.error(
-        "Error message:",
-        error instanceof Error ? error.message : "Unknown error",
-      );
-      console.error("=== END ERROR ===");
-      return { bookings: [], total: 0 };
+      console.error("Error getting bookings for calendar:", error);
+      return [];
     }
   }
 

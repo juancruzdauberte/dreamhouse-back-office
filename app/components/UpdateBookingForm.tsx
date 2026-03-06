@@ -9,12 +9,12 @@ type UpdateBookingFormProps = {
 export default async function UpdateBookingForm({
   bookingId,
 }: UpdateBookingFormProps) {
-  const channels = await DIContainer.getBookingRepository().getChannels();
-  const datesUnavailable =
-    await DIContainer.getBookingRepository().getBookingsDate();
-  const booking = await DIContainer.getBookingRepository().getBooking(
-    bookingId
-  );
+  const bookingRepository = DIContainer.getBookingRepository();
+  const [channels, datesUnavailable, booking] = await Promise.all([
+    bookingRepository.getChannels(),
+    bookingRepository.getBookingsDate(),
+    bookingRepository.getBooking(bookingId),
+  ]);
 
   if (!booking) {
     notFound();

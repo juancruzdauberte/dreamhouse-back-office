@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBooking } from "../lib/actions/booking.actions";
 import { FormField } from "./FormField";
 import { ReusableForm } from "./ReusableForm";
-import { useBookingStore } from "../store/bookings.store";
 
 type BookingFormClientProps = {
   channels: Array<{ id: number; channel_name: string }>;
@@ -19,22 +18,13 @@ export function CreateBookingFormClient({
   datesUnavailable,
 }: BookingFormClientProps) {
   const router = useRouter();
-  const {
-    setChannels,
-    setDatesUnavailable,
-    setSelectedChannel,
-    selectedChannel,
-  } = useBookingStore();
 
   const [currency, setCurrency] = useState<number | null>(null);
-
-  useEffect(() => {
-    setChannels(channels);
-    setDatesUnavailable(datesUnavailable as any);
-  }, [channels, datesUnavailable, setChannels, setDatesUnavailable]);
+  const [selectedChannel, setSelectedChannel] = useState<number>(0);
 
   const handleSuccess = () => {
     setSelectedChannel(0);
+    setCurrency(null);
     router.refresh();
     router.push("/");
   };
@@ -47,6 +37,30 @@ export function CreateBookingFormClient({
     const [year, month, day] = dateStr.split("-").map(Number);
     return new Date(year, month - 1, day);
   };
+
+  const checkInDisabledRanges = useMemo(
+    () =>
+      datesUnavailable.map((dateRange) => {
+        const start = parseLocalDate(dateRange.check_in);
+        const end = parseLocalDate(dateRange.check_out);
+        end.setDate(end.getDate() - 1);
+
+        return { start, end };
+      }),
+    [datesUnavailable],
+  );
+
+  const checkOutDisabledRanges = useMemo(
+    () =>
+      datesUnavailable.map((dateRange) => {
+        const start = parseLocalDate(dateRange.check_in);
+        const end = parseLocalDate(dateRange.check_out);
+        start.setDate(start.getDate() + 1);
+
+        return { start, end };
+      }),
+    [datesUnavailable],
+  );
 
   return (
     <ReusableForm
@@ -158,15 +172,7 @@ export function CreateBookingFormClient({
         label="Check in"
         disablePastDates={true}
         required
-        disabledRanges={datesUnavailable.map((d) => {
-          const start = parseLocalDate(d.check_in);
-          const end = parseLocalDate(d.check_out);
-          end.setDate(end.getDate() - 1);
-          return {
-            start: start,
-            end: end,
-          };
-        })}
+        disabledRanges={checkInDisabledRanges}
       />
 
       <FormField
@@ -175,15 +181,7 @@ export function CreateBookingFormClient({
         label="Check out"
         disablePastDates={true}
         required
-        disabledRanges={datesUnavailable.map((d) => {
-          const start = parseLocalDate(d.check_in);
-          const end = parseLocalDate(d.check_out);
-          start.setDate(start.getDate() + 1);
-          return {
-            start: start,
-            end: end,
-          };
-        })}
+        disabledRanges={checkOutDisabledRanges}
       />
 
       <FormField

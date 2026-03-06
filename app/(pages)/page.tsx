@@ -1,8 +1,6 @@
 import { CalendarPlus2, Eye } from "lucide-react";
-import ViewPDFBookingButton from "../components/widget/ViewPDFBookingButton";
 import { DIContainer } from "../core/DiContainer";
 import Link from "next/link";
-import EditBookingButton from "../components/widget/EditBookingButton";
 import CalendarComponent from "../components/CalendarComponent";
 
 export default async function BookingsPage({
@@ -11,8 +9,7 @@ export default async function BookingsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const page = Number(resolvedSearchParams.page) || 1;
-  const limit = 10;
+  const bookingRepository = DIContainer.getBookingRepository();
 
   // Default dates: Today and Today + 1 Month
   const today = new Date();
@@ -31,29 +28,13 @@ export default async function BookingsPage({
   const endDate =
     (resolvedSearchParams.endDate as string) || formatDateToLocal(nextMonth);
 
-  const { bookings, total } =
-    await DIContainer.getBookingRepository().getAllBookings(
-      page,
-      limit,
-      startDate,
-      endDate,
-    );
-
-  const calendarStartObj = new Date(startDate);
-  calendarStartObj.setDate(1);
-  const [sy, sm, sd] = startDate.split("-").map(Number);
+  const [sy, sm] = startDate.split("-").map(Number);
   const calendarStartDate = `${sy}-${String(sm).padStart(2, "0")}-01`;
 
-  const { bookings: calendarBookings } =
-    await DIContainer.getBookingRepository().getAllBookings(
-      1,
-      200,
-      calendarStartDate,
-      endDate,
-    );
-
-  const closestBooking =
-    await DIContainer.getBookingRepository().getClosestUpcomingBooking();
+  const [calendarBookings, closestBooking] = await Promise.all([
+    bookingRepository.getBookingsForCalendar(calendarStartDate, endDate, 200),
+    bookingRepository.getClosestUpcomingBooking(),
+  ]);
 
   const hasClosestBooking = Boolean(closestBooking?.id);
 

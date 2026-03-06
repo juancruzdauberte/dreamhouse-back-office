@@ -13,12 +13,11 @@ export interface IBookingRepository {
   createBooking(bookingData: CreateBookingDTO): Promise<number>;
   updateBooking(bookingData: UpdateBookingDTO): Promise<void>;
   getBooking(id: number): Promise<BookingDTO | null>;
-  getAllBookings(
-    page?: number,
+  getBookingsForCalendar(
+    startDate: string,
+    endDate: string,
     limit?: number,
-    startDate?: string,
-    endDate?: string,
-  ): Promise<{ bookings: BookingDTO[]; total: number }>;
+  ): Promise<BookingDTO[]>;
   getChannels(): Promise<ChannelDTO[]>;
   getBookingsDate(): Promise<BookingDatesDTO[]>;
   getBookingStats(): Promise<{

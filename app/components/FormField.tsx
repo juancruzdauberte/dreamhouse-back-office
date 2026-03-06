@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
-import PhoneInput from "react-phone-number-input";
+import PhoneInput, { type Country } from "react-phone-number-input";
+import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-number-input/style.css";
 import { parsePhoneNumber } from "libphonenumber-js";
 
@@ -22,7 +23,7 @@ type InputFieldProps = BaseFieldProps & {
   title?: string;
   disablePastDates?: boolean;
   disabledRanges?: { start: Date | string; end: Date | string }[];
-  defaultCountry?: any; // strict typing for Country can be imported if needed
+  defaultCountry?: Country;
   defaultChecked?: boolean;
 };
 

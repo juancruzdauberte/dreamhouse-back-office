@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useTransition } from "react";
+import React, { useMemo, useState, useTransition } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import { useRouter, useSearchParams } from "next/navigation";
-import { DatesSetArg } from "@fullcalendar/core";
+import {
+  DatesSetArg,
+  EventApi,
+  EventClickArg,
+  EventHoveringArg,
+  EventInput,
+} from "@fullcalendar/core";
 import { BookingDTO } from "../lib/repository/booking/booking.dto";
 import Spinner from "./widget/Spinner";
 import { toTitleCase } from "../utils/utils";
@@ -22,16 +28,15 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [events, setEvents] = useState<any[]>([]);
   const [isPending, startTransition] = useTransition();
-  const [hoveredEvent, setHoveredEvent] = useState<any | null>(null);
+  const [hoveredEvent, setHoveredEvent] = useState<EventApi | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{
     x: number;
     y: number;
   } | null>(null);
 
-  useEffect(() => {
-    const formattedEvents = bookings.map((booking) => {
+  const events = useMemo<EventInput[]>(() => {
+    return bookings.map((booking) => {
       let backgroundColor = "#3788d8";
       let borderColor = "#3788d8";
       let textColor = "#ffffff";
@@ -88,10 +93,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         },
       };
     });
-    setEvents(formattedEvents);
   }, [bookings]);
 
-  const handleEventMouseEnter = (info: any) => {
+  const handleEventMouseEnter = (info: EventHoveringArg) => {
     const rect = info.el.getBoundingClientRect();
     setTooltipPosition({
       x: rect.left + rect.width / 2,
@@ -105,7 +109,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     setTooltipPosition(null);
   };
 
-  const handleEventClick = (clickInfo: any) => {
+  const handleEventClick = (clickInfo: EventClickArg) => {
     router.push(`/bookings/${clickInfo.event.id}`);
   };
 
