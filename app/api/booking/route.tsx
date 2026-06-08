@@ -14,29 +14,29 @@ import { toTitleCase } from "../../utils/utils";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    padding: 25,
     fontFamily: "Helvetica",
-    fontSize: 10,
+    fontSize: 9,
     color: "#334155",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
     paddingBottom: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#1e293b",
   },
   subtitle: {
-    fontSize: 10,
+    fontSize: 8,
     color: "#64748b",
-    marginTop: 4,
+    marginTop: 2,
   },
   statusBadge: {
     padding: "4px 8px",
@@ -57,25 +57,25 @@ const styles = StyleSheet.create({
     color: "#991b1b",
   },
   section: {
-    marginBottom: 15,
-    padding: 15,
+    marginBottom: 12,
+    padding: 12,
     backgroundColor: "#ffffff",
     borderRadius: 4,
     borderWidth: 1,
     borderColor: "#e2e8f0",
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "bold",
     color: "#1e293b",
-    marginBottom: 10,
+    marginBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
-    paddingBottom: 5,
+    paddingBottom: 4,
   },
   row: {
     flexDirection: "row",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   col: {
     flex: 1,
@@ -84,13 +84,13 @@ const styles = StyleSheet.create({
     flex: 2,
   },
   label: {
-    fontSize: 8,
+    fontSize: 7,
     color: "#64748b",
-    marginBottom: 2,
+    marginBottom: 1,
     textTransform: "uppercase",
   },
   value: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "bold",
     color: "#0f172a",
   },
@@ -105,34 +105,34 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f1f5f9",
   },
   priceLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: "#475569",
   },
   priceValue: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "bold",
     color: "#0f172a",
   },
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingTop: 8,
-    marginTop: 4,
+    paddingTop: 6,
+    marginTop: 3,
   },
   totalLabel: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "bold",
     color: "#0f172a",
   },
   totalValue: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: "bold",
     color: "#059669",
   },
   paymentBox: {
-    padding: 10,
+    padding: 6,
     borderRadius: 4,
-    marginBottom: 5,
+    marginBottom: 4,
   },
   paymentDeposit: {
     backgroundColor: "#eff6ff",
@@ -157,6 +157,17 @@ const styles = StyleSheet.create({
   textBlue900: { color: "#1e3a8a" },
   textEmerald700: { color: "#047857" },
   textEmerald900: { color: "#064e3b" },
+  signatureSection: {
+    marginTop: 15,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+  },
+  signatureText: {
+    fontSize: 9,
+    color: "#475569",
+    textAlign: "right",
+  },
 });
 
 interface Props {
@@ -191,8 +202,8 @@ const BookingPDFTemplate = ({ booking }: Props) => {
             <Image
               src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1758318130/dreamhouse.002.b16_ibpty8.jpg"
               style={{
-                width: 70,
-                height: 70,
+                width: 60,
+                height: 60,
                 borderRadius: 50,
                 border: "1px solid #00000",
               }}
@@ -280,7 +291,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
           </View>
 
           {/* Invoice Items */}
-          <View style={{ marginBottom: 260 }}>
+          <View style={{ marginBottom: 300 }}>
             <View style={[styles.row, { marginBottom: 8 }]}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.value}>
@@ -338,6 +349,11 @@ const BookingPDFTemplate = ({ booking }: Props) => {
                 : formatCurrencyARS(booking.balance_payment_ars || 0)}
             </Text>
           </View>
+        </View>
+
+        {/* Firma */}
+        <View style={styles.signatureSection}>
+          <Text style={styles.signatureText}>Firma: María Laura Liaudat</Text>
         </View>
       </Page>
     </Document>
