@@ -35,7 +35,7 @@ export function ChannelPieChart({ data }: ChannelPieChartProps) {
     <Card className="col-span-1 gap-5 border-[oklch(0.9_0.01_80)]/90 bg-white/80 py-5 shadow-[0_14px_30px_-30px_rgba(15,23,42,0.8)] lg:col-span-1">
       <CardHeader>
         <CardTitle className="text-[oklch(0.3_0.02_250)]">
-          Distribucion por Canal
+          Distribución por Canal
         </CardTitle>
         <CardDescription className="text-[oklch(0.53_0.02_250)]">
           Reservas divididas por plataforma

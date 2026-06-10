@@ -178,6 +178,8 @@ export class BookingRepository implements IBookingRepository {
     confirmedBookings: number;
     totalRevenue: number;
     totalNights: number;
+    avgPerPersonPerNight: number;
+    avgPerNight: number;
   }> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(

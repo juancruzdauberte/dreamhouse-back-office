@@ -41,7 +41,7 @@ export function KPICards({ stats }: KPICardsProps) {
     {
       title: "Noches Vendidas",
       value: stats.totalNights.toLocaleString("es-AR"),
-      note: "Noches totales de estadia",
+      note: "Noches totales de estadía",
       icon: BedDouble,
       iconColor: "text-[oklch(0.5_0.09_240)]",
       iconBg: "bg-[oklch(0.95_0.02_240)]",
