@@ -14,12 +14,6 @@ export default async function DashboardPage() {
     bookingRepo.getBookingsByChannel(),
   ]);
 
-  const reportDate = new Intl.DateTimeFormat("es-AR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
-
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_12%_18%,oklch(0.97_0.03_75),transparent_38%),radial-gradient(circle_at_90%_0%,oklch(0.95_0.03_235),transparent_35%),oklch(0.99_0.005_80)] px-4 py-5 md:px-6 md:py-8">
       <div className="mx-auto max-w-7xl space-y-6 md:space-y-8">
@@ -36,14 +30,6 @@ export default async function DashboardPage() {
                 Métricas clave de reservas, ingresos y canales para supervisar
                 el rendimiento de Dreamhouse.
               </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
-              <div className="rounded-xl border border-[oklch(0.9_0.01_80)] bg-[oklch(0.99_0.003_80)] px-3 py-2">
-                <p className="text-[oklch(0.55_0.02_250)]">Actualizado</p>
-                <p className="mt-0.5 font-semibold text-[oklch(0.3_0.02_250)]">
-                  {reportDate}
-                </p>
-              </div>
             </div>
           </div>
         </section>

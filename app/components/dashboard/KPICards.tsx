@@ -1,4 +1,4 @@
-import { DollarSign, Banknote, CheckCircle, BedDouble } from "lucide-react";
+import { DollarSign, Banknote, CheckCircle, BedDouble, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface KPICardsProps {
@@ -7,6 +7,8 @@ interface KPICardsProps {
     confirmedBookings: number;
     totalRevenue: number;
     totalNights: number;
+    avgPerPersonPerNight: number;
+    avgPerNight: number;
   };
 }
 
@@ -43,6 +45,22 @@ export function KPICards({ stats }: KPICardsProps) {
       icon: BedDouble,
       iconColor: "text-[oklch(0.5_0.09_240)]",
       iconBg: "bg-[oklch(0.95_0.02_240)]",
+    },
+    {
+      title: "Promedio por Noche",
+      value: `$${stats.avgPerNight?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      note: "USD · precio total ÷ noches",
+      icon: BedDouble,
+      iconColor: "text-[oklch(0.45_0.12_25)]",
+      iconBg: "bg-[oklch(0.95_0.03_25)]",
+    },
+    {
+      title: "Promedio por Persona / Noche",
+      value: `$${stats.avgPerPersonPerNight?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      note: "USD · precio total ÷ noches × huéspedes",
+      icon: Users,
+      iconColor: "text-[oklch(0.45_0.12_300)]",
+      iconBg: "bg-[oklch(0.95_0.03_300)]",
     },
   ];
 

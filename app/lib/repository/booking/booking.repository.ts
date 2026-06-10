@@ -185,7 +185,9 @@ export class BookingRepository implements IBookingRepository {
           SUM(precio_total_cotizado_ars) as total_revenue_ars,
           SUM(CASE WHEN estado_reserva = 'Confirmada' THEN 1 ELSE 0 END) as confirmed_bookings,
           SUM(precio_total_cotizado_usd) as total_revenue,
-          SUM(noches_estadia) as total_nights
+          SUM(noches_estadia) as total_nights,
+          SUM(precio_total_cotizado_usd) / NULLIF(SUM(noches_estadia * cant_huespedes), 0) as avg_per_person_per_night,
+          SUM(precio_total_cotizado_usd) / NULLIF(SUM(noches_estadia), 0) as avg_per_night
         FROM fact_reservas`,
       );
 
@@ -195,6 +197,8 @@ export class BookingRepository implements IBookingRepository {
         confirmedBookings: Number(stats.confirmed_bookings) || 0,
         totalRevenue: Number(stats.total_revenue) || 0,
         totalNights: Number(stats.total_nights) || 0,
+        avgPerPersonPerNight: Number(stats.avg_per_person_per_night) || 0,
+        avgPerNight: Number(stats.avg_per_night) || 0,
       };
     } catch (error) {
       console.error("Error getting booking stats:", error);
@@ -203,6 +207,8 @@ export class BookingRepository implements IBookingRepository {
         confirmedBookings: 0,
         totalRevenue: 0,
         totalNights: 0,
+        avgPerPersonPerNight: 0,
+        avgPerNight: 0,
       };
     }
   }

@@ -25,6 +25,8 @@ export interface IBookingRepository {
     confirmedBookings: number;
     totalRevenue: number;
     totalNights: number;
+    avgPerPersonPerNight: number;
+    avgPerNight: number;
   }>;
   deleteBooking(id: number): Promise<void>;
   getClosestUpcomingBooking(): Promise<BookingDTO | null>;
