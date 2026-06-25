@@ -30,6 +30,7 @@ export interface IBookingRepository {
   }>;
   deleteBooking(id: number): Promise<void>;
   getClosestUpcomingBooking(): Promise<BookingDTO | null>;
+  getAllBookings(): Promise<BookingDTO[]>;
   getRevenueByMonthUSD(): Promise<RevenueByMonthDTO[]>;
   getBookingsByMonth(): Promise<BookingsByMonthDTO[]>;
   getBookingsByChannel(): Promise<BookingsByChannelDTO[]>;
