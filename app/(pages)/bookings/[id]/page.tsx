@@ -4,8 +4,6 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   Banknote,
-  Calendar,
-  CreditCard,
   MessageSquare,
   Tag,
   User,
@@ -14,39 +12,14 @@ import DeleteBookingButton from "../../../components/widget/DeleteBookingButton"
 import ViewPDFBookingButton from "../../../components/widget/ViewPDFBookingButton";
 import EditBookingButton from "../../../components/widget/EditBookingButton";
 import { toTitleCase } from "../../../utils/utils";
+import AnimatedHero from "../../../components/booking-detail/AnimatedHero";
+import AnimatedSectionCard from "../../../components/booking-detail/AnimatedSectionCard";
+import StayTimeline from "../../../components/booking-detail/StayTimeline";
+import PaymentProgressCard from "../../../components/booking-detail/PaymentProgressCard";
 
 type Props = { params: Promise<{ id: string }> };
 
 /* ── helpers ─────────────────────────────────────────────────────── */
-
-function SectionCard({
-  icon,
-  title,
-  children,
-  delay = 0,
-  className = "",
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`bg-white rounded-xl border border-border/70 p-5 shadow-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-300 [animation-fill-mode:both] ${className}`}
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/50">
-        <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 text-primary shrink-0">
-          {icon}
-        </span>
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      </div>
-      {children}
-    </div>
-  );
-}
 
 function DetailRow({
   label,
@@ -93,13 +66,6 @@ function PriceRow({
     </div>
   );
 }
-
-const STATUS_CFG: Record<string, string> = {
-  Confirmada: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  Pendiente: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-  Cancelada: "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
-  Realizada: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
-};
 
 /* ── page ─────────────────────────────────────────────────────────── */
 
@@ -155,33 +121,13 @@ export default async function BookingDetailPage({ params }: Props) {
           Volver a reservas
         </Link>
 
-        {/* Hero header */}
-        <div
-          className="bg-white rounded-xl border border-border/70 shadow-sm p-5 mb-5 flex items-center gap-4 animate-in fade-in-0 slide-in-from-bottom-3 duration-400"
-          style={{ animationDelay: "0ms" }}
-        >
-          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <span className="text-xl font-bold text-primary select-none">
-              {booking.guest_name.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              Reserva #{booking.id}
-            </p>
-            <h1 className="text-xl font-bold text-foreground truncate">
-              {toTitleCase(booking.guest_name)}
-            </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Registrada el {bookingDateFormatted}
-            </p>
-          </div>
-          <span
-            className={`shrink-0 text-xs font-semibold px-3 py-1 rounded-full ${STATUS_CFG[booking.status] ?? "bg-gray-50 text-gray-600 ring-1 ring-gray-200"}`}
-          >
-            {booking.status}
-          </span>
-        </div>
+        {/* Hero header — spring entrance + status pulse */}
+        <AnimatedHero
+          id={booking.id}
+          guestName={toTitleCase(booking.guest_name)}
+          bookingDateFormatted={bookingDateFormatted}
+          status={booking.status}
+        />
 
         {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -190,7 +136,7 @@ export default async function BookingDetailPage({ params }: Props) {
           <div className="lg:col-span-2 flex flex-col gap-5">
 
             {/* Huésped */}
-            <SectionCard
+            <AnimatedSectionCard
               icon={<User className="h-4 w-4" />}
               title="Huésped"
               delay={80}
@@ -210,47 +156,25 @@ export default async function BookingDetailPage({ params }: Props) {
                   <DetailRow label="Teléfono" value={booking.guest_phone} />
                 )}
               </div>
-            </SectionCard>
+            </AnimatedSectionCard>
 
-            {/* Estadía */}
-            <SectionCard
-              icon={<Calendar className="h-4 w-4" />}
-              title="Estadía"
+            {/* Estadía — timeline visual + count-up noches */}
+            <StayTimeline
+              checkIn={checkInFormatted}
+              checkOut={checkOutFormatted}
+              nights={booking.nights_stay}
+              noon={booking.noon}
               delay={160}
-            >
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <DetailRow label="Check-in" value={checkInFormatted} />
-                <DetailRow label="Check-out" value={checkOutFormatted} />
-                <DetailRow
-                  label="Noches"
-                  value={
-                    <span className="text-primary">
-                      {booking.nights_stay}{" "}
-                      {booking.nights_stay === 1 ? "noche" : "noches"}
-                    </span>
-                  }
-                />
-                <DetailRow
-                  label="Medio día"
-                  value={
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${booking.noon ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-muted text-muted-foreground"}`}
-                    >
-                      {booking.noon ? "Sí" : "No"}
-                    </span>
-                  }
-                />
-              </div>
-            </SectionCard>
+            />
 
             {/* Precio */}
-            <SectionCard
+            <AnimatedSectionCard
               icon={<Banknote className="h-4 w-4" />}
               title="Precio"
               delay={240}
             >
               <PriceRow
-                label={`Precio por noche`}
+                label="Precio por noche"
                 value={fmt(pricePerNight)}
               />
               <PriceRow
@@ -265,37 +189,20 @@ export default async function BookingDetailPage({ params }: Props) {
                 />
               )}
               <PriceRow label="Total" value={fmt(totalAmt)} highlight />
-            </SectionCard>
+            </AnimatedSectionCard>
 
-            {/* Pagos */}
-            <SectionCard
-              icon={<CreditCard className="h-4 w-4" />}
-              title="Pagos"
+            {/* Pagos — progress bar + count-up */}
+            <PaymentProgressCard
+              depositAmt={depositAmt}
+              balanceAmt={balanceAmt}
+              totalAmt={totalAmt}
+              currency={currency}
               delay={320}
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg bg-primary/5 border border-primary/10 p-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-1">
-                    Anticipo
-                  </p>
-                  <p className="text-lg font-bold text-foreground">
-                    {fmt(depositAmt)}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4">
-                  <p className="text-xs font-medium text-emerald-600 mb-1">
-                    Saldo
-                  </p>
-                  <p className="text-lg font-bold text-emerald-700">
-                    {fmt(balanceAmt)}
-                  </p>
-                </div>
-              </div>
-            </SectionCard>
+            />
 
             {/* Observaciones (condicional) */}
             {booking.observations && (
-              <SectionCard
+              <AnimatedSectionCard
                 icon={<MessageSquare className="h-4 w-4" />}
                 title="Observaciones"
                 delay={400}
@@ -303,7 +210,7 @@ export default async function BookingDetailPage({ params }: Props) {
                 <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                   {booking.observations}
                 </p>
-              </SectionCard>
+              </AnimatedSectionCard>
             )}
           </div>
 
@@ -311,7 +218,7 @@ export default async function BookingDetailPage({ params }: Props) {
           <div className="flex flex-col gap-5">
 
             {/* Canal & detalles */}
-            <SectionCard
+            <AnimatedSectionCard
               icon={<Tag className="h-4 w-4" />}
               title="Detalles"
               delay={80}
@@ -330,10 +237,10 @@ export default async function BookingDetailPage({ params }: Props) {
                   </div>
                 </div>
               </div>
-            </SectionCard>
+            </AnimatedSectionCard>
 
             {/* Acciones */}
-            <SectionCard
+            <AnimatedSectionCard
               delay={160}
               icon={
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +268,7 @@ export default async function BookingDetailPage({ params }: Props) {
                 )}
                 <DeleteBookingButton bookingId={booking.id} />
               </div>
-            </SectionCard>
+            </AnimatedSectionCard>
           </div>
         </div>
       </div>
