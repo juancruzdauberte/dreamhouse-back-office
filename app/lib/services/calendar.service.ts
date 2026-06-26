@@ -48,14 +48,14 @@ function buildDescription({
 }: DescriptionParams): string {
   const fmt = (n: number) => `$${n.toLocaleString("es-AR")} ${currency}`;
   const lines = [
-    `TOTAL:        ${fmt(total)}`,
-    `PAGÓ:         ${fmt(pago)}`,
-    `FALTA PAGAR:  ${fmt(faltaPagar)}`,
-    `HUÉSPEDES:    ${huespedes} ${huespedes === 1 ? "persona" : "personas"}`,
-    `ESTADO:       ${estado}`,
+    `<b>TOTAL:</b>        ${fmt(total)}`,
+    `<b>PAGÓ:</b>         ${fmt(pago)}`,
+    `<b>FALTA PAGAR:</b>  ${fmt(faltaPagar)}`,
+    `<b>HUÉSPEDES:</b>    ${huespedes} ${huespedes === 1 ? "persona" : "personas"}`,
+    `<b>ESTADO:</b>       ${estado}`,
   ];
-  if (observations) lines.push(`OBS:          ${observations}`);
-  if (medioDia)     lines.push(`MEDIO DÍA:    Sí`);
+  if (observations) lines.push(`<b>OBS:</b>          ${observations}`);
+  if (medioDia)     lines.push(`<b>MEDIO DÍA:</b>    Sí`);
   return lines.join("\n");
 }
 
