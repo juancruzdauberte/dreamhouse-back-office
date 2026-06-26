@@ -2,35 +2,27 @@
 	"subagents": {
 		"agentOverrides": {
 			"context-builder": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			},
 			"delegate": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			},
 			"oracle": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			},
 			"planner": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			},
 			"researcher": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			},
 			"reviewer": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			},
 			"scout": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			},
 			"worker": {
-				"model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6",
 				"thinking": "medium"
 			}
 		}

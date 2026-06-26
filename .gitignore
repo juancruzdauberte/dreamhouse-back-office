@@ -17,7 +17,7 @@ dreamhouse-back-office-9aef5d113927.json
 AGENTS.md
 .agent*
 .interface*
-
+public
 # next.js
 /.next/
 /out/
