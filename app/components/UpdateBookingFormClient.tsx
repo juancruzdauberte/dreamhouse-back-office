@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Banknote, Calendar, Tag, User } from "lucide-react";
+import { Banknote, Calendar, MessageSquare, Tag, User } from "lucide-react";
 import { FormField } from "./FormField";
 import { ReusableForm } from "./ReusableForm";
 import { BookingFormSection } from "./BookingFormSection";
@@ -337,6 +337,24 @@ export default function UpdateBookingFormClient({
             { value: "false", label: "No" },
           ]}
           required
+        />
+      </BookingFormSection>
+
+      {/* ── Notas ── */}
+      <BookingFormSection
+        icon={<MessageSquare className="h-4 w-4" />}
+        title="Notas"
+        cols={1}
+        animationDelay={320}
+      >
+        <FormField
+          type="textarea"
+          name="observations"
+          label="Observaciones"
+          placeholder="Notas internas sobre la reserva..."
+          defaultValue={booking.observations ?? ""}
+          rows={3}
+          maxLength={500}
         />
       </BookingFormSection>
     </ReusableForm>

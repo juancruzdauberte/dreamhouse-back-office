@@ -12,6 +12,7 @@ export interface CreateBookingDTO {
   prepayment_usd?: number | null;
   guest_phone?: string | null;
   noon?: boolean;
+  observations?: string | null;
 }
 
 export interface BookingDTO {
@@ -37,6 +38,7 @@ export interface BookingDTO {
   total_price_ars: string | null;
   guest_phone: string | null;
   noon: number;
+  observations: string | null;
 }
 
 export interface UpdateBookingDTO {
@@ -57,6 +59,7 @@ export interface UpdateBookingDTO {
   booking_state?: string;
   guest_phone?: string | null;
   noon?: boolean;
+  observations?: string | null;
 }
 
 export interface ChannelDTO {

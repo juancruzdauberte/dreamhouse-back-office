@@ -38,6 +38,7 @@ export async function createBooking(
       guest_phone: formData.get("guest_phone"),
       noon: formData.get("noon") === "on",
       booking_id: formData.get("booking_id"),
+      observations: formData.get("observations"),
     });
 
     const bookingId =
@@ -116,6 +117,7 @@ export async function updateBooking(
       balancepayment_usd: formData.get("balancepayment_usd"),
       guest_phone: formData.get("guest_phone"),
       noon: formData.get("noon") === "on",
+      observations: formData.get("observations"),
     });
 
     await DIContainer.getBookingRepository().updateBooking(booking);

@@ -15,12 +15,13 @@ type BaseFieldProps = {
 };
 
 type InputFieldProps = BaseFieldProps & {
-  type: "text" | "email" | "date" | "number" | "phone" | "checkbox" | "hidden";
+  type: "text" | "email" | "date" | "number" | "phone" | "checkbox" | "hidden" | "textarea";
   placeholder?: string;
   defaultValue?: string | number | boolean;
   pattern?: string;
   maxLength?: number;
   title?: string;
+  rows?: number;
   disablePastDates?: boolean;
   disabledRanges?: { start: Date | string; end: Date | string }[];
   defaultCountry?: Country;
@@ -72,6 +73,27 @@ export function FormField(props: FormFieldProps) {
     }
     return undefined;
   });
+
+  if (props.type === "textarea") {
+    return (
+      <div className={`flex flex-col ${props.className ?? ""}`}>
+        <label htmlFor={props.name} className={labelBase}>
+          {props.label}
+          {props.required && <span className="text-destructive ml-1">*</span>}
+        </label>
+        <textarea
+          id={props.name}
+          name={props.name}
+          required={props.required}
+          defaultValue={props.defaultValue as string | undefined}
+          placeholder={props.placeholder}
+          rows={props.rows ?? 3}
+          maxLength={props.maxLength}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-none"
+        />
+      </div>
+    );
+  }
 
   if (props.type === "select") {
     return (

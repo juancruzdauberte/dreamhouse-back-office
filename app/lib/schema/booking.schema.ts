@@ -52,6 +52,11 @@ export const CreateBookingSchema = z.object({
     })
     .pipe(z.string().nullable()),
   noon: z.boolean().optional(),
+  observations: z
+    .union([z.string(), z.null(), z.undefined()])
+    .transform((val) => (val === "" || val === null || val === undefined ? null : val))
+    .pipe(z.string().nullable())
+    .optional(),
 });
 
 export const UpdateBookingSchema = z.object({
@@ -128,4 +133,9 @@ export const UpdateBookingSchema = z.object({
     .pipe(z.number().nullable())
     .optional(),
   noon: z.boolean().optional(),
+  observations: z
+    .union([z.string(), z.null(), z.undefined()])
+    .transform((val) => (val === "" || val === null || val === undefined ? null : val))
+    .pipe(z.string().nullable())
+    .optional(),
 });

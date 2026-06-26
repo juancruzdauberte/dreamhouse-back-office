@@ -1,457 +1,367 @@
 import { DIContainer } from "../../../core/DiContainer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  ArrowLeft,
+  Banknote,
+  Calendar,
+  CreditCard,
+  MessageSquare,
+  Tag,
+  User,
+} from "lucide-react";
 import DeleteBookingButton from "../../../components/widget/DeleteBookingButton";
 import ViewPDFBookingButton from "../../../components/widget/ViewPDFBookingButton";
 import EditBookingButton from "../../../components/widget/EditBookingButton";
 import { toTitleCase } from "../../../utils/utils";
 
-type Props = {
-  params: Promise<{
-    id: string;
-  }>;
+type Props = { params: Promise<{ id: string }> };
+
+/* ── helpers ─────────────────────────────────────────────────────── */
+
+function SectionCard({
+  icon,
+  title,
+  children,
+  delay = 0,
+  className = "",
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`bg-white rounded-xl border border-border/70 p-5 shadow-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-300 [animation-fill-mode:both] ${className}`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/50">
+        <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary/10 text-primary shrink-0">
+          {icon}
+        </span>
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div>
+      <p className="text-xs font-medium text-muted-foreground mb-0.5">
+        {label}
+      </p>
+      <p className="text-sm font-semibold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function PriceRow({
+  label,
+  value,
+  highlight,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex items-center justify-between py-2.5 border-b border-border/40 last:border-0 ${className}`}
+    >
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span
+        className={
+          highlight
+            ? "text-base font-bold text-emerald-600"
+            : "text-sm font-semibold text-foreground"
+        }
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+const STATUS_CFG: Record<string, string> = {
+  Confirmada: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  Pendiente: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+  Cancelada: "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
+  Realizada: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
 };
+
+/* ── page ─────────────────────────────────────────────────────────── */
+
 export default async function BookingDetailPage({ params }: Props) {
   const { id } = await params;
   const booking = await DIContainer.getBookingRepository().getBooking(
     Number(id),
   );
+  if (!booking) notFound();
 
-  if (!booking) {
-    notFound();
-  }
+  const isUSD = parseFloat(booking.total_price_usd) > 0;
+  const currency = isUSD ? "USD" : "ARS";
+  const totalAmt = isUSD
+    ? parseFloat(booking.total_price_usd)
+    : parseFloat(booking.total_price_ars ?? "0");
+  const depositAmt = isUSD
+    ? parseFloat(booking.deposit_amount_usd)
+    : parseFloat(booking.deposit_payment_ars ?? "0");
+  const balanceAmt = isUSD
+    ? parseFloat(booking.balance_amount_usd)
+    : parseFloat(booking.balance_payment_ars ?? "0");
+  const pricePerNight = isUSD
+    ? Math.round(parseFloat(booking.price_per_night_usd))
+    : Math.round(totalAmt / booking.nights_stay);
+  const commission = parseFloat(booking.channel_commission_usd);
+
+  const fmt = (n: number) => `$${n.toLocaleString("es-AR")} ${currency}`;
+
+  const bookingDateFormatted = new Date(booking.booking_date).toLocaleDateString(
+    "es-AR",
+    { day: "2-digit", month: "long", year: "numeric" },
+  );
+  const checkInFormatted = new Date(booking.check_in).toLocaleDateString(
+    "es-AR",
+    { day: "2-digit", month: "long", year: "numeric" },
+  );
+  const checkOutFormatted = new Date(booking.check_out).toLocaleDateString(
+    "es-AR",
+    { day: "2-digit", month: "long", year: "numeric" },
+  );
 
   return (
-    <div className="min-h-screen p-6 bg-white">
+    <div className="min-h-screen p-4 md:p-6 bg-[radial-gradient(circle_at_top_left,oklch(0.98_0.02_70),transparent_55%),radial-gradient(circle_at_top_right,oklch(0.97_0.02_240),transparent_45%),oklch(0.995_0.003_80)]">
       <div className="max-w-5xl mx-auto" id="booking-details-content">
-        {/* Header with Back Button */}
-        <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors mb-4 no-print"
-            data-html2canvas-ignore
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Volver a reservas
-          </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-800">
-                Reserva #{booking.id}
-              </h1>
-              <p className="text-slate-600 mt-1">
-                Detalles completos de la reserva
-              </p>
-            </div>
-            <span
-              className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                booking.status === "Confirmada"
-                  ? "bg-green-100 text-green-800"
-                  : booking.status === "Pendiente"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-red-100 text-red-800"
-              }`}
-            >
-              {booking.status}
+
+        {/* Back */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-5 no-print"
+          data-html2canvas-ignore
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Volver a reservas
+        </Link>
+
+        {/* Hero header */}
+        <div
+          className="bg-white rounded-xl border border-border/70 shadow-sm p-5 mb-5 flex items-center gap-4 animate-in fade-in-0 slide-in-from-bottom-3 duration-400"
+          style={{ animationDelay: "0ms" }}
+        >
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <span className="text-xl font-bold text-primary select-none">
+              {booking.guest_name.charAt(0).toUpperCase()}
             </span>
           </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium text-muted-foreground">
+              Reserva #{booking.id}
+            </p>
+            <h1 className="text-xl font-bold text-foreground truncate">
+              {toTitleCase(booking.guest_name)}
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Registrada el {bookingDateFormatted}
+            </p>
+          </div>
+          <span
+            className={`shrink-0 text-xs font-semibold px-3 py-1 rounded-full ${STATUS_CFG[booking.status] ?? "bg-gray-50 text-gray-600 ring-1 ring-gray-200"}`}
+          >
+            {booking.status}
+          </span>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Main Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Guest Information */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                Información del Huésped
-              </h2>
+        {/* Main grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+          {/* Left column */}
+          <div className="lg:col-span-2 flex flex-col gap-5">
+
+            {/* Huésped */}
+            <SectionCard
+              icon={<User className="h-4 w-4" />}
+              title="Huésped"
+              delay={80}
+            >
               <div
-                className={`grid grid-cols-2 gap-4 ${
-                  booking.guest_phone && "grid-cols-3"
-                }`}
+                className={`grid gap-4 ${booking.guest_phone ? "grid-cols-3" : "grid-cols-2"}`}
               >
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Nombre</p>
-                  <p className="text-base font-semibold text-slate-900">
-                    {toTitleCase(booking.guest_name)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">
-                    Cantidad de Huéspedes
-                  </p>
-                  <p className="text-base font-semibold text-slate-900">
-                    {booking.guest_count}{" "}
-                    {booking.guest_count === 1 ? "persona" : "personas"}
-                  </p>
-                </div>
+                <DetailRow
+                  label="Nombre"
+                  value={toTitleCase(booking.guest_name)}
+                />
+                <DetailRow
+                  label="Personas"
+                  value={`${booking.guest_count} ${booking.guest_count === 1 ? "persona" : "personas"}`}
+                />
                 {booking.guest_phone && (
-                  <div>
-                    <p className="text-sm text-slate-600 mb-1">Teléfono</p>
-                    <p className="text-base font-semibold text-slate-900">
-                      {booking.guest_phone}
-                    </p>
-                  </div>
+                  <DetailRow label="Teléfono" value={booking.guest_phone} />
                 )}
               </div>
-            </div>
+            </SectionCard>
 
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                Detalles de la Estadía
-              </h2>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Check-in</p>
-                  <p className="text-base font-semibold text-slate-900">
-                    {new Date(booking.check_in).toLocaleDateString("es-AR", {
-                      day: "2-digit",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Check-out</p>
-                  <p className="text-base font-semibold text-slate-900">
-                    {new Date(booking.check_out).toLocaleDateString("es-AR", {
-                      day: "2-digit",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Noches</p>
-                  <p className="text-base font-semibold text-blue-600">
-                    {booking.nights_stay}{" "}
-                    {booking.nights_stay === 1 ? "noche" : "noches"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Pricing Details */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Detalles de Precio
-              </h2>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-sm text-slate-600">
-                    Precio por noche
-                  </span>
-                  <span className="text-base font-semibold text-slate-900">
-                    {parseFloat(booking.total_price_usd) > 0 ? (
-                      <>
-                        $
-                        {Math.round(
-                          parseFloat(booking.price_per_night_usd),
-                        ).toLocaleString("es-AR")}{" "}
-                        USD
-                      </>
-                    ) : (
-                      <>
-                        $
-                        {Math.round(
-                          parseFloat(booking.total_price_ars || "0") /
-                            booking.nights_stay,
-                        ).toLocaleString("es-AR")}{" "}
-                        ARS
-                      </>
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                  <span className="text-sm text-slate-600">
-                    {booking.nights_stay} noches
-                  </span>
-                  <span className="text-base font-semibold text-slate-900">
-                    {parseFloat(booking.total_price_usd) > 0 ? (
-                      <>
-                        $
-                        {parseFloat(booking.total_price_usd).toLocaleString(
-                          "es-AR",
-                        )}{" "}
-                        USD
-                      </>
-                    ) : (
-                      <>
-                        $
-                        {parseFloat(booking.total_price_ars!).toLocaleString(
-                          "es-AR",
-                        )}{" "}
-                        ARS
-                      </>
-                    )}
-                  </span>
-                </div>
-                {parseFloat(booking.channel_commission_usd) > 0 && (
-                  <div className="flex justify-between items-center pb-3 border-b border-slate-200">
-                    <span className="text-sm text-slate-600">
-                      Comisión canal
+            {/* Estadía */}
+            <SectionCard
+              icon={<Calendar className="h-4 w-4" />}
+              title="Estadía"
+              delay={160}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <DetailRow label="Check-in" value={checkInFormatted} />
+                <DetailRow label="Check-out" value={checkOutFormatted} />
+                <DetailRow
+                  label="Noches"
+                  value={
+                    <span className="text-primary">
+                      {booking.nights_stay}{" "}
+                      {booking.nights_stay === 1 ? "noche" : "noches"}
                     </span>
-                    <span className="text-base font-semibold text-red-600">
-                      -$
-                      {parseFloat(
-                        booking.channel_commission_usd,
-                      ).toLocaleString("es-AR")}{" "}
-                      USD
+                  }
+                />
+                <DetailRow
+                  label="Medio día"
+                  value={
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${booking.noon ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {booking.noon ? "Sí" : "No"}
                     </span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-base font-semibold text-slate-900">
-                    Total
-                  </span>
-                  <span className="text-2xl font-bold text-emerald-600">
-                    {parseFloat(booking.total_price_usd) > 0 ? (
-                      <>
-                        $
-                        {parseFloat(booking.total_price_usd).toLocaleString(
-                          "es-AR",
-                        )}{" "}
-                        USD
-                      </>
-                    ) : (
-                      <>
-                        $
-                        {parseFloat(booking.total_price_ars!).toLocaleString(
-                          "es-AR",
-                        )}{" "}
-                        ARS
-                      </>
-                    )}
-                  </span>
-                </div>
+                  }
+                />
               </div>
-            </div>
+            </SectionCard>
 
-            {/* Payment Details */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  />
-                </svg>
-                Pagos
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <p className="text-sm text-blue-700 font-medium mb-1">
+            {/* Precio */}
+            <SectionCard
+              icon={<Banknote className="h-4 w-4" />}
+              title="Precio"
+              delay={240}
+            >
+              <PriceRow
+                label={`Precio por noche`}
+                value={fmt(pricePerNight)}
+              />
+              <PriceRow
+                label={`${booking.nights_stay} ${booking.nights_stay === 1 ? "noche" : "noches"}`}
+                value={fmt(totalAmt)}
+              />
+              {commission > 0 && (
+                <PriceRow
+                  label="Comisión canal"
+                  value={`-$${commission.toLocaleString("es-AR")} USD`}
+                  className="text-rose-600"
+                />
+              )}
+              <PriceRow label="Total" value={fmt(totalAmt)} highlight />
+            </SectionCard>
+
+            {/* Pagos */}
+            <SectionCard
+              icon={<CreditCard className="h-4 w-4" />}
+              title="Pagos"
+              delay={320}
+            >
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg bg-primary/5 border border-primary/10 p-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">
                     Anticipo
                   </p>
-                  <p className="text-xl font-bold text-blue-900">
-                    {parseFloat(booking.deposit_amount_usd) > 0 ? (
-                      <>
-                        $
-                        {parseFloat(booking.deposit_amount_usd).toLocaleString(
-                          "es-AR",
-                        )}{" "}
-                        USD
-                      </>
-                    ) : (
-                      <>
-                        $
-                        {parseFloat(
-                          booking.deposit_payment_ars || "0",
-                        ).toLocaleString("es-AR")}{" "}
-                        ARS
-                      </>
-                    )}
+                  <p className="text-lg font-bold text-foreground">
+                    {fmt(depositAmt)}
                   </p>
                 </div>
-                <div className="bg-emerald-50 rounded-lg p-4">
-                  <p className="text-sm text-emerald-700 font-medium mb-1">
+                <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4">
+                  <p className="text-xs font-medium text-emerald-600 mb-1">
                     Saldo
                   </p>
-                  <p className="text-xl font-bold text-emerald-900">
-                    {parseFloat(booking.balance_amount_usd) > 0 ? (
-                      <>
-                        $
-                        {parseFloat(booking.balance_amount_usd).toLocaleString(
-                          "es-AR",
-                        )}{" "}
-                        USD
-                      </>
-                    ) : (
-                      <>
-                        $
-                        {parseFloat(
-                          booking.balance_payment_ars || "0",
-                        ).toLocaleString("es-AR")}{" "}
-                        ARS
-                      </>
-                    )}
+                  <p className="text-lg font-bold text-emerald-700">
+                    {fmt(balanceAmt)}
                   </p>
                 </div>
               </div>
-            </div>
+            </SectionCard>
+
+            {/* Observaciones (condicional) */}
+            {booking.observations && (
+              <SectionCard
+                icon={<MessageSquare className="h-4 w-4" />}
+                title="Observaciones"
+                delay={400}
+              >
+                <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                  {booking.observations}
+                </p>
+              </SectionCard>
+            )}
           </div>
 
-          {/* Right Column - Additional Info */}
-          <div className="space-y-6">
-            {/* Channel Info */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
-                Canal de Reserva
-              </h3>
-              <p className="text-lg font-bold text-blue-600">
-                {booking.channel_name}
-              </p>
-            </div>
+          {/* Right column */}
+          <div className="flex flex-col gap-5">
 
-            {/* Booking Date */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
-                Fecha de Reserva
-              </h3>
-              <p className="text-base font-semibold text-slate-900">
-                {new Date(booking.booking_date).toLocaleDateString("es-AR", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-
-            <div className="flex justify-between px-5">
-              <div className="bg-card rounded-xl border border-border p-6">
-                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
-                  Publicidad
-                </h3>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    booking.advertising_booking
-                      ? "bg-green-100 text-green-800"
-                      : "bg-slate-100 text-slate-800"
-                  }`}
-                >
-                  {booking.advertising_booking ? "Sí" : "No"}
-                </span>
-              </div>
-
-              <div className="bg-card rounded-xl border border-border p-6">
-                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
-                  Medio Día
-                </h3>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    booking.noon
-                      ? "bg-green-100 text-green-800"
-                      : "bg-slate-100 text-slate-800"
-                  }`}
-                >
-                  {booking.noon ? "Sí" : "No"}
-                </span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div
-              className="bg-linear-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6 no-print"
-              data-html2canvas-ignore
+            {/* Canal & detalles */}
+            <SectionCard
+              icon={<Tag className="h-4 w-4" />}
+              title="Detalles"
+              delay={80}
             >
-              <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-4">
-                Acciones
-              </h3>
-              <div className="space-y-3">
-                <EditBookingButton
-                  bookingId={booking.id}
-                  text="Editar Reserva"
-                />
+              <div className="flex flex-col gap-4">
+                <DetailRow label="Canal" value={
+                  <span className="text-primary font-bold">{booking.channel_name}</span>
+                } />
+                <DetailRow label="Fecha de reserva" value={bookingDateFormatted} />
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Publicidad</p>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${booking.advertising_booking ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" : "bg-muted text-muted-foreground"}`}>
+                      {booking.advertising_booking ? "Sí" : "No"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
 
-                <ViewPDFBookingButton
-                  text="Vista Previa"
-                  bookingId={booking.id}
-                />
-
+            {/* Acciones */}
+            <SectionCard
+              delay={160}
+              icon={
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+              }
+              title="Acciones"
+              className="no-print"
+            >
+              <div className="flex flex-col gap-2" data-html2canvas-ignore>
+                <EditBookingButton bookingId={booking.id} text="Editar reserva" />
+                <ViewPDFBookingButton bookingId={booking.id} text="Ver PDF" />
                 {booking.guest_phone && (
                   <a
-                    href={`https://wa.me/${
-                      booking.guest_phone
-                    }?text=${encodeURIComponent(
-                      `Hola ${booking.guest_name}, te envío el comprobante de tu reserva: ${process.env.NEXT_PUBLIC_APP_URL}/api/booking?id=${booking.id}`,
-                    )}`}
+                    href={`https://wa.me/${booking.guest_phone}?text=${encodeURIComponent(`Hola ${booking.guest_name}, te envío el comprobante de tu reserva: ${process.env.NEXT_PUBLIC_APP_URL}/api/booking?id=${booking.id}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25D366] text-white text-sm font-medium rounded-lg hover:bg-[#20ba5a] transition-colors"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                     </svg>
-                    Enviar Comprobante
+                    Enviar comprobante
                   </a>
                 )}
-
                 <DeleteBookingButton bookingId={booking.id} />
               </div>
-            </div>
+            </SectionCard>
           </div>
         </div>
       </div>
