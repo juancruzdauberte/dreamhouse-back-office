@@ -14,6 +14,9 @@ export async function POST(req: Request) {
       faltaPagar,
       medioDia,
       currency,
+      huespedes,
+      estado,
+      observations,
     } = body;
 
     const result = await createGoogleCalendarEvent({
@@ -26,6 +29,9 @@ export async function POST(req: Request) {
       faltaPagar,
       medioDia,
       currency,
+      huespedes: huespedes ?? 1,
+      estado: estado ?? "Confirmada",
+      observations: observations ?? null,
     });
     console.log(result);
     return NextResponse.json(result);
