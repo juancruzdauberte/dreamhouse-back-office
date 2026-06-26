@@ -3,6 +3,7 @@ import { pool } from "../../db/db";
 import {
   BookingDatesDTO,
   BookingDTO,
+  BookingSearchDTO,
   ChannelDTO,
   CreateBookingDTO,
   UpdateBookingDTO,
@@ -347,6 +348,27 @@ export class BookingRepository implements IBookingRepository {
       return rows as BookingDTO[];
     } catch (error) {
       console.error("Error getting all bookings:", error);
+      return [];
+    }
+  }
+
+  async getAllBookingsForSearch(): Promise<BookingSearchDTO[]> {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT
+          fr.id_reserva          as id,
+          fr.nombre_huesped_ref  as guest_name,
+          dm.nombre_canal        as channel_name,
+          fr.fecha_checkin_fk    as check_in,
+          fr.fecha_checkout_fk   as check_out,
+          fr.estado_reserva      as status
+        FROM fact_reservas fr
+        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        ORDER BY fr.fecha_checkin_fk DESC`,
+      );
+      return rows as BookingSearchDTO[];
+    } catch (error) {
+      console.error("Error getting bookings for search:", error);
       return [];
     }
   }

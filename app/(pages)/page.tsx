@@ -32,10 +32,9 @@ export default async function BookingsPage({
   const [sy, sm] = startDate.split("-").map(Number);
   const calendarStartDate = `${sy}-${String(sm).padStart(2, "0")}-01`;
 
-  const [calendarBookings, closestBooking, allBookings] = await Promise.all([
+  const [calendarBookings, closestBooking] = await Promise.all([
     bookingRepository.getBookingsForCalendar(calendarStartDate, endDate, 200),
     bookingRepository.getClosestUpcomingBooking(),
-    bookingRepository.getAllBookings(),
   ]);
 
   const hasClosestBooking = Boolean(closestBooking?.id);
@@ -63,7 +62,7 @@ export default async function BookingsPage({
             </div>
           </div>
 
-          <BookingSearchBar allBookings={allBookings} />
+          <BookingSearchBar />
 
           <div className="bg-white rounded-xl w-full lg:w-[320px] max-h-[170px] p-5 border border-border shadow-sm">
             <div className="flex items-center justify-between gap-4">

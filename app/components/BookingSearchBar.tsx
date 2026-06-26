@@ -2,12 +2,8 @@
 
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Calendar, Search, X } from "lucide-react";
-import type { BookingDTO } from "../lib/repository/booking/booking.dto";
-
-interface Props {
-  allBookings: BookingDTO[];
-}
+import { ArrowRight, Calendar, Loader2, Search, X } from "lucide-react";
+import type { BookingSearchDTO } from "../lib/repository/booking/booking.dto";
 
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -51,14 +47,19 @@ const STATUS_CONFIG: Record<string, { classes: string }> = {
   },
 };
 
-export default function BookingSearchBar({ allBookings }: Props) {
+export default function BookingSearchBar() {
+  const [allBookings, setAllBookings] = useState<BookingSearchDTO[]>([]);
+  const [loadingData, setLoadingData] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+
   const [query, setQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [filtered, setFiltered] = useState<BookingDTO[]>([]);
+  const [filtered, setFiltered] = useState<BookingSearchDTO[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasFetchedRef = useRef(false);
 
   // Click-outside dismiss
   useEffect(() => {
@@ -91,7 +92,7 @@ export default function BookingSearchBar({ allBookings }: Props) {
         .filter((b) => {
           const matchText =
             !q ||
-            b.guest_name.toLowerCase().includes(q) ||
+            (b.guest_name ?? "").toLowerCase().includes(q) ||
             b.channel_name.toLowerCase().includes(q);
 
           const checkIn = new Date(b.check_in);
@@ -108,6 +109,29 @@ export default function BookingSearchBar({ allBookings }: Props) {
 
     return () => clearTimeout(timer);
   }, [query, dateFrom, dateTo, allBookings]);
+
+  async function fetchBookings() {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+    setLoadingData(true);
+    setFetchError(false);
+    try {
+      const res = await fetch("/api/booking/search");
+      if (!res.ok) throw new Error("fetch failed");
+      const data: BookingSearchDTO[] = await res.json();
+      setAllBookings(data);
+    } catch {
+      setFetchError(true);
+      hasFetchedRef.current = false; // allow retry on next focus
+    } finally {
+      setLoadingData(false);
+    }
+  }
+
+  function handleFocus() {
+    setIsOpen(true);
+    fetchBookings();
+  }
 
   function clearAll() {
     setQuery("");
@@ -136,7 +160,7 @@ export default function BookingSearchBar({ allBookings }: Props) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => setIsOpen(true)}
+          onFocus={handleFocus}
           placeholder="Buscar reservas por huésped o canal..."
           aria-label="Buscar reservas"
           aria-expanded={isOpen}
@@ -164,10 +188,7 @@ export default function BookingSearchBar({ allBookings }: Props) {
           {/* Date filter section */}
           <div className="px-4 pt-3 pb-3 border-b border-border/60 bg-gradient-to-b from-muted/40 to-transparent">
             <div className="flex items-center gap-1.5 mb-2.5">
-              <Calendar
-                className="h-3 w-3 text-primary"
-                aria-hidden="true"
-              />
+              <Calendar className="h-3 w-3 text-primary" aria-hidden="true" />
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 Rango de fechas
               </span>
@@ -220,7 +241,34 @@ export default function BookingSearchBar({ allBookings }: Props) {
           </div>
 
           {/* ── Results area ── */}
-          {!hasActiveFilter ? (
+          {loadingData ? (
+            /* Loading state */
+            <div className="py-9 flex flex-col items-center gap-2">
+              <Loader2
+                className="h-5 w-5 text-primary animate-spin"
+                aria-hidden="true"
+              />
+              <p className="text-xs text-muted-foreground">
+                Cargando reservas...
+              </p>
+            </div>
+          ) : fetchError ? (
+            /* Error state */
+            <div className="py-9 flex flex-col items-center gap-1.5">
+              <p className="text-sm font-semibold text-destructive">
+                No se pudo cargar
+              </p>
+              <button
+                onClick={() => {
+                  hasFetchedRef.current = false;
+                  fetchBookings();
+                }}
+                className="text-xs text-primary hover:underline"
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : !hasActiveFilter ? (
             /* Idle state */
             <div className="py-9 flex flex-col items-center gap-1.5">
               <Search
@@ -281,17 +329,21 @@ export default function BookingSearchBar({ allBookings }: Props) {
                         {/* Avatar initial */}
                         <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors duration-150">
                           <span className="text-sm font-bold text-primary leading-none select-none">
-                            {booking.guest_name.charAt(0).toUpperCase()}
+                            {(booking.guest_name ?? "?")
+                              .charAt(0)
+                              .toUpperCase()}
                           </span>
                         </div>
 
                         {/* Info */}
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-foreground truncate">
-                            {highlight(booking.guest_name, query)}
+                            {highlight(booking.guest_name ?? "—", query)}
                           </p>
                           <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
-                            <span>{highlight(booking.channel_name, query)}</span>
+                            <span>
+                              {highlight(booking.channel_name, query)}
+                            </span>
                             <span className="text-muted-foreground/35">·</span>
                             <span className="whitespace-nowrap">
                               {formatDate(booking.check_in)} →{" "}

@@ -83,3 +83,13 @@ export interface BookingsByChannelDTO {
   channel_name: string;
   bookings: number;
 }
+
+/** Lean projection used by the search bar — 6 fields only. */
+export interface BookingSearchDTO {
+  id: number;
+  guest_name: string;
+  channel_name: string;
+  check_in: string;
+  check_out: string;
+  status: string;
+}

@@ -1,6 +1,7 @@
 import {
   BookingDatesDTO,
   BookingDTO,
+  BookingSearchDTO,
   ChannelDTO,
   CreateBookingDTO,
   UpdateBookingDTO,
@@ -31,6 +32,7 @@ export interface IBookingRepository {
   deleteBooking(id: number): Promise<void>;
   getClosestUpcomingBooking(): Promise<BookingDTO | null>;
   getAllBookings(): Promise<BookingDTO[]>;
+  getAllBookingsForSearch(): Promise<BookingSearchDTO[]>;
   getRevenueByMonthUSD(): Promise<RevenueByMonthDTO[]>;
   getBookingsByMonth(): Promise<BookingsByMonthDTO[]>;
   getBookingsByChannel(): Promise<BookingsByChannelDTO[]>;
