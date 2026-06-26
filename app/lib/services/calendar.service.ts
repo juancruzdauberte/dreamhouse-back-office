@@ -1,6 +1,67 @@
 import { google } from "googleapis";
 
-interface CreateEventParams {
+/* ── Auth helper ─────────────────────────────────────────────────── */
+
+function createAuth() {
+  return new google.auth.JWT({
+    email: process.env.GOOGLE_CLIENT_EMAIL,
+    key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+    scopes: ["https://www.googleapis.com/auth/calendar"],
+  });
+}
+
+/* ── Color mapping ───────────────────────────────────────────────── */
+
+const STATUS_COLOR: Record<string, string> = {
+  Confirmada: "2",  // Sage     🟢
+  Pendiente:  "5",  // Banana   🟡
+  Realizada:  "8",  // Graphite ⚫
+  Cancelada:  "11", // Tomato   🔴
+};
+
+function getColorId(estado: string): string {
+  return STATUS_COLOR[estado] ?? "2";
+}
+
+/* ── Description builder ─────────────────────────────────────────── */
+
+interface DescriptionParams {
+  total: number;
+  pago: number;
+  faltaPagar: number;
+  currency: "USD" | "ARS";
+  huespedes: number;
+  estado: string;
+  observations?: string | null;
+  medioDia: boolean;
+}
+
+function buildDescription({
+  total,
+  pago,
+  faltaPagar,
+  currency,
+  huespedes,
+  estado,
+  observations,
+  medioDia,
+}: DescriptionParams): string {
+  const fmt = (n: number) => `$${n.toLocaleString("es-AR")} ${currency}`;
+  const lines = [
+    `<b>TOTAL:</b>        ${fmt(total)}`,
+    `<b>PAGÓ:</b>         ${fmt(pago)}`,
+    `<b>FALTA PAGAR:</b>  ${fmt(faltaPagar)}`,
+    `<b>HUÉSPEDES:</b>    ${huespedes} ${huespedes === 1 ? "persona" : "personas"}`,
+    `<b>ESTADO:</b>       ${estado}`,
+  ];
+  if (observations) lines.push(`<b>OBS:</b>          ${observations}`);
+  if (medioDia)     lines.push(`<b>MEDIO DÍA:</b>    Sí`);
+  return lines.join("\n");
+}
+
+/* ── Types ───────────────────────────────────────────────────────── */
+
+export interface CalendarEventParams {
   nombreCliente: string;
   emailCliente?: string;
   fechaCheckIn: string;
@@ -8,76 +69,54 @@ interface CreateEventParams {
   total: number;
   pago: number;
   faltaPagar: number;
+  huespedes: number;
+  estado: string;
   medioDia: boolean;
   currency: "USD" | "ARS";
   idBooking?: number;
+  observations?: string | null;
 }
 
-export async function createGoogleCalendarEvent({
-  nombreCliente,
-  emailCliente,
-  fechaCheckIn,
-  fechaCheckOut,
-  total,
-  pago,
-  faltaPagar,
-  medioDia,
-  currency,
-  idBooking,
-}: CreateEventParams) {
+/* ── Create ──────────────────────────────────────────────────────── */
+
+export async function createGoogleCalendarEvent(
+  params: CalendarEventParams,
+): Promise<{ success: boolean; link?: string | null }> {
+  const {
+    nombreCliente,
+    emailCliente,
+    fechaCheckIn,
+    fechaCheckOut,
+    medioDia,
+    idBooking,
+    estado,
+  } = params;
+
   try {
-    const auth = new google.auth.JWT({
-      email: process.env.GOOGLE_CLIENT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-      scopes: ["https://www.googleapis.com/auth/calendar"],
-    });
-
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
-    if (!calendarId) {
-      throw new Error(
-        "GOOGLE_CALENDAR_ID is not defined in environment variables",
-      );
-    }
+    if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID no definido");
 
-    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-
-    if (!clientEmail) {
-      throw new Error(
-        "GOOGLE_CLIENT_EMAIL is not defined in environment variables",
-      );
-    }
-
-    const calendar = google.calendar({ version: "v3", auth });
-
-    const startDateTime = `${fechaCheckIn}T12:00:00`;
-    const endDateTime = medioDia
-      ? `${fechaCheckOut}T18:00:00`
-      : `${fechaCheckOut}T10:00:00`;
-
-    const description = `<b>TOTAL</b>: $${total.toLocaleString(
-      "es-AR",
-    )} ${currency}\n<b>PAGÓ</b>: $${pago.toLocaleString(
-      "es-AR",
-    )} ${currency}\n<b>FALTA PAGAR</b>: $${faltaPagar.toLocaleString(
-      "es-AR",
-    )} ${currency}${medioDia ? "\n <b>OBS</b>: Pagó medio día" : ""}`;
+    const calendar = google.calendar({ version: "v3", auth: createAuth() });
 
     const event = {
       summary: `${nombreCliente}-${idBooking}`,
-      description: description,
+      description: buildDescription(params),
+      colorId: getColorId(estado),
       start: {
-        dateTime: startDateTime,
+        dateTime: `${fechaCheckIn}T12:00:00`,
         timeZone: "America/Argentina/Buenos_Aires",
       },
       end: {
-        dateTime: endDateTime,
+        dateTime: medioDia
+          ? `${fechaCheckOut}T18:00:00`
+          : `${fechaCheckOut}T10:00:00`,
         timeZone: "America/Argentina/Buenos_Aires",
       },
       attendees: emailCliente ? [{ email: emailCliente }] : undefined,
     };
 
     const response = await calendar.events.insert({
-      calendarId: calendarId,
+      calendarId,
       requestBody: event,
     });
 
@@ -85,24 +124,17 @@ export async function createGoogleCalendarEvent({
   } catch (error: any) {
     console.error("Error creando evento en Google Calendar:", error);
 
+    // Debug: lista calendarios accesibles si el calendario no se encuentra
     if (error.code === 404 || error.response?.status === 404) {
       try {
-        const debugAuth = new google.auth.JWT({
-          email: process.env.GOOGLE_CLIENT_EMAIL,
-          key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-          scopes: ["https://www.googleapis.com/auth/calendar"],
-        });
-        const calendar = google.calendar({ version: "v3", auth: debugAuth });
-        const list = await calendar.calendarList.list();
+        const cal = google.calendar({ version: "v3", auth: createAuth() });
+        const list = await cal.calendarList.list();
         console.log(
-          "DEBUG: Service Account has access to these calendars:",
+          "DEBUG calendarios accesibles:",
           list.data.items?.map((c) => c.id),
         );
-        console.log(
-          "If your target calendar ID is not in this list, the Service Account cannot see it.",
-        );
       } catch (listError) {
-        console.error("Error trying to list calendars for debug:", listError);
+        console.error("Error listando calendarios:", listError);
       }
     }
 
@@ -110,117 +142,99 @@ export async function createGoogleCalendarEvent({
   }
 }
 
-interface UpdateEventParams {
-  oldBooking: {
-    nombreCliente: string;
-    fechaCheckIn: string | Date;
-  };
-  newBooking: CreateEventParams;
-}
+/* ── Update ──────────────────────────────────────────────────────── */
 
-export async function updateGoogleCalendarEvent({
-  newBooking,
-}: UpdateEventParams) {
+export async function updateGoogleCalendarEvent(
+  params: CalendarEventParams,
+): Promise<{ success: boolean; link?: string | null; message?: string }> {
+  const {
+    nombreCliente,
+    emailCliente,
+    fechaCheckIn,
+    fechaCheckOut,
+    medioDia,
+    idBooking,
+    estado,
+  } = params;
+
   try {
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
-    if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID missing");
+    if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID no definido");
 
-    const auth = new google.auth.JWT({
-      email: process.env.GOOGLE_CLIENT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-      scopes: ["https://www.googleapis.com/auth/calendar"],
-    });
+    const calendar = google.calendar({ version: "v3", auth: createAuth() });
 
-    const calendar = google.calendar({ version: "v3", auth });
-
+    // Buscar el evento por el id de reserva en el summary
     const listResponse = await calendar.events.list({
       calendarId,
-      q: newBooking.idBooking?.toString(),
+      q: idBooking?.toString(),
     });
 
-    const events = listResponse.data.items || [];
-    const eventToUpdate = events.find(
-      (e) => e.summary && e.summary.endsWith(`-${newBooking.idBooking}`),
+    const eventToUpdate = (listResponse.data.items ?? []).find(
+      (e) => e.summary?.endsWith(`-${idBooking}`),
     );
 
-    if (!eventToUpdate || !eventToUpdate.id) {
-      return { success: false, message: "Event not found" };
+    if (!eventToUpdate?.id) {
+      console.warn(
+        `No se encontró el evento de Google Calendar para la reserva #${idBooking}`,
+      );
+      return { success: false, message: "Evento no encontrado" };
     }
 
-    const startDateTime = `${newBooking.fechaCheckIn}T12:00:00`;
-    const endDateTime = newBooking.medioDia
-      ? `${newBooking.fechaCheckOut}T18:00:00`
-      : `${newBooking.fechaCheckOut}T10:00:00`;
-
-    const description = `<b>TOTAL</b>: $${newBooking.total.toLocaleString(
-      "es-AR",
-    )} ${newBooking.currency}\n<b>PAGÓ</b>: $${newBooking.pago.toLocaleString(
-      "es-AR",
-    )} ${
-      newBooking.currency
-    }\n<b>FALTA PAGAR</b>: $${newBooking.faltaPagar.toLocaleString("es-AR")}${
-      newBooking.currency
-    }${newBooking.medioDia ? "\n<b>OBS</b>: Pagó medio día" : ""}`;
-
     const eventPatch = {
-      summary: `${newBooking.nombreCliente}-${newBooking.idBooking}`,
-      description: description,
+      summary: `${nombreCliente}-${idBooking}`,
+      description: buildDescription(params),
+      colorId: getColorId(estado),
       start: {
-        dateTime: startDateTime,
+        dateTime: `${fechaCheckIn}T12:00:00`,
         timeZone: "America/Argentina/Buenos_Aires",
       },
       end: {
-        dateTime: endDateTime,
+        dateTime: medioDia
+          ? `${fechaCheckOut}T18:00:00`
+          : `${fechaCheckOut}T10:00:00`,
         timeZone: "America/Argentina/Buenos_Aires",
       },
-      attendees: newBooking.emailCliente
-        ? [{ email: newBooking.emailCliente }]
-        : undefined,
+      attendees: emailCliente ? [{ email: emailCliente }] : undefined,
     };
 
-    const updateResponse = await calendar.events.patch({
+    const response = await calendar.events.patch({
       calendarId,
       eventId: eventToUpdate.id,
       requestBody: eventPatch,
     });
 
-    return { success: true, link: updateResponse.data.htmlLink };
+    return { success: true, link: response.data.htmlLink };
   } catch (error: any) {
-    console.error("Error updating Google Calendar event:", error);
-    return { success: false, error: error.message };
+    console.error("Error actualizando evento en Google Calendar:", error);
+    return { success: false, message: error.message };
   }
 }
+
+/* ── Delete ──────────────────────────────────────────────────────── */
 
 export async function deleteGoogleCalendarEvent(
   idBooking: number,
 ): Promise<{ success: boolean; message?: string }> {
   try {
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
-    if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID missing");
+    if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID no definido");
 
-    const auth = new google.auth.JWT({
-      email: process.env.GOOGLE_CLIENT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-      scopes: ["https://www.googleapis.com/auth/calendar"],
-    });
-
-    const calendar = google.calendar({ version: "v3", auth });
+    const calendar = google.calendar({ version: "v3", auth: createAuth() });
 
     const listResponse = await calendar.events.list({
       calendarId,
       q: idBooking.toString(),
     });
 
-    const events = listResponse.data.items || [];
-    const eventToDelete = events.find(
-      (e) => e.summary && e.summary.endsWith(`-${idBooking}`),
+    const eventToDelete = (listResponse.data.items ?? []).find(
+      (e) => e.summary?.endsWith(`-${idBooking}`),
     );
 
-    if (!eventToDelete || !eventToDelete.id) {
+    if (!eventToDelete?.id) {
       console.warn(
         `No se encontró el evento de Google Calendar para la reserva #${idBooking}`,
       );
-      return { success: false, message: "Event not found" };
+      return { success: false, message: "Evento no encontrado" };
     }
 
     await calendar.events.delete({
@@ -230,7 +244,7 @@ export async function deleteGoogleCalendarEvent(
 
     return { success: true };
   } catch (error: any) {
-    console.error("Error eliminando evento de Google Calendar:", error);
+    console.error("Error eliminando evento en Google Calendar:", error);
     return { success: false, message: error.message };
   }
 }

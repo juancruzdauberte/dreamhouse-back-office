@@ -12,6 +12,7 @@ export interface CreateBookingDTO {
   prepayment_usd?: number | null;
   guest_phone?: string | null;
   noon?: boolean;
+  observations?: string | null;
 }
 
 export interface BookingDTO {
@@ -37,6 +38,7 @@ export interface BookingDTO {
   total_price_ars: string | null;
   guest_phone: string | null;
   noon: number;
+  observations: string | null;
 }
 
 export interface UpdateBookingDTO {
@@ -57,6 +59,7 @@ export interface UpdateBookingDTO {
   booking_state?: string;
   guest_phone?: string | null;
   noon?: boolean;
+  observations?: string | null;
 }
 
 export interface ChannelDTO {
@@ -82,4 +85,14 @@ export interface BookingsByMonthDTO {
 export interface BookingsByChannelDTO {
   channel_name: string;
   bookings: number;
+}
+
+/** Lean projection used by the search bar — 6 fields only. */
+export interface BookingSearchDTO {
+  id: number;
+  guest_name: string;
+  channel_name: string;
+  check_in: string;
+  check_out: string;
+  status: string;
 }

@@ -1,9 +1,11 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Banknote, Calendar, MessageSquare, Tag, User } from "lucide-react";
 import { createBooking } from "../lib/actions/booking.actions";
 import { FormField } from "./FormField";
 import { ReusableForm } from "./ReusableForm";
+import { BookingFormSection } from "./BookingFormSection";
 
 type BookingFormClientProps = {
   channels: Array<{ id: number; channel_name: string }>;
@@ -40,11 +42,10 @@ export function CreateBookingFormClient({
 
   const checkInDisabledRanges = useMemo(
     () =>
-      datesUnavailable.map((dateRange) => {
-        const start = parseLocalDate(dateRange.check_in);
-        const end = parseLocalDate(dateRange.check_out);
+      datesUnavailable.map((r) => {
+        const start = parseLocalDate(r.check_in);
+        const end = parseLocalDate(r.check_out);
         end.setDate(end.getDate() - 1);
-
         return { start, end };
       }),
     [datesUnavailable],
@@ -52,11 +53,10 @@ export function CreateBookingFormClient({
 
   const checkOutDisabledRanges = useMemo(
     () =>
-      datesUnavailable.map((dateRange) => {
-        const start = parseLocalDate(dateRange.check_in);
-        const end = parseLocalDate(dateRange.check_out);
+      datesUnavailable.map((r) => {
+        const start = parseLocalDate(r.check_in);
+        const end = parseLocalDate(r.check_out);
         start.setDate(start.getDate() + 1);
-
         return { start, end };
       }),
     [datesUnavailable],
@@ -65,146 +65,198 @@ export function CreateBookingFormClient({
   return (
     <ReusableForm
       action={createBooking}
-      title="Crear Rerserva"
-      submitText="Crear"
-      submitinText="Creando"
-      gridCols={3}
+      title="Nueva Reserva"
+      submitText="Crear Reserva"
+      submitinText="Creando..."
+      sections
       centered
       onSuccess={handleSuccess}
     >
-      <FormField
-        type="text"
-        name="tenant_name"
-        label="Nombre"
-        placeholder="Juan"
-        required
-      />
-
-      <FormField
-        type="select"
-        name="currency"
-        label="Moneda"
-        options={[
-          { value: "", label: "Seleccionar" },
-          { value: 1, label: "ARS" },
-          { value: 2, label: "USD" },
-        ]}
-        required
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-          setCurrency(Number(e.target.value))
-        }
-      />
-      <FormField
-        type="select"
-        name="channel_id"
-        label="Canal"
-        options={[
-          { value: "", label: "Seleccionar" },
-          ...(channels?.map((ch) => ({
-            value: ch.id,
-            label: ch.channel_name,
-          })) || []),
-        ]}
-        required
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-          setSelectedChannel(Number(e.target.value))
-        }
-      />
-      {currency === 1 ? (
+      {/* ── Huésped ── */}
+      <BookingFormSection
+        icon={<User className="h-4 w-4" />}
+        title="Huésped"
+        cols={2}
+        animationDelay={0}
+      >
         <FormField
           type="text"
-          name="booking_total_price_ars"
-          label="Precio total ARS"
+          name="tenant_name"
+          label="Nombre completo"
+          placeholder="Ej. Juan García"
           required
         />
-      ) : (
         <FormField
-          type="text"
-          name="booking_total_price_usd"
-          label="Precio total USD"
+          type="phone"
+          name="guest_phone"
+          label="Teléfono"
+          placeholder="3329305210"
+          defaultCountry="AR"
+        />
+      </BookingFormSection>
+
+      {/* ── Estadía ── */}
+      <BookingFormSection
+        icon={<Calendar className="h-4 w-4" />}
+        title="Estadía"
+        cols={3}
+        animationDelay={80}
+      >
+        <FormField
+          type="date"
+          name="check_in"
+          label="Check in"
+          disablePastDates
+          required
+          disabledRanges={checkInDisabledRanges}
+        />
+        <FormField
+          type="date"
+          name="check_out"
+          label="Check out"
+          disablePastDates
+          required
+          disabledRanges={checkOutDisabledRanges}
+        />
+        <FormField type="checkbox" name="noon" label="Medio día" />
+      </BookingFormSection>
+
+      {/* ── Financiero ── */}
+      <BookingFormSection
+        icon={<Banknote className="h-4 w-4" />}
+        title="Financiero"
+        cols={3}
+        animationDelay={160}
+      >
+        <FormField
+          type="select"
+          name="currency"
+          label="Moneda"
+          options={[
+            { value: "", label: "Seleccionar" },
+            { value: 1, label: "ARS" },
+            { value: 2, label: "USD" },
+          ]}
+          required
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setCurrency(Number(e.target.value))
+          }
+        />
+
+        <div
+          key={`price-${currency}`}
+          className="animate-in fade-in-0 duration-200"
+        >
+          {currency === 1 ? (
+            <FormField
+              type="text"
+              name="booking_total_price_ars"
+              label="Precio total ARS"
+              required
+            />
+          ) : (
+            <FormField
+              type="text"
+              name="booking_total_price_usd"
+              label="Precio total USD"
+              required
+            />
+          )}
+        </div>
+
+        <div
+          key={`prepay-${currency}`}
+          className="animate-in fade-in-0 duration-200"
+        >
+          {currency === 1 ? (
+            <FormField
+              type="text"
+              name="prepayment_ars"
+              label="Anticipo ARS"
+            />
+          ) : (
+            <FormField
+              type="text"
+              name="prepayment_usd"
+              label="Anticipo USD"
+            />
+          )}
+        </div>
+
+        {selectedChannel === 1 && (
+          <div className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
+            <FormField
+              type="text"
+              name="comission"
+              label="Comisión USD"
+              placeholder="0.00"
+            />
+          </div>
+        )}
+      </BookingFormSection>
+
+      {/* ── Reserva ── */}
+      <BookingFormSection
+        icon={<Tag className="h-4 w-4" />}
+        title="Reserva"
+        cols={3}
+        animationDelay={240}
+      >
+        <FormField
+          type="select"
+          name="channel_id"
+          label="Canal"
+          options={[
+            { value: "", label: "Seleccionar" },
+            ...(channels?.map((ch) => ({ value: ch.id, label: ch.channel_name })) ?? []),
+          ]}
+          required
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setSelectedChannel(Number(e.target.value))
+          }
+        />
+        <FormField
+          type="select"
+          name="tenant_quantity"
+          label="Cantidad de personas"
+          options={[
+            { value: "", label: "Seleccionar" },
+            ...Array.from({ length: 9 }, (_, i) => ({
+              value: String(i + 1),
+              label: String(i + 1),
+            })),
+          ]}
           required
         />
-      )}
-
-      {currency === 1 ? (
         <FormField
-          type="text"
-          name="prepayment_ars"
-          label="Precio antepago ARS"
+          type="select"
+          name="booking_adv"
+          label="Publicidad"
+          options={[
+            { value: "", label: "Seleccionar" },
+            { value: "true", label: "Sí" },
+            { value: "false", label: "No" },
+          ]}
+          required
         />
-      ) : (
+      </BookingFormSection>
+
+      {/* ── Notas ── */}
+      <BookingFormSection
+        icon={<MessageSquare className="h-4 w-4" />}
+        title="Notas"
+        cols={1}
+        animationDelay={320}
+      >
         <FormField
-          type="text"
-          name="prepayment_usd"
-          label="Precio antepago USD"
+          type="textarea"
+          name="observations"
+          label="Observaciones"
+          placeholder="Notas internas sobre la reserva, preferencias del huésped, etc."
+          rows={3}
+          maxLength={500}
         />
-      )}
-      {selectedChannel === 1 && (
-        <FormField
-          type="text"
-          name="comission"
-          label="Comisión USD"
-          placeholder="0.00"
-        />
-      )}
-      <FormField
-        type="select"
-        name="tenant_quantity"
-        label="Cantidad personas"
-        options={[
-          { value: "", label: "Seleccionar" },
-          { value: "1", label: "1" },
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-          { value: "4", label: "4" },
-          { value: "5", label: "5" },
-          { value: "6", label: "6" },
-          { value: "7", label: "7" },
-          { value: "8", label: "8" },
-          { value: "9", label: "9" },
-        ]}
-        required
-      />
-
-      <FormField
-        type="date"
-        name="check_in"
-        label="Check in"
-        disablePastDates={true}
-        required
-        disabledRanges={checkInDisabledRanges}
-      />
-
-      <FormField
-        type="date"
-        name="check_out"
-        label="Check out"
-        disablePastDates={true}
-        required
-        disabledRanges={checkOutDisabledRanges}
-      />
-
-      <FormField
-        type="select"
-        name="booking_adv"
-        label="Publicidad"
-        options={[
-          { value: "", label: "Seleccionar" },
-          { value: "true", label: "Si" },
-          { value: "false", label: "No" },
-        ]}
-        required
-      />
-
-      <FormField
-        type="phone"
-        name="guest_phone"
-        label="Telefono"
-        placeholder="3329305210"
-        defaultCountry="AR"
-      />
-
-      <FormField type="checkbox" name="noon" label="Medio Día" />
+      </BookingFormSection>
     </ReusableForm>
   );
 }
