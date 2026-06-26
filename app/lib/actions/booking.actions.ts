@@ -7,6 +7,7 @@ import { DIContainer } from "../../core/DiContainer";
 
 const { revalidatePath } = await import("next/cache");
 
+import type { CalendarEventParams } from "../services/calendar.service";
 import {
   createGoogleCalendarEvent,
   updateGoogleCalendarEvent,
@@ -61,6 +62,9 @@ export async function createBooking(
         total,
         pago,
         faltaPagar,
+        huespedes: booking.tenant_quantity,
+        estado: "Confirmada",
+        observations: booking.observations ?? null,
         medioDia: booking.noon!,
         currency: isUSD ? "USD" : "ARS",
         idBooking: bookingId,
@@ -124,37 +128,31 @@ export async function updateBooking(
 
     if (oldBooking) {
       try {
-        if (booking.booking_state === "Cancelada") {
-          // Si la reserva se cancela, eliminamos el evento del calendario
-          await deleteGoogleCalendarEvent(bookingId);
-        } else {
-          const isUSD = !!booking.booking_total_price_usd;
-          const total = isUSD
-            ? booking.booking_total_price_usd!
-            : booking.booking_total_price_ars!;
-          const pago = isUSD
-            ? booking.prepayment_usd || 0
-            : booking.prepayment_ars || 0;
-          const faltaPagar = total - pago;
+        const isUSD = !!booking.booking_total_price_usd;
+        const total = isUSD
+          ? booking.booking_total_price_usd!
+          : booking.booking_total_price_ars!;
+        const pago = isUSD
+          ? booking.prepayment_usd || 0
+          : booking.prepayment_ars || 0;
+        const faltaPagar = total - pago;
 
-          await updateGoogleCalendarEvent({
-            oldBooking: {
-              nombreCliente: oldBooking.guest_name,
-              fechaCheckIn: oldBooking.check_in,
-            },
-            newBooking: {
-              nombreCliente: booking.tenant_name || oldBooking.guest_name,
-              fechaCheckIn: booking.check_in || oldBooking.check_in,
-              fechaCheckOut: booking.check_out || oldBooking.check_out,
-              total,
-              pago,
-              faltaPagar,
-              medioDia: booking.noon!,
-              currency: isUSD ? "USD" : "ARS",
-              idBooking: bookingId,
-            },
-          });
-        }
+        const calendarParams: CalendarEventParams = {
+          nombreCliente: booking.tenant_name ?? oldBooking.guest_name,
+          fechaCheckIn: booking.check_in ?? oldBooking.check_in,
+          fechaCheckOut: booking.check_out ?? oldBooking.check_out,
+          total,
+          pago,
+          faltaPagar,
+          huespedes: booking.tenant_quantity ?? oldBooking.guest_count,
+          estado: booking.booking_state ?? oldBooking.status,
+          observations: booking.observations ?? null,
+          medioDia: booking.noon ?? false,
+          currency: isUSD ? "USD" : "ARS",
+          idBooking: bookingId,
+        };
+
+        await updateGoogleCalendarEvent(calendarParams);
       } catch (calendarError) {
         console.error(
           "Error al gestionar el evento de calendario (booking actualizado correctamente):",
