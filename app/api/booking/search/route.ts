@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { DIContainer } from "@/app/core/DiContainer";
+import { authOptions } from "../../../auth/[...nextauth]/route";
+import { DIContainer } from "../../../core/DiContainer";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
