@@ -35,19 +35,17 @@ type SelectFieldProps = BaseFieldProps & {
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
-type FieldsetProps = {
-  legend: string;
-  children: React.ReactNode;
-  className?: string;
-};
-
 type FormFieldProps = InputFieldProps | SelectFieldProps;
+
+const inputBase =
+  "w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 hover:border-border/80";
+
+const labelBase = "block text-xs font-medium text-muted-foreground mb-1.5";
 
 export function FormField(props: FormFieldProps) {
   const [dateValue, setDateValue] = useState<Date | null>(() => {
     if (props.type === "date" && props.defaultValue) {
       if (typeof props.defaultValue === "string") {
-        // Parse "YYYY-MM-DD" as local date to avoid timezone shift
         const [year, month, day] = props.defaultValue.split("-").map(Number);
         return new Date(year, month - 1, day);
       }
@@ -61,37 +59,26 @@ export function FormField(props: FormFieldProps) {
   const [phoneValue, setPhoneValue] = useState<string | undefined>(() => {
     if (props.type === "phone" && props.defaultValue) {
       const val = String(props.defaultValue);
-      if (val.startsWith("+")) {
-        return val;
-      }
-      // Try to parse legacy/local format
+      if (val.startsWith("+")) return val;
       if (props.defaultCountry) {
         try {
           const phoneNumber = parsePhoneNumber(val, props.defaultCountry);
-          if (phoneNumber && phoneNumber.isValid()) {
-            return phoneNumber.number as string;
-          }
-        } catch (error) {
-          console.warn("Failed to parse phone number:", val, error);
+          if (phoneNumber?.isValid()) return phoneNumber.number as string;
+        } catch {
+          // fall through
         }
       }
-      return val; // Return original if parsing fails (might still error in PhoneInput but better than nothing)
+      return val;
     }
     return undefined;
   });
 
-  const baseClasses = `w-full rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-2 text-sm text-gray-900 transition-all duration-200 ease-in-out placeholder:text-gray-400 focus:bg-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 hover:border-gray-300 hover:bg-white ${
-    props.readOnly ? "cursor-not-allowed opacity-75" : ""
-  }`;
-
-  const labelClasses = "block text-xs font-semibold text-gray-600 mb-1.5 ml-1";
-
   if (props.type === "select") {
     return (
-      <div className={`flex flex-col ${props.className || ""}`}>
-        <label htmlFor={props.name} className={labelClasses}>
+      <div className={`flex flex-col ${props.className ?? ""}`}>
+        <label htmlFor={props.name} className={labelBase}>
           {props.label}
-          {props.required && <span className="text-red-500 ml-1">*</span>}
+          {props.required && <span className="text-destructive ml-1">*</span>}
         </label>
         <select
           id={props.name}
@@ -99,16 +86,16 @@ export function FormField(props: FormFieldProps) {
           required={props.required}
           defaultValue={props.defaultValue}
           onChange={props.onChange}
-          className={`${baseClasses} cursor-pointer bg-white`}
+          className={`${inputBase} cursor-pointer`}
         >
           {props.placeholder && (
             <option value="" disabled>
               {props.placeholder}
             </option>
           )}
-          {props.options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
+          {props.options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
             </option>
           ))}
         </select>
@@ -117,24 +104,24 @@ export function FormField(props: FormFieldProps) {
   }
 
   if (props.type === "date") {
-    const excludeIntervals = props.disabledRanges?.map((range) => ({
-      start: new Date(range.start),
-      end: new Date(range.end),
+    const excludeIntervals = props.disabledRanges?.map((r) => ({
+      start: new Date(r.start),
+      end: new Date(r.end),
     }));
 
     return (
-      <div className={`flex flex-col ${props.className || ""}`}>
-        <label htmlFor={props.name} className={labelClasses}>
+      <div className={`flex flex-col ${props.className ?? ""}`}>
+        <label htmlFor={props.name} className={labelBase}>
           {props.label}
-          {props.required && <span className="text-red-500 ml-1">*</span>}
+          {props.required && <span className="text-destructive ml-1">*</span>}
         </label>
         <DatePicker
           selected={dateValue}
           onChange={(date: Date | null) => setDateValue(date)}
           name={props.name}
           dateFormat="yyyy-MM-dd"
-          className={baseClasses}
-          placeholderText={props.placeholder || "Seleccionar fecha"}
+          className={inputBase}
+          placeholderText={props.placeholder ?? "Seleccionar fecha"}
           excludeDateIntervals={excludeIntervals}
           required={props.required}
           minDate={props.disablePastDates ? new Date() : undefined}
@@ -146,10 +133,10 @@ export function FormField(props: FormFieldProps) {
 
   if (props.type === "phone") {
     return (
-      <div className={`flex flex-col ${props.className || ""}`}>
-        <label htmlFor={props.name} className={labelClasses}>
+      <div className={`flex flex-col ${props.className ?? ""}`}>
+        <label htmlFor={props.name} className={labelBase}>
           {props.label}
-          {props.required && <span className="text-red-500 ml-1">*</span>}
+          {props.required && <span className="text-destructive ml-1">*</span>}
         </label>
         <div className="phone-input-container">
           <PhoneInput
@@ -157,12 +144,12 @@ export function FormField(props: FormFieldProps) {
             value={phoneValue}
             onChange={setPhoneValue}
             defaultCountry={props.defaultCountry}
-            className={baseClasses}
+            className={inputBase}
             required={props.required}
             international
             countryCallingCodeEditable={false}
           />
-          <input type="hidden" name={props.name} value={phoneValue || ""} />
+          <input type="hidden" name={props.name} value={phoneValue ?? ""} />
         </div>
       </div>
     );
@@ -170,27 +157,34 @@ export function FormField(props: FormFieldProps) {
 
   if (props.type === "checkbox") {
     return (
-      <div className={`flex items-center gap-2 ${props.className || ""}`}>
-        <input
-          id={props.name}
-          type="checkbox"
-          name={props.name}
-          defaultChecked={!!props.defaultValue || props.defaultChecked}
-          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-        />
-        <label htmlFor={props.name} className="text-sm text-gray-700">
+      <div className={`flex items-center gap-3 pt-5 ${props.className ?? ""}`}>
+        <div className="relative flex items-center">
+          <input
+            id={props.name}
+            type="checkbox"
+            name={props.name}
+            defaultChecked={!!props.defaultValue || props.defaultChecked}
+            className="h-4 w-4 rounded border-border accent-primary focus:ring-2 focus:ring-primary/30 cursor-pointer"
+          />
+        </div>
+        <label
+          htmlFor={props.name}
+          className="text-sm text-foreground cursor-pointer select-none"
+        >
           {props.label}
-          {props.required && <span className="text-red-500 ml-1">*</span>}
+          {props.required && (
+            <span className="text-destructive ml-1">*</span>
+          )}
         </label>
       </div>
     );
   }
 
   return (
-    <div className={`flex flex-col ${props.className || ""}`}>
-      <label htmlFor={props.name} className={labelClasses}>
+    <div className={`flex flex-col ${props.className ?? ""}`}>
+      <label htmlFor={props.name} className={labelBase}>
         {props.label}
-        {props.required && <span className="text-red-500 ml-1">*</span>}
+        {props.required && <span className="text-destructive ml-1">*</span>}
       </label>
       <input
         id={props.name}
@@ -203,20 +197,26 @@ export function FormField(props: FormFieldProps) {
         maxLength={props.maxLength}
         title={props.title}
         readOnly={props.readOnly}
-        className={baseClasses}
+        className={`${inputBase} ${props.readOnly ? "opacity-60 cursor-not-allowed" : ""}`}
       />
     </div>
   );
 }
 
-export function FormFieldset({ legend, children, className }: FieldsetProps) {
+export function FormFieldset({
+  legend,
+  children,
+  className,
+}: {
+  legend: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <fieldset
-      className={`rounded-lg border border-gray-200 p-4 bg-gray-50/30 ${
-        className || ""
-      }`}
+      className={`rounded-xl border border-border p-4 bg-muted/20 ${className ?? ""}`}
     >
-      <legend className="px-2 text-sm font-semibold text-indigo-800">
+      <legend className="px-2 text-sm font-semibold text-foreground">
         {legend}
       </legend>
       <div className="mt-3 flex flex-col gap-3">{children}</div>
