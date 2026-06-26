@@ -9,7 +9,7 @@ interface Props {
   checkIn: string;
   checkOut: string;
   nights: number;
-  noon: boolean;
+  noon: number;
   delay?: number;
 }
 
@@ -109,22 +109,29 @@ export default function StayTimeline({
       {/* Datos de estadía */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div>
-          <p className="text-xs font-medium text-muted-foreground mb-0.5">Check-in</p>
+          <p className="text-xs font-medium text-muted-foreground mb-0.5">
+            Check-in
+          </p>
           <p className="text-sm font-semibold text-foreground">{checkIn}</p>
         </div>
         <div>
-          <p className="text-xs font-medium text-muted-foreground mb-0.5">Check-out</p>
+          <p className="text-xs font-medium text-muted-foreground mb-0.5">
+            Check-out
+          </p>
           <p className="text-sm font-semibold text-foreground">{checkOut}</p>
         </div>
         <div>
-          <p className="text-xs font-medium text-muted-foreground mb-0.5">Noches</p>
+          <p className="text-xs font-medium text-muted-foreground mb-0.5">
+            Noches
+          </p>
           <p className="text-sm font-semibold text-primary">
-            {displayedNights}{" "}
-            {nights === 1 ? "noche" : "noches"}
+            {displayedNights} {nights === 1 ? "noche" : "noches"}
           </p>
         </div>
         <div>
-          <p className="text-xs font-medium text-muted-foreground mb-0.5">Medio día</p>
+          <p className="text-xs font-medium text-muted-foreground mb-0.5">
+            Medio día
+          </p>
           <span
             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
               noon
