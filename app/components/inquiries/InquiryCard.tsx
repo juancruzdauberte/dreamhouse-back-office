@@ -45,7 +45,21 @@ export default function InquiryCard({
 }: InquiryCardProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const whatsappUrl = toWhatsAppUrl(inquiry.telefono);
+  // WhatsApp pre-filled message
+  const primerNombre = inquiry.nombre.split(" ")[0];
+  const fmtDate = (d: Date | null): string => {
+    if (!d) return "?";
+    const day = d.getUTCDate().toString().padStart(2, "0");
+    const month = (d.getUTCMonth() + 1).toString().padStart(2, "0");
+    return `${day}/${month}`;
+  };
+  const wppMsg =
+    `Hola ${primerNombre}! Te habla Juan el chico que maneja las consultas de ` +
+    `Dreamhouse Baradero. Recibimos tu consulta del ${fmtDate(inquiry.fechaIngreso)} ` +
+    `al ${fmtDate(inquiry.fechaSalida)}. El valor de la estadía sería de $[PRECIO] USD. ` +
+    `Para la reserva se abona el 30% de la estadía. ` +
+    `Check in a partir de las 12:00 del mediodía. Check out a las 10:00 de la mañana.`;
+  const whatsappUrl = `${toWhatsAppUrl(inquiry.telefono)}?text=${encodeURIComponent(wppMsg)}`;
   const mailtoUrl = `mailto:${inquiry.email}`;
 
   const nights =
@@ -69,6 +83,9 @@ export default function InquiryCard({
         <div className="flex-1 min-w-0 space-y-1.5">
           {/* Name + badge + date */}
           <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white leading-none tracking-wide">
+              CABAÑAS.COM
+            </span>
             <h2 className="font-semibold text-sm">{inquiry.nombre}</h2>
             {isNew && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white leading-none tracking-wide">
