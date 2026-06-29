@@ -94,14 +94,15 @@ export default async function BookingDetailPage({ params }: Props) {
     day: "2-digit",
     month: "long",
     year: "numeric",
+    timeZone: "UTC",
   });
   const checkInFormatted = new Date(booking.check_in).toLocaleDateString(
     "es-AR",
-    { day: "2-digit", month: "long", year: "numeric" },
+    { day: "2-digit", month: "long", year: "numeric", timeZone: "UTC" },
   );
   const checkOutFormatted = new Date(booking.check_out).toLocaleDateString(
     "es-AR",
-    { day: "2-digit", month: "long", year: "numeric" },
+    { day: "2-digit", month: "long", year: "numeric", timeZone: "UTC" },
   );
 
   return (
