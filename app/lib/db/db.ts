@@ -12,4 +12,5 @@ export const pool: mysql.Pool = mysql.createPool({
   connectTimeout: 20000,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
+  dateStrings: true,
 });

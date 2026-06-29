@@ -79,12 +79,14 @@ export default async function BookingsPage({
                   {hasClosestBooking && closestBooking?.check_in
                     ? new Date(closestBooking.check_in).toLocaleDateString(
                         "es-AR",
+                        { timeZone: "UTC" },
                       )
                     : "-"}{" "}
                   -{" "}
                   {hasClosestBooking && closestBooking?.check_out
                     ? new Date(closestBooking.check_out).toLocaleDateString(
                         "es-AR",
+                        { timeZone: "UTC" },
                       )
                     : "-"}
                 </p>

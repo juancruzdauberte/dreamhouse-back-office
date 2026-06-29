@@ -213,8 +213,8 @@ function parseSpanishDate(str: string): Date | null {
   if (!m) return null;
   const month = MESES[m[2].toLowerCase()];
   if (month === undefined) return null;
-  const d = new Date(parseInt(m[3], 10), month, parseInt(m[1], 10));
-  return isNaN(d.getTime()) ? null : d;
+  const ts = Date.UTC(parseInt(m[3], 10), month, parseInt(m[1], 10));
+  return isNaN(ts) ? null : new Date(ts);
 }
 
 const BOOKING_ADMIN_URL =
