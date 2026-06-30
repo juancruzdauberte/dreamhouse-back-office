@@ -7,9 +7,11 @@ import {
   Users,
   ChevronDown,
   MessageSquare,
+  AlertTriangle,
+  Phone,
 } from "lucide-react";
 import type { VisitorInquiry } from "../../lib/services/inquiry.types";
-import { toWhatsAppUrl } from "../../lib/services/inquiry.types";
+import { toWhatsAppUrl, normalizeArgPhone } from "../../lib/services/inquiry.types";
 
 function WhatsAppIcon({ size = 14 }: { size?: number }) {
   return (
@@ -45,6 +47,8 @@ export default function InquiryCard({
   isNew = false,
 }: InquiryCardProps) {
   const [expanded, setExpanded] = useState(false);
+
+  const phone = normalizeArgPhone(inquiry.telefono);
 
   // WhatsApp pre-filled message
   const primerNombre = inquiry.nombre.split(" ")[0];
@@ -121,17 +125,32 @@ export default function InquiryCard({
 
         {/* ── Actions ─────────────────────────────────────────── */}
         <div className="flex items-center gap-2 shrink-0">
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`WhatsApp a ${inquiry.nombre}`}
-            title={inquiry.telefono}
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#25D366] text-white text-xs font-medium hover:opacity-85 transition-opacity"
-          >
-            <WhatsAppIcon size={14} />
-          </a>
+          {phone.valid ? (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`WhatsApp a ${inquiry.nombre}`}
+              title={phone.display}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white text-xs font-medium hover:opacity-85 transition-opacity"
+            >
+              <WhatsAppIcon size={14} />
+              <span className="hidden sm:inline">{phone.display}</span>
+            </a>
+          ) : (
+            <div
+              title={`Teléfono no reconocido: ${inquiry.telefono}`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-medium cursor-default"
+            >
+              <AlertTriangle size={13} aria-hidden="true" />
+              <span className="hidden sm:inline max-w-[120px] truncate">
+                {inquiry.telefono || "Sin teléfono"}
+              </span>
+              <Phone size={12} aria-hidden="true" className="sm:hidden" />
+            </div>
+          )}
           <a
             href={mailtoUrl}
             aria-label={`Email a ${inquiry.nombre}`}
