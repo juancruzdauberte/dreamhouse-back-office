@@ -1,0 +1,37 @@
+{
+  "runId": "5788fc17",
+  "agent": "sdd-spec",
+  "task": "Write the SDD spec for the change: **github-actions-ci**\n\n## Active Change\n- **Name**: github-actions-ci\n- **Type**: DevOps / Infrastructure\n- **Artifact store**: openspec\n- **Output path**: openspec/github-actions-ci/spec.md\n- **Project root**: /mnt/c/Users/juanc/Desktop/dreamhouse/back-office\n\n## Proposal (already approved)\nLocated at: openspec/github-actions-ci/proposal.md\n\nSummary:\n- Configure a GitHub Actions CI pipeline that runs `lint` and `build` on every push and PR\n- Pre-condition: fix 8 existing `no-explicit-any` lint errors across 6 files before the pipeline activates\n- Trigger: push to all branches + PR to main\n- Lint: warn only (continue-on-error: true)\n- Build: uses real GitHub Secrets\n- Node: 22\n- Badge in README: yes\n\n## Files with known lint errors (confirm exact lines by reading them)\n- app/api/event/route.ts — lines 38, 90\n- app/api/inquiries/diag-airbnb/route.ts — line 27\n- app/api/test-calendar/route.ts — line 8\n- app/api/test-db/route.ts — lines TBD (read and confirm)\n- app/lib/repository/booking/booking.repository.ts — line 21\n- app/lib/services/calendar.service.ts — lines 124, 207, 246\n\n## Spec requirements\n1. Read each file with a known lint error and confirm the exact lines, types, and context (what the `any` represents — is it a real type or a quick debug route?)\n2. For each `any`, specify the correct fix: proper type, `unknown` + narrowing, or justified `// eslint-disable-next-line @typescript-eslint/no-explicit-any` with reason.\n3. Read `next.config.ts` (or `next.config.js`) to check whether any env vars are used at build time (would cause CI build failure if secret is missing).\n4. Write FR (Functional Requirements) and scenarios covering:\n   - FR-1: CI trigger (push + PR conditions)\n   - FR-2: Lint job requirements\n   - FR-3: Build job requirements (env, secrets, dependency on lint)\n   - FR-4: Lint baseline cleanup — one sub-requirement per file\n   - FR-5: Badge in README\n   - FR-6: GOOGLE_PRIVATE_KEY multiline handling\n5. Include edge cases: what happens if lint fails (build must still run), build-time env var gaps.\n6. Output the spec to openspec/github-actions-ci/spec.md\n\n## Output format (Result Contract)\nReturn:\n- status: success | partial | failed\n- executive_summary: 2-3 sentences\n- artifacts: [{ path, description }]\n- next_recommended: sdd-design\n- risks: list\n- skill_resolution: paths-injected | none",
+  "exitCode": 0,
+  "usage": {
+    "input": 5,
+    "output": 440,
+    "cacheRead": 14174,
+    "cacheWrite": 7378,
+    "cost": 0.038534700000000005,
+    "turns": 3
+  },
+  "model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6:medium",
+  "attemptedModels": [
+    "amazon-bedrock/us.anthropic.claude-sonnet-4-6:medium"
+  ],
+  "modelAttempts": [
+    {
+      "model": "amazon-bedrock/us.anthropic.claude-sonnet-4-6:medium",
+      "success": true,
+      "exitCode": 0,
+      "usage": {
+        "input": 5,
+        "output": 440,
+        "cacheRead": 14174,
+        "cacheWrite": 7378,
+        "cost": 0.038534700000000005,
+        "turns": 3
+      }
+    }
+  ],
+  "durationMs": 21621,
+  "toolCount": 3,
+  "transcriptPath": "/mnt/c/Users/juanc/Desktop/dreamhouse/back-office/.pi-subagents/artifacts/5788fc17_sdd-spec_0_transcript.jsonl",
+  "timestamp": 1783464117546
+}

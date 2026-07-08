@@ -1,5 +1,7 @@
 # 🏡 Dreamhouse Back-Office
 
+[![CI](https://github.com/juancruzdauberte/dreamhouse-back-office/actions/workflows/ci.yml/badge.svg)](https://github.com/juancruzdauberte/dreamhouse-back-office/actions/workflows/ci.yml)
+
 Un sistema de gestión "back-office" robusto y moderno construido con **Next.js 16**, diseñado para optimizar las reservas de propiedades, gestionar ocupaciones y manejar tareas administrativas con eficiencia y estilo.
 
 Este proyecto demuestra una arquitectura full-stack escalable utilizando **App Router**, **Server Actions** y un estricto **Patrón Repositorio (Repository Pattern)** para el acceso a datos, asegurando la separación de responsabilidades y la seguridad de tipos.

@@ -34,7 +34,13 @@ export async function GET(): Promise<NextResponse> {
 
     // Inspect last 10 emails, show ALL of them
     const sample = uids.slice(-10);
-    const results: object[] = [];
+    type DiagResult = {
+      uid: number;
+      subject: string;
+      isRTB: boolean;
+      [key: string]: unknown;
+    };
+    const results: DiagResult[] = [];
 
     for await (const msg of client.fetch(
       sample,
@@ -87,7 +93,7 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json({
       totalAirbnbEmails: uids.length,
       inspecting: sample.length,
-      rtbCount: results.filter((r: any) => r.isRTB).length,
+      rtbCount: results.filter((r) => r.isRTB).length,
       results,
     });
   } finally {

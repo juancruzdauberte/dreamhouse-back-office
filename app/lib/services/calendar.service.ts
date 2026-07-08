@@ -121,11 +121,12 @@ export async function createGoogleCalendarEvent(
     });
 
     return { success: true, link: response.data.htmlLink };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { code?: number; response?: { status?: number }; message?: string };
     console.error("Error creando evento en Google Calendar:", error);
 
     // Debug: lista calendarios accesibles si el calendario no se encuentra
-    if (error.code === 404 || error.response?.status === 404) {
+    if (err.code === 404 || err.response?.status === 404) {
       try {
         const cal = google.calendar({ version: "v3", auth: createAuth() });
         const list = await cal.calendarList.list();
@@ -138,7 +139,7 @@ export async function createGoogleCalendarEvent(
       }
     }
 
-    throw new Error(error.message || "Error creando evento");
+    throw new Error(err.message ?? "Error creando evento");
   }
 }
 
@@ -204,9 +205,10 @@ export async function updateGoogleCalendarEvent(
     });
 
     return { success: true, link: response.data.htmlLink };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error("Error actualizando evento en Google Calendar:", error);
-    return { success: false, message: error.message };
+    return { success: false, message };
   }
 }
 
@@ -243,8 +245,9 @@ export async function deleteGoogleCalendarEvent(
     });
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error("Error eliminando evento en Google Calendar:", error);
-    return { success: false, message: error.message };
+    return { success: false, message };
   }
 }

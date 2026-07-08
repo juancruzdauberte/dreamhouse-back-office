@@ -1,0 +1,7 @@
+project: dreamhouse-back-office
+stack: Next.js 16 / React 19 / TypeScript / MySQL
+artifact_store: openspec
+execution_mode: interactive
+review_budget_lines: 400
+chained_pr_strategy: auto-forecast
+strict_tdd: false

@@ -1,4 +1,4 @@
-import { RowDataPacket } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { pool } from "../../db/db";
 import {
   BookingDatesDTO,
@@ -18,7 +18,7 @@ export class BookingRepository implements IBookingRepository {
     try {
       const fechaActual = new Date();
 
-      const [result] = await pool.execute<any>(
+      const [result] = await pool.execute<ResultSetHeader>(
         "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, comision_canal_usd, pago_anticipo_ars, precio_total_cotizado_ars, monto_anticipo_usd, tel_huesped, medio_dia, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           fechaActual,
