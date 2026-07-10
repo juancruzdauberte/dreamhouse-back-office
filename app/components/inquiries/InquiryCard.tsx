@@ -63,7 +63,8 @@ export default function InquiryCard({
     `Dreamhouse Baradero. Recibimos tu consulta del ${fmtDate(inquiry.fechaIngreso)} ` +
     `al ${fmtDate(inquiry.fechaSalida)}. El valor de la estadía sería de $[PRECIO] USD. ` +
     `Para la reserva se abona el 30% de la estadía. ` +
-    `Check in a partir de las 12:00 del mediodía. Check out a las 10:00 de la mañana.`;
+    `Check in a partir de las 12:00 del mediodía. Check out a las 10:00 de la mañana. ` +
+        `Para ver imágenes, políticas y más información podés visitar nuestra web: dreamhousebaradero.com`;
   const whatsappUrl = `${toWhatsAppUrl(inquiry.telefono)}?text=${encodeURIComponent(wppMsg)}`;
   const mailtoUrl = `mailto:${inquiry.email}`;
 
