@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Banknote, Calendar, MessageSquare, Tag, User } from "lucide-react";
 import { createBooking } from "../lib/actions/booking.actions";
 import { FormField } from "./FormField";
+import { PriceInput } from "./PriceInput";
 import { ReusableForm } from "./ReusableForm";
 import { BookingFormSection } from "./BookingFormSection";
 
@@ -148,17 +149,17 @@ export function CreateBookingFormClient({
           className="animate-in fade-in-0 duration-200"
         >
           {currency === 1 ? (
-            <FormField
-              type="text"
+            <PriceInput
               name="booking_total_price_ars"
               label="Precio total ARS"
+              currency="ARS"
               required
             />
           ) : (
-            <FormField
-              type="text"
+            <PriceInput
               name="booking_total_price_usd"
               label="Precio total USD"
+              currency="USD"
               required
             />
           )}
@@ -169,16 +170,16 @@ export function CreateBookingFormClient({
           className="animate-in fade-in-0 duration-200"
         >
           {currency === 1 ? (
-            <FormField
-              type="text"
+            <PriceInput
               name="prepayment_ars"
               label="Anticipo ARS"
+              currency="ARS"
             />
           ) : (
-            <FormField
-              type="text"
+            <PriceInput
               name="prepayment_usd"
               label="Anticipo USD"
+              currency="USD"
             />
           )}
         </div>
@@ -208,7 +209,10 @@ export function CreateBookingFormClient({
           label="Canal"
           options={[
             { value: "", label: "Seleccionar" },
-            ...(channels?.map((ch) => ({ value: ch.id, label: ch.channel_name })) ?? []),
+            ...(channels?.map((ch) => ({
+              value: ch.id,
+              label: ch.channel_name,
+            })) ?? []),
           ]}
           required
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>

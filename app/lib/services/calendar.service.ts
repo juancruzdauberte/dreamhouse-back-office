@@ -1,5 +1,11 @@
 import { google } from "googleapis";
 
+/* ── Feature flag ───────────────────────────────────────────────── */
+
+function isCalendarEnabled(): boolean {
+  return process.env.CALENDAR_ENABLED === "true";
+}
+
 /* ── Auth helper ─────────────────────────────────────────────────── */
 
 function createAuth() {
@@ -82,6 +88,11 @@ export interface CalendarEventParams {
 export async function createGoogleCalendarEvent(
   params: CalendarEventParams,
 ): Promise<{ success: boolean; link?: string | null }> {
+  if (!isCalendarEnabled()) {
+    console.log("[Calendar] disabled in this environment — skipping createGoogleCalendarEvent");
+    return { success: true };
+  }
+
   const {
     nombreCliente,
     emailCliente,
@@ -148,6 +159,11 @@ export async function createGoogleCalendarEvent(
 export async function updateGoogleCalendarEvent(
   params: CalendarEventParams,
 ): Promise<{ success: boolean; link?: string | null; message?: string }> {
+  if (!isCalendarEnabled()) {
+    console.log("[Calendar] disabled in this environment — skipping updateGoogleCalendarEvent");
+    return { success: true };
+  }
+
   const {
     nombreCliente,
     emailCliente,
@@ -217,6 +233,10 @@ export async function updateGoogleCalendarEvent(
 export async function deleteGoogleCalendarEvent(
   idBooking: number,
 ): Promise<{ success: boolean; message?: string }> {
+  if (!isCalendarEnabled()) {
+    console.log(`[Calendar] disabled in this environment — skipping deleteGoogleCalendarEvent #${idBooking}`);
+    return { success: true };
+  }
   try {
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID no definido");

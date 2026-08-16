@@ -3,10 +3,12 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Banknote, Calendar, MessageSquare, Tag, User } from "lucide-react";
 import { FormField } from "./FormField";
+import { PriceInput } from "./PriceInput";
 import { ReusableForm } from "./ReusableForm";
 import { BookingFormSection } from "./BookingFormSection";
 import { updateBooking } from "../lib/actions/booking.actions";
 import { BookingDTO } from "../lib/repository/booking/booking.dto";
+
 
 type BookingFormClientProps = {
   channels: Array<{ id: number; channel_name: string }>;
@@ -24,6 +26,7 @@ export default function UpdateBookingFormClient({
   const [currency, setCurrency] = useState<number>(
     parseFloat(booking.total_price_usd || "0") > 0 ? 2 : 1,
   );
+
 
   const bookingChannelId = useMemo(
     () =>
@@ -196,19 +199,19 @@ export default function UpdateBookingFormClient({
           className="animate-in fade-in-0 duration-200"
         >
           {currency === 1 ? (
-            <FormField
-              type="text"
+            <PriceInput
               name="booking_total_price_ars"
               label="Precio total ARS"
-              defaultValue={booking.total_price_ars ?? ""}
+              currency="ARS"
+              defaultValue={booking.total_price_ars}
               required
             />
           ) : (
-            <FormField
-              type="text"
+            <PriceInput
               name="booking_total_price_usd"
               label="Precio total USD"
-              defaultValue={booking.total_price_usd ?? ""}
+              currency="USD"
+              defaultValue={booking.total_price_usd}
               required
             />
           )}
@@ -219,20 +222,18 @@ export default function UpdateBookingFormClient({
           className="animate-in fade-in-0 duration-200"
         >
           {currency === 1 ? (
-            <FormField
-              type="text"
+            <PriceInput
               name="prepayment_ars"
               label="Anticipo ARS"
-              placeholder="0.00"
-              defaultValue={booking.deposit_payment_ars ?? ""}
+              currency="ARS"
+              defaultValue={booking.deposit_payment_ars}
             />
           ) : (
-            <FormField
-              type="text"
+            <PriceInput
               name="prepayment_usd"
               label="Anticipo USD"
-              placeholder="0.00"
-              defaultValue={booking.deposit_amount_usd ?? ""}
+              currency="USD"
+              defaultValue={booking.deposit_amount_usd}
             />
           )}
         </div>
@@ -242,21 +243,19 @@ export default function UpdateBookingFormClient({
           className="animate-in fade-in-0 duration-200"
         >
           {currency === 1 ? (
-            <FormField
-              type="text"
+            <PriceInput
               name="balancepayment_ars"
               label="Saldo ARS"
-              placeholder="0.00"
-              defaultValue={booking.balance_payment_ars ?? ""}
+              currency="ARS"
+              defaultValue={booking.balance_payment_ars}
               readOnly
             />
           ) : (
-            <FormField
-              type="text"
+            <PriceInput
               name="balancepayment_usd"
               label="Saldo USD"
-              placeholder="0.00"
-              defaultValue={booking.balance_amount_usd ?? ""}
+              currency="USD"
+              defaultValue={booking.balance_amount_usd}
               readOnly
             />
           )}

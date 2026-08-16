@@ -148,6 +148,7 @@ export function FormField(props: FormFieldProps) {
           required={props.required}
           minDate={props.disablePastDates ? new Date() : undefined}
           autoComplete="off"
+        portalId="datepicker-portal"
         />
       </div>
     );
