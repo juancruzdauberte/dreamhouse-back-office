@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RefreshCw, Sparkles } from "lucide-react";
 import type {
   VisitorInquiry,
@@ -128,12 +128,41 @@ export default function InquiryDashboard() {
   });
   const [errorMsg, setErrorMsg] = useState<string>("");
 
-  async function handleSync() {
+  const PAGE_SIZE = 10;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const visibleItems = items.slice(0, visibleCount);
+  const hasMore = visibleCount < items.length;
+
+  useEffect(() => {
+    handleSync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!hasMore || !sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, items.length));
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, items.length, PAGE_SIZE]);
+
+  async function handleSync(force = false) {
     setState("loading");
     setErrorMsg("");
 
     try {
-      const res = await fetch("/api/inquiries");
+      const url = force ? "/api/inquiries?force=true" : "/api/inquiries";
+      const res = await fetch(url);
       const data = (await res.json()) as {
         visitorInquiries?: RawVisitorInquiry[];
         bookingInquiries?: RawBookingInquiry[];
@@ -185,6 +214,7 @@ export default function InquiryDashboard() {
       ].sort((a, b) => inquiryDate(b) - inquiryDate(a));
 
       setItems(merged);
+      setVisibleCount(PAGE_SIZE);
       setState("loaded");
     } catch {
       setErrorMsg("No se pudo conectar con el servidor.");
@@ -196,30 +226,30 @@ export default function InquiryDashboard() {
     newUids.visitor.size + newUids.booking.size + newUids.airbnb.size;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Consultas</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Cabañas.com, Booking.com y Airbnb — en un solo lugar
+          <h1 className="text-lg font-semibold tracking-tight">Consultas</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Cabañas.com · Booking.com · Airbnb
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           {state === "loaded" && totalNew > 0 && (
-            <span className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600">
-              <Sparkles size={12} aria-hidden="true" />
+            <span className="flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-600">
+              <Sparkles size={11} aria-hidden="true" />
               {totalNew} nuevo{totalNew !== 1 ? "s" : ""}
             </span>
           )}
           <button
-            onClick={handleSync}
+            onClick={() => handleSync(true)}
             disabled={state === "loading"}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw
-              size={16}
+              size={14}
               className={state === "loading" ? "animate-spin" : ""}
               aria-hidden="true"
             />
@@ -252,7 +282,7 @@ export default function InquiryDashboard() {
 
       {state === "loaded" && items.length > 0 && (
         <div className="flex flex-col gap-2">
-          {items.map((item) =>
+          {visibleItems.map((item) =>
             item.kind === "visitor" ? (
               <InquiryCard
                 key={`v-${item.data.uid}`}
@@ -272,6 +302,9 @@ export default function InquiryDashboard() {
                 isNew={newUids.airbnb.has(item.data.uid)}
               />
             ),
+          )}
+          {hasMore && (
+            <div ref={sentinelRef} className="h-4" aria-hidden="true" />
           )}
         </div>
       )}

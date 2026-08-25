@@ -84,7 +84,7 @@ export default function InquiryCard({
       }`}
     >
       {/* ── Main row ───────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 px-5 py-4">
+      <div className="flex items-center gap-3 px-4 py-3">
         {/* Info */}
         <div className="flex-1 min-w-0 space-y-1.5">
           {/* Name + badge + date */}
@@ -134,22 +134,17 @@ export default function InquiryCard({
               aria-label={`WhatsApp a ${inquiry.nombre}`}
               title={phone.display}
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white text-xs font-medium hover:opacity-85 transition-opacity"
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#25D366] text-white hover:opacity-85 transition-opacity"
             >
-              <WhatsAppIcon size={14} />
-              <span className="hidden sm:inline">{phone.display}</span>
+              <WhatsAppIcon size={16} />
             </a>
           ) : (
             <div
               title={`Teléfono no reconocido: ${inquiry.telefono}`}
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-xs font-medium cursor-default"
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-700 cursor-default"
             >
-              <AlertTriangle size={13} aria-hidden="true" />
-              <span className="hidden sm:inline max-w-[120px] truncate">
-                {inquiry.telefono || "Sin teléfono"}
-              </span>
-              <Phone size={12} aria-hidden="true" className="sm:hidden" />
+              <AlertTriangle size={14} aria-hidden="true" />
             </div>
           )}
           <a
@@ -157,7 +152,7 @@ export default function InquiryCard({
             aria-label={`Email a ${inquiry.nombre}`}
             title={inquiry.email}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border text-xs font-medium hover:bg-accent/60 transition-colors max-w-[180px] truncate"
+            className="flex items-center justify-center w-8 h-8 rounded-lg border border-border hover:bg-accent/60 transition-colors"
           >
             <Mail size={13} aria-hidden="true" />
           </a>

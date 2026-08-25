@@ -39,7 +39,7 @@ export default function BookingInquiryCard({
       }`}
     >
       {/* ── Main row ───────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 px-5 py-4">
+      <div className="flex items-center gap-3 px-4 py-3">
         {/* Info */}
         <div className="flex-1 min-w-0 space-y-1.5">
           {/* Source badge + new badge + date */}
@@ -96,10 +96,9 @@ export default function BookingInquiryCard({
             rel="noopener noreferrer"
             aria-label="Ver consulta en Booking.com"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#003580] text-white text-xs font-medium hover:opacity-85 transition-opacity"
+            className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#003580] text-white hover:opacity-85 transition-opacity"
           >
-            <ExternalLink size={13} aria-hidden="true" />
-            Ver en Booking
+            <ExternalLink size={14} aria-hidden="true" />
           </a>
           <ChevronDown
             size={16}

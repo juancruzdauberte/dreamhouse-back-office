@@ -3,6 +3,7 @@ import { DIContainer } from "../core/DiContainer";
 import Link from "next/link";
 import CalendarComponent from "../components/CalendarComponent";
 import BookingSearchBar from "../components/BookingSearchBar";
+import InquiryDashboard from "../components/inquiries/InquiryDashboard";
 
 export default async function BookingsPage({
   searchParams,
@@ -106,12 +107,17 @@ export default async function BookingsPage({
           </div>
         </div>
 
-        <div className="mb-8">
-          <CalendarComponent
-            bookings={calendarBookings}
-            initialDate={startDate}
-          />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6 mb-8">
+              <div className="min-w-0">
+                <InquiryDashboard />
+              </div>
+              <div className="min-w-0">
+                <CalendarComponent
+                  bookings={calendarBookings}
+                  initialDate={startDate}
+                />
+              </div>
+            </div>
       </div>
     </div>
   );

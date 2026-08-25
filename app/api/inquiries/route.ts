@@ -3,13 +3,53 @@ import {
   fetchBookingInquiries,
   fetchAirbnbInquiries,
 } from "../../lib/services/email-inquiry.service";
+import type {
+  VisitorInquiry,
+  BookingInquiry,
+  AirbnbInquiry,
+} from "../../lib/services/inquiry.types";
 import { NextResponse } from "next/server";
 
-export async function GET(): Promise<NextResponse> {
+// ── In-memory cache ────────────────────────────────────────────────────────
+
+interface CacheEntry {
+  visitorInquiries: VisitorInquiry[];
+  bookingInquiries: BookingInquiry[];
+  airbnbInquiries: AirbnbInquiry[];
+  expiresAt: number;
+}
+
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+let inquiriesCache: CacheEntry | null = null;
+
+export async function GET(req: Request): Promise<NextResponse> {
+  const { searchParams } = new URL(req.url);
+  const force = searchParams.get("force") === "true";
+
+  if (!force && inquiriesCache && Date.now() < inquiriesCache.expiresAt) {
+    const { visitorInquiries, bookingInquiries, airbnbInquiries } = inquiriesCache;
+    return NextResponse.json({
+      visitorInquiries,
+      bookingInquiries,
+      airbnbInquiries,
+      count: visitorInquiries.length + bookingInquiries.length + airbnbInquiries.length,
+    });
+  }
+
   try {
-    const visitorInquiries = await fetchEmailInquiries();
-    const bookingInquiries = await fetchBookingInquiries();
-    const airbnbInquiries = await fetchAirbnbInquiries();
+    const [visitorInquiries, bookingInquiries, airbnbInquiries] =
+      await Promise.all([
+        fetchEmailInquiries(),
+        fetchBookingInquiries(),
+        fetchAirbnbInquiries(),
+      ]);
+
+    inquiriesCache = {
+      visitorInquiries,
+      bookingInquiries,
+      airbnbInquiries,
+      expiresAt: Date.now() + CACHE_TTL_MS,
+    };
 
     return NextResponse.json({
       visitorInquiries,
