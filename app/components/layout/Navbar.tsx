@@ -2,11 +2,10 @@
 
 import {
   LogOut,
-  Calendar,
   LinkIcon,
   CalendarPlus2,
   ChartNoAxesCombined,
-  Mail,
+  House,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -59,12 +58,10 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
               }`}
             >
               <div className="shrink-0">
-                <Image
-                  src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
-                  className="object-cover border border-border rounded-full"
-                  width={40}
-                  height={40}
-                  alt="Dreamhouse Logo"
+                <House
+                  size={40}
+                  className="text-foreground"
+                  aria-label="Dreamhouse"
                 />
               </div>
 
@@ -220,8 +217,8 @@ const Navbar = ({ children }: { children: ReactNode }) => {
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar>
         <SidebarItem
-          icon={<Calendar size={20} />}
-          text="Ver Reservas"
+          icon={<House size={20} />}
+          text="Home"
           href="/"
         />
         <SidebarItem
@@ -233,12 +230,6 @@ const Navbar = ({ children }: { children: ReactNode }) => {
           icon={<CalendarPlus2 size={20} />}
           text="Crear Reserva"
           href="/bookings/create"
-        />
-
-        <SidebarItem
-          icon={<Mail size={20} />}
-          text="Consultas"
-          href="/inquiries"
         />
 
         <div className="my-2 border-t border-border/80 mx-2" />

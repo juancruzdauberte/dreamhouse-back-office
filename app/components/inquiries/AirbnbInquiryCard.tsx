@@ -58,7 +58,7 @@ export default function AirbnbInquiryCard({
       }`}
     >
       {/* ── Main row ───────────────────────────────────────────── */}
-      <div className="flex items-center gap-4 px-5 py-4">
+      <div className="flex items-center gap-3 px-4 py-3">
         {/* Info */}
         <div className="flex-1 min-w-0 space-y-1.5">
           {/* Source badge + name + new + date */}
@@ -114,10 +114,9 @@ export default function AirbnbInquiryCard({
             rel="noopener noreferrer"
             aria-label={`Ver solicitud de ${inquiry.nombreHuesped} en Airbnb`}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FF385C] text-white text-xs font-medium hover:opacity-85 transition-opacity"
+            className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FF385C] text-white hover:opacity-85 transition-opacity"
           >
-            <ExternalLink size={13} aria-hidden="true" />
-            Ver en Airbnb
+            <ExternalLink size={14} aria-hidden="true" />
           </a>
           <ChevronDown
             size={16}
