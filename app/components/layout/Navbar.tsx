@@ -57,11 +57,12 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
                 expanded ? "justify-start px-6 gap-4" : "justify-center"
               }`}
             >
-              <div className="shrink-0">
-                <House
-                  size={40}
-                  className="text-foreground"
-                  aria-label="Dreamhouse"
+              <div className="shrink-0 border border-border/80 rounded-full bg-background">
+                <Image
+                  src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
+                  alt="Dreamhouse"
+                  width={60}
+                  height={60}
                 />
               </div>
 
@@ -216,11 +217,7 @@ const Navbar = ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar>
-        <SidebarItem
-          icon={<House size={20} />}
-          text="Home"
-          href="/"
-        />
+        <SidebarItem icon={<House size={20} />} text="Home" href="/" />
         <SidebarItem
           icon={<ChartNoAxesCombined size={20} />}
           text="Dashboard"

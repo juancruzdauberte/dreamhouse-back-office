@@ -43,8 +43,8 @@ function SignInContent() {
               <Image
                 src="https://res.cloudinary.com/dttpgbmdx/image/upload/v1764695249/image_arimsd.png"
                 alt="Logo de Dream House"
-                width={80}
-                height={80}
+                width={110}
+                height={110}
                 priority
               />
             </div>
