@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useTransition } from "react";
+import React, { useMemo, useState, useEffect, useTransition } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -34,6 +34,12 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     x: number;
     y: number;
   } | null>(null);
+  const [calView, setCalView] = useState<"dayGridMonth" | "dayGridWeek">("dayGridMonth");
+  const [mobileEvent, setMobileEvent] = useState<EventApi | null>(null);
+
+  useEffect(() => {
+    setCalView(window.innerWidth < 768 ? "dayGridWeek" : "dayGridMonth");
+  }, []);
 
   const events = useMemo<EventInput[]>(() => {
     return bookings.map((booking) => {
@@ -110,7 +116,11 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   };
 
   const handleEventClick = (clickInfo: EventClickArg) => {
-    router.push(`/bookings/${clickInfo.event.id}`);
+    if (window.innerWidth < 768) {
+      setMobileEvent(clickInfo.event);
+    } else {
+      router.push(`/bookings/${clickInfo.event.id}`);
+    }
   };
 
   const handleDatesSet = (arg: DatesSetArg) => {
@@ -316,7 +326,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
         )}
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
+          initialView={calView}
           initialDate={initialDate}
           events={events}
           datesSet={handleDatesSet}
@@ -327,7 +337,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           headerToolbar={{
             left: "prev,next today",
             center: "title",
-            right: "dayGridMonth",
+            right: "dayGridMonth,dayGridWeek",
           }}
           height="auto"
           contentHeight="auto"
@@ -338,6 +348,71 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           displayEventTime={false}
         />
       </div>
+
+      {/* Mobile event tap modal */}
+      {mobileEvent && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-black/40 md:hidden"
+            onClick={() => setMobileEvent(null)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-x-4 bottom-6 z-50 bg-white rounded-2xl shadow-2xl p-5 md:hidden">
+            <div className="flex items-start justify-between mb-3">
+              <h3 className="font-bold text-slate-800 text-base leading-tight">
+                {mobileEvent.extendedProps.guest_name}
+              </h3>
+              <button
+                onClick={() => setMobileEvent(null)}
+                aria-label="Cerrar"
+                className="ml-3 shrink-0 text-slate-400 hover:text-slate-600 transition-colors text-xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="mb-3">
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                  mobileEvent.extendedProps.status === "Confirmada"
+                    ? "bg-green-100 text-green-800"
+                    : mobileEvent.extendedProps.status === "Pendiente"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
+                }`}
+              >
+                {mobileEvent.extendedProps.status}
+              </span>
+            </div>
+            <div className="space-y-1.5 text-sm text-slate-600 mb-4">
+              <div className="flex justify-between">
+                <span>Canal:</span>
+                <span className="font-medium">{mobileEvent.extendedProps.channel_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Huéspedes:</span>
+                <span className="font-medium">{mobileEvent.extendedProps.guest_count}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Noches:</span>
+                <span className="font-medium">{mobileEvent.extendedProps.nights_stay}</span>
+              </div>
+              <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-slate-100">
+                <span>Total:</span>
+                <span>{mobileEvent.extendedProps.total_price}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                router.push(`/bookings/${mobileEvent.id}`);
+                setMobileEvent(null);
+              }}
+              className="w-full py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            >
+              Ver detalle →
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

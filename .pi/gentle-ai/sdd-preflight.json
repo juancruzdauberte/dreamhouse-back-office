@@ -1,7 +1,7 @@
 {
   "executionMode": "interactive",
   "artifactStore": "openspec",
-  "chainedPrStrategy": "auto-forecast",
+  "chainedPrStrategy": "ask-on-risk",
   "reviewBudgetLines": 400,
   "engramAvailable": true,
   "prompted": true

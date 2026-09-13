@@ -9,6 +9,7 @@ import EditBookingButton from "../../../components/widget/EditBookingButton";
 import { toTitleCase } from "../../../utils/utils";
 import AnimatedHero from "../../../components/booking-detail/AnimatedHero";
 import AnimatedSectionCard from "../../../components/booking-detail/AnimatedSectionCard";
+import MobileActionBar from "../../../components/booking-detail/MobileActionBar";
 import StayTimeline from "../../../components/booking-detail/StayTimeline";
 import PaymentProgressCard from "../../../components/booking-detail/PaymentProgressCard";
 
@@ -107,12 +108,12 @@ export default async function BookingDetailPage({ params }: Props) {
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-6 bg-[radial-gradient(circle_at_top_left,oklch(0.98_0.02_70),transparent_55%),radial-gradient(circle_at_top_right,oklch(0.97_0.02_240),transparent_45%),oklch(0.995_0.003_80)]">
+    <div className="min-h-screen p-4 md:p-6 pb-24 md:pb-0 bg-[radial-gradient(circle_at_top_left,oklch(0.98_0.02_70),transparent_55%),radial-gradient(circle_at_top_right,oklch(0.97_0.02_240),transparent_45%),oklch(0.995_0.003_80)]">
       <div className="max-w-5xl mx-auto" id="booking-details-content">
         {/* Back */}
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-5 no-print"
+          className="items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-5 no-print hidden md:inline-flex"
           data-html2canvas-ignore
         >
           <ArrowLeft className="h-4 w-4" />
@@ -282,6 +283,10 @@ export default async function BookingDetailPage({ params }: Props) {
           </div>
         </div>
       </div>
+      <MobileActionBar
+        bookingId={booking.id}
+        guestPhone={booking.guest_phone}
+      />
     </div>
   );
 }

@@ -39,7 +39,7 @@ type SelectFieldProps = BaseFieldProps & {
 type FormFieldProps = InputFieldProps | SelectFieldProps;
 
 const inputBase =
-  "w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 hover:border-border/80";
+  "w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-base md:text-sm text-foreground transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 hover:border-border/80";
 
 const labelBase = "block text-xs font-medium text-muted-foreground mb-1.5";
 
@@ -89,7 +89,7 @@ export function FormField(props: FormFieldProps) {
           placeholder={props.placeholder}
           rows={props.rows ?? 3}
           maxLength={props.maxLength}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-none"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-base md:text-sm text-foreground transition-all duration-200 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-none"
         />
       </div>
     );

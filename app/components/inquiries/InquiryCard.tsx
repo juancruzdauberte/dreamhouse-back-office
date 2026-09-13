@@ -134,7 +134,7 @@ export default function InquiryCard({
               aria-label={`WhatsApp a ${inquiry.nombre}`}
               title={phone.display}
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#25D366] text-white hover:opacity-85 transition-opacity"
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#25D366] text-white hover:opacity-85 transition-opacity"
             >
               <WhatsAppIcon size={16} />
             </a>
@@ -142,7 +142,7 @@ export default function InquiryCard({
             <div
               title={`Teléfono no reconocido: ${inquiry.telefono}`}
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-700 cursor-default"
+              className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-100 text-amber-700 cursor-default"
             >
               <AlertTriangle size={14} aria-hidden="true" />
             </div>
@@ -152,7 +152,7 @@ export default function InquiryCard({
             aria-label={`Email a ${inquiry.nombre}`}
             title={inquiry.email}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center w-8 h-8 rounded-lg border border-border hover:bg-accent/60 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg border border-border hover:bg-accent/60 transition-colors"
           >
             <Mail size={13} aria-hidden="true" />
           </a>

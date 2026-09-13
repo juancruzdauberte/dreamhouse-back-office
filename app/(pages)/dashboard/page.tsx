@@ -22,13 +22,13 @@ export default async function DashboardPage() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="col-span-1 lg:col-span-2">
+          <div className="col-span-1 lg:col-span-2 min-w-0">
             <RevenueBarChart data={revenueData} />
           </div>
-          <div className="col-span-1 lg:col-span-1">
+          <div className="col-span-1 lg:col-span-1 min-w-0">
             <ChannelPieChart data={channelsData} />
           </div>
-          <div className="col-span-1 lg:col-span-2">
+          <div className="col-span-1 lg:col-span-2 min-w-0">
             <BookingsLineChart data={bookingsData} />
           </div>
         </section>

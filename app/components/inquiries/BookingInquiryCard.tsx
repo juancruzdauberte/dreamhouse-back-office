@@ -96,7 +96,7 @@ export default function BookingInquiryCard({
             rel="noopener noreferrer"
             aria-label="Ver consulta en Booking.com"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#003580] text-white hover:opacity-85 transition-opacity"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#003580] text-white hover:opacity-85 transition-opacity"
           >
             <ExternalLink size={14} aria-hidden="true" />
           </a>

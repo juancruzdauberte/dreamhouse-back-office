@@ -183,7 +183,7 @@ export default function BookingSearchBar() {
         <div
           role="dialog"
           aria-label="Filtros y resultados de búsqueda"
-          className="absolute z-50 mt-2 w-full bg-white border border-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in-0 slide-in-from-top-2 duration-200"
+          className="absolute z-50 mt-2 w-full max-w-[calc(100vw-1.5rem)] bg-white border border-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in-0 slide-in-from-top-2 duration-200"
         >
           {/* Date filter section */}
           <div className="px-4 pt-3 pb-3 border-b border-border/60 bg-gradient-to-b from-muted/40 to-transparent">

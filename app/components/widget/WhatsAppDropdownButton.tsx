@@ -94,7 +94,7 @@ export default function WhatsAppDropdownButton({ phone, bookingId }: Props) {
             onClick={() => setOpen(false)}
           >
             <MessageCircle className="w-4 h-4 shrink-0 text-[#25D366]" />
-            Mensaje normal
+            Mensaje
           </a>
 
           {/* Opción 2 — Enviar comprobante */}

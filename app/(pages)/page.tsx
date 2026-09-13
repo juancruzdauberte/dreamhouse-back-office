@@ -108,10 +108,10 @@ export default async function BookingsPage({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6 mb-8">
-              <div className="min-w-0">
+              <div className="min-w-0 order-last lg:order-first">
                 <InquiryDashboard />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 order-first lg:order-last">
                 <CalendarComponent
                   bookings={calendarBookings}
                   initialDate={startDate}

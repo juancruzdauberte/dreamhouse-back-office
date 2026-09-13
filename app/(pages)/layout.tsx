@@ -14,7 +14,5 @@ export default async function PagesLayout({
     redirect("/login");
   }
 
-  return (
-    <Navbar>{children}</Navbar>
-  );
+  return <Navbar>{children}</Navbar>;
 }

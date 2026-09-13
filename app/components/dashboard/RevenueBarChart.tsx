@@ -44,7 +44,8 @@ export function RevenueBarChart({ data }: RevenueBarChartProps) {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <div className="h-[250px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+              <div className="w-full overflow-x-hidden min-w-0">
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart
               data={formattedData}
               margin={{ top: 20, right: 10, left: 10, bottom: 0 }}
@@ -81,6 +82,7 @@ export function RevenueBarChart({ data }: RevenueBarChartProps) {
               />
             </BarChart>
           </ResponsiveContainer>
+              </div>
         </div>
       </CardContent>
     </Card>
