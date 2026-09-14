@@ -81,13 +81,14 @@ export interface CalendarEventParams {
   currency: "USD" | "ARS";
   idBooking?: number;
   observations?: string | null;
+  googleEventId?: string | null; // NEW: stored Google Calendar event ID
 }
 
 /* ── Create ──────────────────────────────────────────────────────── */
 
 export async function createGoogleCalendarEvent(
   params: CalendarEventParams,
-): Promise<{ success: boolean; link?: string | null }> {
+): Promise<{ success: boolean; link?: string | null; eventId?: string | null | undefined }> {
   if (!isCalendarEnabled()) {
     console.log("[Calendar] disabled in this environment — skipping createGoogleCalendarEvent");
     return { success: true };
@@ -131,7 +132,7 @@ export async function createGoogleCalendarEvent(
       requestBody: event,
     });
 
-    return { success: true, link: response.data.htmlLink };
+    return { success: true, link: response.data.htmlLink, eventId: response.data.id };
   } catch (error: unknown) {
     const err = error as { code?: number; response?: { status?: number }; message?: string };
     console.error("Error creando evento en Google Calendar:", error);
@@ -172,6 +173,7 @@ export async function updateGoogleCalendarEvent(
     medioDia,
     idBooking,
     estado,
+    googleEventId,
   } = params;
 
   try {
@@ -180,17 +182,24 @@ export async function updateGoogleCalendarEvent(
 
     const calendar = google.calendar({ version: "v3", auth: createAuth() });
 
-    // Buscar el evento por el id de reserva en el summary
-    const listResponse = await calendar.events.list({
-      calendarId,
-      q: idBooking?.toString(),
-    });
+    let eventId = googleEventId;
 
-    const eventToUpdate = (listResponse.data.items ?? []).find(
-      (e) => e.summary?.endsWith(`-${idBooking}`),
-    );
+    // If googleEventId is not provided, fall back to list search (backward compatibility)
+    if (!eventId) {
+      console.log(`[Calendar] No googleEventId provided for booking #${idBooking}, falling back to list search`);
+      const listResponse = await calendar.events.list({
+        calendarId,
+        q: idBooking?.toString(),
+      });
 
-    if (!eventToUpdate?.id) {
+      const eventToUpdate = (listResponse.data.items ?? []).find(
+        (e) => e.summary?.endsWith(`-${idBooking}`),
+      );
+
+      eventId = eventToUpdate?.id;
+    }
+
+    if (!eventId) {
       console.warn(
         `No se encontró el evento de Google Calendar para la reserva #${idBooking}`,
       );
@@ -216,7 +225,7 @@ export async function updateGoogleCalendarEvent(
 
     const response = await calendar.events.patch({
       calendarId,
-      eventId: eventToUpdate.id,
+      eventId,
       requestBody: eventPatch,
     });
 
@@ -231,37 +240,27 @@ export async function updateGoogleCalendarEvent(
 /* ── Delete ──────────────────────────────────────────────────────── */
 
 export async function deleteGoogleCalendarEvent(
-  idBooking: number,
+  googleEventId: string,
 ): Promise<{ success: boolean; message?: string }> {
   if (!isCalendarEnabled()) {
-    console.log(`[Calendar] disabled in this environment — skipping deleteGoogleCalendarEvent #${idBooking}`);
+    console.log(`[Calendar] disabled in this environment — skipping deleteGoogleCalendarEvent ${googleEventId}`);
     return { success: true };
   }
+
+  if (!googleEventId) {
+    console.warn("[Calendar] No googleEventId provided to deleteGoogleCalendarEvent");
+    return { success: false, message: "google_event_id no disponible" };
+  }
+
   try {
     const calendarId = process.env.GOOGLE_CALENDAR_ID;
     if (!calendarId) throw new Error("GOOGLE_CALENDAR_ID no definido");
 
     const calendar = google.calendar({ version: "v3", auth: createAuth() });
 
-    const listResponse = await calendar.events.list({
-      calendarId,
-      q: idBooking.toString(),
-    });
-
-    const eventToDelete = (listResponse.data.items ?? []).find(
-      (e) => e.summary?.endsWith(`-${idBooking}`),
-    );
-
-    if (!eventToDelete?.id) {
-      console.warn(
-        `No se encontró el evento de Google Calendar para la reserva #${idBooking}`,
-      );
-      return { success: false, message: "Evento no encontrado" };
-    }
-
     await calendar.events.delete({
       calendarId,
-      eventId: eventToDelete.id,
+      eventId: googleEventId,
     });
 
     return { success: true };

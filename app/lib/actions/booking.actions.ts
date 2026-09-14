@@ -55,7 +55,7 @@ export async function createBooking(
         : booking.prepayment_ars || 0;
       const faltaPagar = total - pago;
 
-      await createGoogleCalendarEvent({
+      const result = await createGoogleCalendarEvent({
         nombreCliente: booking.tenant_name,
         fechaCheckIn: booking.check_in,
         fechaCheckOut: booking.check_out,
@@ -69,6 +69,14 @@ export async function createBooking(
         currency: isUSD ? "USD" : "ARS",
         idBooking: bookingId,
       });
+
+      // NEW (5.1): Persist eventId to DB
+      if (result.eventId && bookingId) {
+        await DIContainer.getBookingRepository().updateGoogleEventId(
+          bookingId,
+          result.eventId,
+        );
+      }
     } catch (calendarError) {
       console.error(
         "Error creating calendar event (booking created successfully):",
@@ -137,6 +145,7 @@ export async function updateBooking(
           : booking.prepayment_ars || 0;
         const faltaPagar = total - pago;
 
+        // NEW (5.2): Pass stored googleEventId
         const calendarParams: CalendarEventParams = {
           nombreCliente: booking.tenant_name ?? oldBooking.guest_name,
           fechaCheckIn: booking.check_in ?? oldBooking.check_in,
@@ -150,6 +159,7 @@ export async function updateBooking(
           medioDia: booking.noon ?? false,
           currency: isUSD ? "USD" : "ARS",
           idBooking: bookingId,
+          googleEventId: oldBooking?.google_event_id,
         };
 
         await updateGoogleCalendarEvent(calendarParams);
@@ -177,9 +187,16 @@ export async function deleteBooking(
   bookingId: number,
 ): Promise<{ success: boolean; message: string }> {
   try {
+    // NEW (5.3): Get the booking to retrieve google_event_id
+    const booking = await DIContainer.getBookingRepository().getBooking(
+      bookingId,
+    );
+
     // Eliminar el evento de Google Calendar antes de borrar la reserva
     try {
-      await deleteGoogleCalendarEvent(bookingId);
+      if (booking?.google_event_id) {
+        await deleteGoogleCalendarEvent(booking.google_event_id);
+      }
     } catch (calendarError) {
       console.error(
         "Error eliminando evento de calendario (la reserva se eliminará igualmente):",

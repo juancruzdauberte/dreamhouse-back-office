@@ -55,7 +55,7 @@ export class BookingRepository implements IBookingRepository {
   async getBooking(id: number): Promise<BookingDTO | null> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT 
+        `SELECT
           fr.id_reserva as id,
           fr.fecha_reserva_fk as booking_date,
           fr.fecha_checkin_fk as check_in,
@@ -78,10 +78,10 @@ export class BookingRepository implements IBookingRepository {
           fr.precio_total_cotizado_ars as total_price_ars,
           fr.tel_huesped as guest_phone,
           fr.medio_dia as noon,
-          fr.observaciones as observations
-              fr.google_event_id as google_event_id,
-        FROM fact_reservas fr 
-        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk 
+          fr.observaciones as observations,
+          fr.google_event_id as google_event_id
+        FROM fact_reservas fr
+        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
         WHERE fr.id_reserva = ?`,
         [id],
       );
@@ -187,7 +187,7 @@ export class BookingRepository implements IBookingRepository {
   }> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT 
+        `SELECT
           SUM(precio_total_cotizado_ars) as total_revenue_ars,
           SUM(CASE WHEN estado_reserva = 'Confirmada' THEN 1 ELSE 0 END) as confirmed_bookings,
           SUM(precio_total_cotizado_usd) as total_revenue,
@@ -278,7 +278,7 @@ export class BookingRepository implements IBookingRepository {
       today.setHours(0, 0, 0, 0);
 
       const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT 
+        `SELECT
           fr.id_reserva as id,
           fr.fecha_reserva_fk as booking_date,
           fr.fecha_checkin_fk as check_in,
@@ -301,8 +301,8 @@ export class BookingRepository implements IBookingRepository {
           fr.precio_total_cotizado_ars as total_price_ars,
           fr.tel_huesped as guest_phone,
           fr.medio_dia as noon
-        FROM fact_reservas fr 
-        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk 
+        FROM fact_reservas fr
+        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
         WHERE fr.fecha_checkin_fk >= ? AND fr.estado_reserva = 'Confirmada'
         ORDER BY fr.fecha_checkin_fk ASC
         LIMIT 1`,
@@ -380,7 +380,7 @@ export class BookingRepository implements IBookingRepository {
   async getRevenueByMonthUSD(): Promise<RevenueByMonthDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT 
+        `SELECT
           DATE_FORMAT(fecha_checkin_fk, '%Y-%m') as month,
           SUM(precio_total_cotizado_usd) as revenue
          FROM fact_reservas
@@ -400,7 +400,7 @@ export class BookingRepository implements IBookingRepository {
   async getBookingsByMonth(): Promise<BookingsByMonthDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT 
+        `SELECT
           DATE_FORMAT(fecha_checkin_fk, '%Y-%m') as month,
           COUNT(*) as bookings
          FROM fact_reservas
@@ -420,7 +420,7 @@ export class BookingRepository implements IBookingRepository {
   async getBookingsByChannel(): Promise<BookingsByChannelDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT 
+        `SELECT
           dm.nombre_canal as channel_name,
           COUNT(fr.id_reserva) as bookings
          FROM fact_reservas fr
@@ -436,27 +436,29 @@ export class BookingRepository implements IBookingRepository {
       return [];
     }
   }
-}
 
-      // PHASE 1 NEW METHOD: Update google_event_id after creating Google Calendar event
-      async updateGoogleEventId(bookingId: number, eventId: string): Promise<void> {
-        try {
-          await pool.execute(
-            "UPDATE fact_reservas SET google_event_id = ? WHERE id_reserva = ?",
-            [eventId, bookingId],
-          );
-        } catch (error) {
-          console.error("Error updating google_event_id:", error);
-          throw error;
-        }
-      }
+  async updateGoogleEventId(bookingId: number, eventId: string): Promise<void> {
+    try {
+      await pool.execute(
+        "UPDATE fact_reservas SET google_event_id = ? WHERE id_reserva = ?",
+        [eventId, bookingId],
+      );
+    } catch (error) {
+      console.error("Error updating google_event_id:", error);
+      throw error;
+    }
+  }
 
-      // PHASE 1 NEW METHOD: Paginated search for bookings
-      async searchBookings(q: string, offset: number, limit: number): Promise<BookingSearchDTO[]> {
-        try {
-          const query = `%${q}%`;
-          const [rows] = await pool.execute<RowDataPacket[]>(
-            `SELECT
+  // PHASE 1 NEW METHOD: Paginated search for bookings
+  async searchBookings(
+    q: string,
+    offset: number,
+    limit: number,
+  ): Promise<BookingSearchDTO[]> {
+    try {
+      const query = `%${q}%`;
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT
               fr.id_reserva as id,
               fr.nombre_huesped_ref as guest_name,
               dm.nombre_canal as channel_name,
@@ -465,36 +467,36 @@ export class BookingRepository implements IBookingRepository {
               fr.estado_reserva as status
             FROM fact_reservas fr
             INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
-            WHERE fr.nombre_huesped_ref LIKE ? 
+            WHERE fr.nombre_huesped_ref LIKE ?
               OR dm.nombre_canal LIKE ?
               OR fr.tel_huesped LIKE ?
             ORDER BY fr.fecha_checkin_fk DESC
             LIMIT ? OFFSET ?`,
-            [query, query, query, limit, offset],
-          );
-          return rows as BookingSearchDTO[];
-        } catch (error) {
-          console.error("Error searching bookings:", error);
-          return [];
-        }
-      }
+        [query, query, query, limit, offset],
+      );
+      return rows as BookingSearchDTO[];
+    } catch (error) {
+      console.error("Error searching bookings:", error);
+      return [];
+    }
+  }
 
-      // PHASE 1 NEW METHOD: Count bookings for pagination
-      async countBookings(q: string): Promise<number> {
-        try {
-          const query = `%${q}%`;
-          const [rows] = await pool.execute<RowDataPacket[]>(
-            `SELECT COUNT(*) as total FROM fact_reservas fr
+  // PHASE 1 NEW METHOD: Count bookings for pagination
+  async countBookings(q: string): Promise<number> {
+    try {
+      const query = `%${q}%`;
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT COUNT(*) as total FROM fact_reservas fr
             INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
-            WHERE fr.nombre_huesped_ref LIKE ? 
+            WHERE fr.nombre_huesped_ref LIKE ?
               OR dm.nombre_canal LIKE ?
               OR fr.tel_huesped LIKE ?`,
-            [query, query, query],
-          );
-          return (rows[0] as any).total || 0;
-        } catch (error) {
-          console.error("Error counting bookings:", error);
-          return 0;
-        }
-      }
+        [query, query, query],
+      );
+      return (rows[0] as any).total || 0;
+    } catch (error) {
+      console.error("Error counting bookings:", error);
+      return 0;
+    }
+  }
 }
