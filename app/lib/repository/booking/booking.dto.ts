@@ -13,6 +13,7 @@ export interface CreateBookingDTO {
   guest_phone?: string | null;
   noon?: boolean;
   observations?: string | null;
+  google_event_id?: string | null;  // NEW: Google Calendar event ID
 }
 
 export interface BookingDTO {
@@ -39,6 +40,7 @@ export interface BookingDTO {
   guest_phone: string | null;
   noon: number;
   observations: string | null;
+  google_event_id?: string | null;  // NEW: Google Calendar event ID
 }
 
 export interface UpdateBookingDTO {
@@ -60,6 +62,7 @@ export interface UpdateBookingDTO {
   guest_phone?: string | null;
   noon?: boolean;
   observations?: string | null;
+  google_event_id?: string | null;  // NEW: Google Calendar event ID
 }
 
 export interface ChannelDTO {

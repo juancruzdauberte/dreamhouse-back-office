@@ -79,6 +79,7 @@ export class BookingRepository implements IBookingRepository {
           fr.tel_huesped as guest_phone,
           fr.medio_dia as noon,
           fr.observaciones as observations
+              fr.google_event_id as google_event_id,
         FROM fact_reservas fr 
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk 
         WHERE fr.id_reserva = ?`,
@@ -435,4 +436,65 @@ export class BookingRepository implements IBookingRepository {
       return [];
     }
   }
+}
+
+      // PHASE 1 NEW METHOD: Update google_event_id after creating Google Calendar event
+      async updateGoogleEventId(bookingId: number, eventId: string): Promise<void> {
+        try {
+          await pool.execute(
+            "UPDATE fact_reservas SET google_event_id = ? WHERE id_reserva = ?",
+            [eventId, bookingId],
+          );
+        } catch (error) {
+          console.error("Error updating google_event_id:", error);
+          throw error;
+        }
+      }
+
+      // PHASE 1 NEW METHOD: Paginated search for bookings
+      async searchBookings(q: string, offset: number, limit: number): Promise<BookingSearchDTO[]> {
+        try {
+          const query = `%${q}%`;
+          const [rows] = await pool.execute<RowDataPacket[]>(
+            `SELECT
+              fr.id_reserva as id,
+              fr.nombre_huesped_ref as guest_name,
+              dm.nombre_canal as channel_name,
+              fr.fecha_checkin_fk as check_in,
+              fr.fecha_checkout_fk as check_out,
+              fr.estado_reserva as status
+            FROM fact_reservas fr
+            INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+            WHERE fr.nombre_huesped_ref LIKE ? 
+              OR dm.nombre_canal LIKE ?
+              OR fr.tel_huesped LIKE ?
+            ORDER BY fr.fecha_checkin_fk DESC
+            LIMIT ? OFFSET ?`,
+            [query, query, query, limit, offset],
+          );
+          return rows as BookingSearchDTO[];
+        } catch (error) {
+          console.error("Error searching bookings:", error);
+          return [];
+        }
+      }
+
+      // PHASE 1 NEW METHOD: Count bookings for pagination
+      async countBookings(q: string): Promise<number> {
+        try {
+          const query = `%${q}%`;
+          const [rows] = await pool.execute<RowDataPacket[]>(
+            `SELECT COUNT(*) as total FROM fact_reservas fr
+            INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+            WHERE fr.nombre_huesped_ref LIKE ? 
+              OR dm.nombre_canal LIKE ?
+              OR fr.tel_huesped LIKE ?`,
+            [query, query, query],
+          );
+          return (rows[0] as any).total || 0;
+        } catch (error) {
+          console.error("Error counting bookings:", error);
+          return 0;
+        }
+      }
 }
