@@ -71,7 +71,11 @@ export function ReusableForm({
   };
 
   return (
-    <div className={centered ? "flex items-start justify-center p-4 md:p-6" : "p-4"}>
+    <div
+      className={
+        centered ? "flex items-start justify-center p-4 md:p-6" : "p-4"
+      }
+    >
       <form
         onSubmit={handleSubmit}
         className={`w-full max-w-5xl animate-in fade-in-0 slide-in-from-bottom-4 duration-500 ${className}`}
@@ -99,7 +103,7 @@ export function ReusableForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`inline-flex items-center gap-2 rounded-xl px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 active:scale-[0.97] ${
+            className={`inline-flex items-center cursor-pointer gap-2 rounded-xl px-8 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 active:scale-[0.97] ${
               isSubmitting
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
                 : "bg-primary hover:bg-primary/90 hover:-translate-y-0.5 hover:shadow-md"

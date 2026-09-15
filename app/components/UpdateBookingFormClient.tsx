@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Banknote, Calendar, MessageSquare, Tag, User } from "lucide-react";
 import { FormField } from "./FormField";
 import { PriceInput } from "./PriceInput";
@@ -8,15 +8,14 @@ import { ReusableForm } from "./ReusableForm";
 import { BookingFormSection } from "./BookingFormSection";
 import { updateBooking } from "../lib/actions/booking.actions";
 import { BookingDTO } from "../lib/repository/booking/booking.dto";
+import { CHANNELS } from "../lib/constants/channels";
 
 type BookingFormClientProps = {
-  channels: Array<{ id: number; channel_name: string }>;
   datesUnavailable: Array<{ check_in: string; check_out: string }>;
   booking: BookingDTO;
 };
 
 export default function UpdateBookingFormClient({
-  channels,
   datesUnavailable,
   booking,
 }: BookingFormClientProps) {
@@ -26,18 +25,15 @@ export default function UpdateBookingFormClient({
     parseFloat(booking.total_price_usd || "0") > 0 ? 2 : 1,
   );
 
-  // Track the current price for live preview calculation
   const [totalPrice, setTotalPrice] = useState<number>(
     currency === 2
       ? parseFloat(booking.total_price_usd || "0")
       : parseFloat(booking.total_price_ars || "0"),
   );
 
-  const bookingChannelId = useMemo(
-    () =>
-      channels.find((ch) => ch.channel_name === booking.channel_name)?.id ?? 0,
-    [booking.channel_name, channels],
-  );
+  const bookingChannelId = () =>
+    CHANNELS.find((ch) => ch.channel_name === booking.channel_name)?.id ?? 0;
+
   const [selectedChannel, setSelectedChannel] =
     useState<number>(bookingChannelId);
 
@@ -106,8 +102,8 @@ export default function UpdateBookingFormClient({
   );
 
   // Calculate deposit and balance for LIVE PREVIEW (not submitted to server)
-  const calculatedDeposit = totalPrice * 0.30;
-  const calculatedBalance = totalPrice * 0.70;
+  const calculatedDeposit = totalPrice * 0.3;
+  const calculatedBalance = totalPrice * 0.7;
 
   const handlePriceChange = (newPrice: number) => {
     setTotalPrice(newPrice);
@@ -218,7 +214,7 @@ export default function UpdateBookingFormClient({
               currency="ARS"
               defaultValue={booking.total_price_ars}
               required
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const digits = e.target.value.replace(/\D/g, "");
                 handlePriceChange(parseFloat(digits || "0"));
               }}
@@ -230,7 +226,7 @@ export default function UpdateBookingFormClient({
               currency="USD"
               defaultValue={booking.total_price_usd}
               required
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const digits = e.target.value.replace(/\D/g, "");
                 handlePriceChange(parseFloat(digits || "0"));
               }}
@@ -294,10 +290,10 @@ export default function UpdateBookingFormClient({
           type="select"
           name="channel_id"
           label="Canal"
-          defaultValue={bookingChannelId}
+          defaultValue={selectedChannel}
           options={[
             { value: "", label: "Seleccionar" },
-            ...(channels?.map((ch) => ({
+            ...(CHANNELS.map((ch) => ({
               value: ch.id,
               label: ch.channel_name,
             })) ?? []),

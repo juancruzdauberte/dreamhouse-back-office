@@ -7,9 +7,9 @@ import { FormField } from "./FormField";
 import { PriceInput } from "./PriceInput";
 import { ReusableForm } from "./ReusableForm";
 import { BookingFormSection } from "./BookingFormSection";
+import { CHANNELS } from "../lib/constants/channels";
 
 type BookingFormClientProps = {
-  channels: Array<{ id: number; channel_name: string }>;
   datesUnavailable: Array<{
     check_in: string | Date;
     check_out: string | Date;
@@ -17,14 +17,13 @@ type BookingFormClientProps = {
 };
 
 export function CreateBookingFormClient({
-  channels,
   datesUnavailable,
 }: BookingFormClientProps) {
   const router = useRouter();
 
   const [currency, setCurrency] = useState<number | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<number>(0);
-  
+
   // Track the current price for live preview calculation
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
@@ -68,8 +67,8 @@ export function CreateBookingFormClient({
   );
 
   // Calculate deposit and balance for LIVE PREVIEW (not submitted to server)
-  const calculatedDeposit = totalPrice * 0.30;
-  const calculatedBalance = totalPrice * 0.70;
+  const calculatedDeposit = totalPrice * 0.3;
+  const calculatedBalance = totalPrice * 0.7;
 
   const handlePriceChange = (newPrice: number) => {
     setTotalPrice(newPrice);
@@ -166,7 +165,7 @@ export function CreateBookingFormClient({
               label="Precio total ARS"
               currency="ARS"
               required
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const digits = e.target.value.replace(/\D/g, "");
                 handlePriceChange(parseFloat(digits || "0"));
               }}
@@ -177,7 +176,7 @@ export function CreateBookingFormClient({
               label="Precio total USD"
               currency="USD"
               required
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const digits = e.target.value.replace(/\D/g, "");
                 handlePriceChange(parseFloat(digits || "0"));
               }}
@@ -241,7 +240,7 @@ export function CreateBookingFormClient({
           label="Canal"
           options={[
             { value: "", label: "Seleccionar" },
-            ...(channels?.map((ch) => ({
+            ...(CHANNELS?.map((ch) => ({
               value: ch.id,
               label: ch.channel_name,
             })) ?? []),

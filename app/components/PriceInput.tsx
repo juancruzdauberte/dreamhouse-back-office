@@ -10,6 +10,7 @@ export type PriceInputProps = {
   placeholder?: string;
   className?: string;
   readOnly?: boolean;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const inputBase =
@@ -44,6 +45,7 @@ export function PriceInput({
   placeholder,
   className,
   readOnly,
+  onChange,
 }: PriceInputProps) {
   const [rawValue, setRawValue] = useState<string>("");
   const [displayValue, setDisplayValue] = useState<string>("");
@@ -58,6 +60,7 @@ export function PriceInput({
     const digits = stripNonDigits(e.target.value);
     setRawValue(digits);
     setDisplayValue(formatWithDots(digits));
+    onChange?.(e);
   }
 
   return (
