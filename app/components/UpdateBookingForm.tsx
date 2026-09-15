@@ -19,7 +19,6 @@ export default async function UpdateBookingForm({
   if (!booking) {
     notFound();
   }
-
   return (
     <UpdateBookingFormClient
       channels={channels}

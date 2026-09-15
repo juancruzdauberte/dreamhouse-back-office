@@ -18,17 +18,8 @@ export class BookingRepository implements IBookingRepository {
     try {
       const fechaActual = new Date();
 
-      // NOTE: The INSERT only passes raw data to the database.
-      // The BEFORE INSERT trigger (trg_reservas_before_insert_completo) calculates:
-      // - noches_estadia (from dates)
-      // - precio_noche_cotizado_usd (from total price / nights)
-      // - monto_anticipo_usd (30% of total price)
-      // - monto_saldo_usd (70% of total price)
-      // - comision_canal_usd (from channel percentage)
-      // - pago_anticipo_ars (from tipo_cambio_anticipo * monto_anticipo_usd)
-      // - pago_saldo_ars (from tipo_cambio_saldo * monto_saldo_usd)
       const [result] = await pool.execute<ResultSetHeader>(
-        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, comision_canal_usd, pago_anticipo_ars, precio_total_cotizado_ars, monto_anticipo_usd, tel_huesped, medio_dia, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           fechaActual,
           bookingData.check_in,
@@ -39,7 +30,10 @@ export class BookingRepository implements IBookingRepository {
           bookingData.booking_adv,
           bookingData.tenant_name,
           bookingData.booking_total_price_usd,
+          bookingData.comission,
+          bookingData.prepayment_ars,
           bookingData.booking_total_price_ars,
+          bookingData.prepayment_usd,
           bookingData.guest_phone,
           bookingData.noon,
           bookingData.observations ?? null,
@@ -227,15 +221,8 @@ export class BookingRepository implements IBookingRepository {
 
   async updateBooking(bookingData: UpdateBookingDTO): Promise<void> {
     try {
-      // NOTE: The UPDATE only passes raw data. The BEFORE UPDATE trigger
-      // (trg_reservas_before_update_completo) recalculates:
-      // - noches_estadia (if dates changed)
-      // - precio_noche_cotizado_usd (if price changed)
-      // - monto_anticipo_usd, monto_saldo_usd (if price or montos changed)
-      // - comision_canal_usd (if price or canal changed)
-      // - pago_anticipo_ars, pago_saldo_ars (if TC or base USD changed)
       await pool.execute(
-        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ? WHERE id_reserva = ?",
+        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, comision_canal_usd = ?, pago_anticipo_ars = ?, monto_anticipo_usd = ?, pago_saldo_ars = ?, monto_saldo_usd = ?, tel_huesped = ?, medio_dia = ?, observaciones = ? WHERE id_reserva = ?",
         [
           bookingData.check_in,
           bookingData.check_out,
@@ -246,6 +233,11 @@ export class BookingRepository implements IBookingRepository {
           bookingData.tenant_name,
           bookingData.booking_total_price_usd,
           bookingData.booking_total_price_ars,
+          bookingData.comission,
+          bookingData.prepayment_ars,
+          bookingData.prepayment_usd,
+          bookingData.balancepayment_ars,
+          bookingData.balancepayment_usd,
           bookingData.guest_phone,
           bookingData.noon,
           bookingData.observations ?? null,

@@ -24,10 +24,14 @@ export function CreateBookingFormClient({
 
   const [currency, setCurrency] = useState<number | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<number>(0);
+  
+  // Track the current price for live preview calculation
+  const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const handleSuccess = () => {
     setSelectedChannel(0);
     setCurrency(null);
+    setTotalPrice(0);
     router.refresh();
     router.push("/");
   };
@@ -62,6 +66,14 @@ export function CreateBookingFormClient({
       }),
     [datesUnavailable],
   );
+
+  // Calculate deposit and balance for LIVE PREVIEW (not submitted to server)
+  const calculatedDeposit = totalPrice * 0.30;
+  const calculatedBalance = totalPrice * 0.70;
+
+  const handlePriceChange = (newPrice: number) => {
+    setTotalPrice(newPrice);
+  };
 
   return (
     <ReusableForm
@@ -154,6 +166,10 @@ export function CreateBookingFormClient({
               label="Precio total ARS"
               currency="ARS"
               required
+              onChange={(e: any) => {
+                const digits = e.target.value.replace(/\D/g, "");
+                handlePriceChange(parseFloat(digits || "0"));
+              }}
             />
           ) : (
             <PriceInput
@@ -161,39 +177,55 @@ export function CreateBookingFormClient({
               label="Precio total USD"
               currency="USD"
               required
+              onChange={(e: any) => {
+                const digits = e.target.value.replace(/\D/g, "");
+                handlePriceChange(parseFloat(digits || "0"));
+              }}
             />
           )}
         </div>
 
+        {/* PREVIEW ONLY: Calculated Deposit (30%) */}
         <div
           key={`prepay-${currency}`}
           className="animate-in fade-in-0 duration-200"
         >
-          {currency === 1 ? (
-            <PriceInput
-              name="prepayment_ars"
-              label="Anticipo ARS"
-              currency="ARS"
-            />
-          ) : (
-            <PriceInput
-              name="prepayment_usd"
-              label="Anticipo USD"
-              currency="USD"
-            />
-          )}
+          <div className="flex flex-col">
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              Anticipo (30%) {currency === 1 ? "ARS" : "USD"}
+            </label>
+            <div className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground flex items-center opacity-60 cursor-not-allowed">
+              {currency === 1
+                ? `$${calculatedDeposit.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
+                : `USD ${calculatedDeposit.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Se calcula automáticamente al guardar
+            </p>
+          </div>
+          <input type="hidden" name="prepayment_usd" value="0" />
+          <input type="hidden" name="prepayment_ars" value="0" />
         </div>
 
-        {selectedChannel === 1 && (
-          <div className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200">
-            <FormField
-              type="text"
-              name="comission"
-              label="Comisión USD"
-              placeholder="0.00"
-            />
+        {/* PREVIEW ONLY: Calculated Balance (70%) */}
+        <div
+          key={`balance-${currency}`}
+          className="animate-in fade-in-0 duration-200"
+        >
+          <div className="flex flex-col">
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              Saldo (70%) {currency === 1 ? "ARS" : "USD"}
+            </label>
+            <div className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground flex items-center opacity-60 cursor-not-allowed">
+              {currency === 1
+                ? `$${calculatedBalance.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
+                : `USD ${calculatedBalance.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Se calcula automáticamente al guardar
+            </p>
           </div>
-        )}
+        </div>
       </BookingFormSection>
 
       {/* ── Reserva ── */}

@@ -7,13 +7,21 @@ export interface CreateBookingDTO {
   booking_adv: boolean;
   booking_total_price_usd?: number | null;
   booking_total_price_ars?: number | null;
-  comission?: number | null;
-  prepayment_ars?: number | null;
-  prepayment_usd?: number | null;
   guest_phone?: string | null;
   noon?: boolean;
   observations?: string | null;
-  google_event_id?: string | null;  // NEW: Google Calendar event ID
+  // NOTE: The following are calculated by database triggers and NOT provided by the client:
+  // - monto_anticipo_usd (30% of precio_total)
+  // - monto_saldo_usd (70% of precio_total)
+  // - comision_canal_usd (from channel %)
+  // - pago_anticipo_ars (from TC * monto_anticipo_usd)
+  // - pago_saldo_ars (from TC * monto_saldo_usd)
+  // - booking_state (hardcoded to "Confirmada")
+  
+  // DEPRECATED (kept for backward compatibility with form, but ignored):
+  prepayment_usd?: number | null;
+  prepayment_ars?: number | null;
+  comission?: number | null;
 }
 
 export interface BookingDTO {
@@ -40,7 +48,7 @@ export interface BookingDTO {
   guest_phone: string | null;
   noon: number;
   observations: string | null;
-  google_event_id?: string | null;  // NEW: Google Calendar event ID
+  google_event_id?: string | null;
 }
 
 export interface UpdateBookingDTO {
@@ -53,16 +61,25 @@ export interface UpdateBookingDTO {
   booking_adv?: boolean;
   booking_total_price_usd?: number | null;
   booking_total_price_ars?: number | null;
-  comission?: number | null;
-  prepayment_ars?: number | null;
-  prepayment_usd?: number | null;
-  balancepayment_ars?: number | null;
-  balancepayment_usd?: number | null;
   booking_state?: string;
   guest_phone?: string | null;
   noon?: boolean;
   observations?: string | null;
-  google_event_id?: string | null;  // NEW: Google Calendar event ID
+  // NOTE: The following are calculated by database triggers and NOT provided by the client:
+  // - monto_anticipo_usd (30% of precio_total)
+  // - monto_saldo_usd (70% of precio_total)
+  // - comision_canal_usd (from channel % or original value)
+  // - pago_anticipo_ars (from TC * monto_anticipo_usd)
+  // - pago_saldo_ars (from TC * monto_saldo_usd)
+  
+  // DEPRECATED (kept for backward compatibility with form, but ignored):
+  prepayment_ars?: number | null;
+  prepayment_usd?: number | null;
+  balancepayment_ars?: number | null;
+  balancepayment_usd?: number | null;
+  comission?: number | null;
+  deposit_exchange_rate?: number | null;
+  balance_exchange_rate?: number | null;
 }
 
 export interface ChannelDTO {
