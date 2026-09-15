@@ -48,9 +48,7 @@ export async function createBooking(
       const total = isUSD
         ? booking.booking_total_price_usd!
         : booking.booking_total_price_ars!;
-      const pago = isUSD
-        ? booking.prepayment_usd || 0
-        : booking.prepayment_ars || 0;
+      const pago = total * 0.30; // 30% deposit
       const faltaPagar = total - pago;
 
       const result = await createGoogleCalendarEvent({
@@ -133,9 +131,7 @@ export async function updateBooking(
         const total = isUSD
           ? booking.booking_total_price_usd!
           : booking.booking_total_price_ars!;
-        const pago = isUSD
-          ? booking.prepayment_usd || 0
-          : booking.prepayment_ars || 0;
+        const pago = total * 0.30; // 30% deposit
         const faltaPagar = total - pago;
 
         const calendarParams: CalendarEventParams = {
