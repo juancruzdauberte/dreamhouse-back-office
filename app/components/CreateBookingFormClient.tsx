@@ -21,11 +21,6 @@ export function CreateBookingFormClient({
 }: BookingFormClientProps) {
   const router = useRouter();
 
-  // Función para redondear como lo hace MySQL
-  const ROUND = (value: number, decimals: number) => {
-    return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
-  };
-
   const [currency, setCurrency] = useState<number | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<number>(0);
 
@@ -82,13 +77,14 @@ export function CreateBookingFormClient({
   );
 
   // Calculate deposit and balance for LIVE PREVIEW
-  const finalDeposit = useStandardDeposit ? totalPrice * 0.3 : customDeposit || 0;
+  const finalDeposit = useStandardDeposit
+    ? totalPrice * 0.3
+    : customDeposit || 0;
   const finalBalance = totalPrice - finalDeposit;
 
   // Calculate informative USD equivalent when ARS
-  const equivalentUSD = exchangeRate && currency === 1 
-    ? totalPrice / exchangeRate
-    : null;
+  const equivalentUSD =
+    exchangeRate && currency === 1 ? totalPrice / exchangeRate : null;
 
   const handlePriceChange = (newPrice: number) => {
     setTotalPrice(newPrice);
@@ -101,7 +97,9 @@ export function CreateBookingFormClient({
     }
   };
 
-  const handleCustomDepositChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCustomDepositChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const digits = e.target.value.replace(/\D/g, "");
     const value = parseFloat(digits || "0");
     setCustomDeposit(value);
@@ -242,7 +240,10 @@ export function CreateBookingFormClient({
                 onChange={(e) => handleStandardDepositToggle(e.target.checked)}
                 className="w-4 h-4 rounded border-border cursor-pointer"
               />
-              <label htmlFor="use_standard_deposit" className="text-sm cursor-pointer">
+              <label
+                htmlFor="use_standard_deposit"
+                className="text-sm cursor-pointer"
+              >
                 Usar 30% estándar
               </label>
             </div>
@@ -306,7 +307,11 @@ export function CreateBookingFormClient({
               value={exchangeRate || ""}
               onChange={handleExchangeRateChange}
             />
-            <input type="hidden" name="tipo_cambio" value={exchangeRate || ""} />
+            <input
+              type="hidden"
+              name="tipo_cambio"
+              value={exchangeRate || ""}
+            />
           </div>
         )}
 
@@ -321,7 +326,10 @@ export function CreateBookingFormClient({
                 Equivalencia USD
               </label>
               <div className="w-full h-10 rounded-lg border border-border bg-blue-50 px-3 py-2 text-sm text-foreground flex items-center">
-                USD {equivalentUSD.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                USD{" "}
+                {equivalentUSD.toLocaleString("es-AR", {
+                  minimumFractionDigits: 2,
+                })}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Referencia: Total ARS ÷ Tipo de cambio

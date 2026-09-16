@@ -7,16 +7,12 @@ import { DIContainer } from "../../core/DiContainer";
 
 const { revalidatePath } = await import("next/cache");
 
-import type { CalendarEventParams } from "../services/calendar.service";
 import {
   createGoogleCalendarEvent,
   updateGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
 } from "../services/calendar.service";
-import {
-  calculateDepositAndBalance,
-  prepareCalendarEventParams,
-} from "./booking.utils";
+import { prepareCalendarEventParams } from "./booking.utils";
 
 export async function createBooking(
   formData: FormData,
@@ -24,10 +20,6 @@ export async function createBooking(
   try {
     const checkInStr = formData.get("check_in") as string;
     const checkOutStr = formData.get("check_out") as string;
-
-    // NOTE: Deposit, balance, commission, etc. are calculated by database triggers.
-    // We only send the input data.
-    // tipo_cambio is informative only in client (not persisted).
     const booking = CreateBookingSchema.parse({
       tenant_name: formData.get("tenant_name"),
       check_in: checkInStr,
@@ -47,8 +39,6 @@ export async function createBooking(
     const bookingId =
       await DIContainer.getBookingRepository().createBooking(booking);
 
-    // CALENDAR INTEGRATION: Prepare event params using extracted utility function.
-    // The calculation logic is shared with updateBooking to avoid duplication.
     try {
       const calendarParams = prepareCalendarEventParams(booking, bookingId);
       const result = await createGoogleCalendarEvent(calendarParams);

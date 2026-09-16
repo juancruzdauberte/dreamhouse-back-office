@@ -69,7 +69,9 @@ export const CreateBookingSchema = z.object({
   noon: z.boolean().optional(),
   observations: z
     .union([z.string(), z.null(), z.undefined()])
-    .transform((val) => (val === "" || val === null || val === undefined ? null : val))
+    .transform((val) =>
+      val === "" || val === null || val === undefined ? null : val,
+    )
     .pipe(z.string().nullable())
     .optional(),
   // DEPRECATED: Keep for backward compatibility
@@ -155,32 +157,9 @@ export const UpdateBookingSchema = z.object({
   noon: z.boolean().optional(),
   observations: z
     .union([z.string(), z.null(), z.undefined()])
-    .transform((val) => (val === "" || val === null || val === undefined ? null : val))
+    .transform((val) =>
+      val === "" || val === null || val === undefined ? null : val,
+    )
     .pipe(z.string().nullable())
-    .optional(),
-  // DEPRECATED: Keep for backward compatibility
-  monto_anticipo_usd: z
-    .union([z.string(), z.number(), z.null(), z.undefined()])
-    .transform((val) => {
-      if (val === "" || val === null || val === undefined) return null;
-      return typeof val === "string" ? parseFloat(val) : val;
-    })
-    .pipe(z.number().nullable())
-    .optional(),
-  monto_anticipo_ars: z
-    .union([z.string(), z.number(), z.null(), z.undefined()])
-    .transform((val) => {
-      if (val === "" || val === null || val === undefined) return null;
-      return typeof val === "string" ? parseFloat(val) : val;
-    })
-    .pipe(z.number().nullable())
-    .optional(),
-  deposit_amount_ars: z
-    .union([z.string(), z.number(), z.null(), z.undefined()])
-    .transform((val) => {
-      if (val === "" || val === null || val === undefined) return null;
-      return typeof val === "string" ? parseFloat(val) : val;
-    })
-    .pipe(z.number().nullable())
     .optional(),
 });
