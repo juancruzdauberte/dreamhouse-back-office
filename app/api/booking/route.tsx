@@ -325,7 +325,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
                 -{" "}
                 {parseFloat(booking.total_price_usd || "0")
                   ? formatCurrency(booking.deposit_amount_usd || 0)
-                  : formatCurrencyARS(booking.deposit_payment_ars || 0)}
+                  : formatCurrencyARS(booking.deposit_amount_ars || 0)}
               </Text>
             </View>
           </View>
@@ -346,7 +346,7 @@ const BookingPDFTemplate = ({ booking }: Props) => {
             <Text style={styles.totalValue}>
               {parseFloat(booking.total_price_usd || "0")
                 ? formatCurrency(booking.balance_amount_usd || 0)
-                : formatCurrencyARS(booking.balance_payment_ars || 0)}
+                : formatCurrencyARS(booking.balance_amount_ars || 0)}
             </Text>
           </View>
         </View>

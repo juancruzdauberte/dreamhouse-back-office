@@ -13,6 +13,10 @@ import {
   updateGoogleCalendarEvent,
   deleteGoogleCalendarEvent,
 } from "../services/calendar.service";
+import {
+  calculateDepositAndBalance,
+  prepareCalendarEventParams,
+} from "./booking.utils";
 
 export async function createBooking(
   formData: FormData,
@@ -21,9 +25,9 @@ export async function createBooking(
     const checkInStr = formData.get("check_in") as string;
     const checkOutStr = formData.get("check_out") as string;
 
-    // NOTE: Comission, prepayment amounts, etc. are NO LONGER extracted here.
-    // The database triggers calculate them from the base fields (precio_total, channel).
-    // Only raw data is passed to the schema.
+    // NOTE: Deposit, balance, commission, etc. are calculated by database triggers.
+    // We only send the input data.
+    // tipo_cambio is informative only in client (not persisted).
     const booking = CreateBookingSchema.parse({
       tenant_name: formData.get("tenant_name"),
       check_in: checkInStr,
@@ -33,6 +37,8 @@ export async function createBooking(
       booking_adv: formData.get("booking_adv") === "true",
       booking_total_price_usd: formData.get("booking_total_price_usd"),
       booking_total_price_ars: formData.get("booking_total_price_ars"),
+      deposit_amount_usd: formData.get("deposit_amount_usd"),
+      deposit_amount_ars: formData.get("deposit_amount_ars"),
       guest_phone: formData.get("guest_phone"),
       noon: formData.get("noon") === "on",
       observations: formData.get("observations"),
@@ -41,30 +47,11 @@ export async function createBooking(
     const bookingId =
       await DIContainer.getBookingRepository().createBooking(booking);
 
-    // CALENDAR INTEGRATION: Calculate derived values for the calendar event only.
-    // These are NOT passed to the database; they are calculated by triggers.
+    // CALENDAR INTEGRATION: Prepare event params using extracted utility function.
+    // The calculation logic is shared with updateBooking to avoid duplication.
     try {
-      const isUSD = !!booking.booking_total_price_usd;
-      const total = isUSD
-        ? booking.booking_total_price_usd!
-        : booking.booking_total_price_ars!;
-      const pago = total * 0.30; // 30% deposit
-      const faltaPagar = total - pago;
-
-      const result = await createGoogleCalendarEvent({
-        nombreCliente: booking.tenant_name,
-        fechaCheckIn: booking.check_in,
-        fechaCheckOut: booking.check_out,
-        total,
-        pago,
-        faltaPagar,
-        huespedes: booking.tenant_quantity,
-        estado: "Confirmada",
-        observations: booking.observations ?? null,
-        medioDia: booking.noon!,
-        currency: isUSD ? "USD" : "ARS",
-        idBooking: bookingId,
-      });
+      const calendarParams = prepareCalendarEventParams(booking, bookingId);
+      const result = await createGoogleCalendarEvent(calendarParams);
 
       // Persist eventId to DB
       if (result.eventId && bookingId) {
@@ -103,8 +90,8 @@ export async function updateBooking(
     const oldBooking =
       await DIContainer.getBookingRepository().getBooking(bookingId);
 
-    // NOTE: Comission, prepayment amounts, balance amounts are NO LONGER extracted.
-    // The database triggers calculate them. Only raw data is passed to the schema.
+    // NOTE: Deposit, balance, commission, etc. are calculated by database triggers.
+    // We only send the input data.
     const booking = UpdateBookingSchema.parse({
       id: formData.get("id"),
       tenant_name: formData.get("tenant_name"),
@@ -115,6 +102,8 @@ export async function updateBooking(
       booking_adv: formData.get("booking_adv") === "true",
       booking_total_price_usd: formData.get("booking_total_price_usd"),
       booking_total_price_ars: formData.get("booking_total_price_ars"),
+      deposit_amount_usd: formData.get("deposit_amount_usd"),
+      deposit_amount_ars: formData.get("deposit_amount_ars"),
       booking_state: formData.get("booking_state"),
       guest_phone: formData.get("guest_phone"),
       noon: formData.get("noon") === "on",
@@ -123,33 +112,15 @@ export async function updateBooking(
 
     await DIContainer.getBookingRepository().updateBooking(booking);
 
-    // CALENDAR INTEGRATION: Calculate derived values for the calendar event only.
-    // These are NOT passed to the database; they are calculated by triggers.
+    // CALENDAR INTEGRATION: Prepare event params using extracted utility function.
+    // The calculation logic is shared with createBooking to avoid duplication.
     if (oldBooking) {
       try {
-        const isUSD = !!booking.booking_total_price_usd;
-        const total = isUSD
-          ? booking.booking_total_price_usd!
-          : booking.booking_total_price_ars!;
-        const pago = total * 0.30; // 30% deposit
-        const faltaPagar = total - pago;
-
-        const calendarParams: CalendarEventParams = {
-          nombreCliente: booking.tenant_name ?? oldBooking.guest_name,
-          fechaCheckIn: booking.check_in ?? oldBooking.check_in,
-          fechaCheckOut: booking.check_out ?? oldBooking.check_out,
-          total,
-          pago,
-          faltaPagar,
-          huespedes: booking.tenant_quantity ?? oldBooking.guest_count,
-          estado: booking.booking_state ?? oldBooking.status,
-          observations: booking.observations ?? null,
-          medioDia: booking.noon ?? false,
-          currency: isUSD ? "USD" : "ARS",
-          idBooking: bookingId,
-          googleEventId: oldBooking?.google_event_id,
-        };
-
+        const calendarParams = prepareCalendarEventParams(
+          booking,
+          bookingId,
+          oldBooking,
+        );
         await updateGoogleCalendarEvent(calendarParams);
       } catch (calendarError) {
         console.error(
@@ -158,6 +129,7 @@ export async function updateBooking(
         );
       }
     }
+
     revalidatePath("/bookings/create");
     revalidatePath(`/bookings/${bookingId}/edit`);
     return { success: true, message: "Reserva actualizada exitosamente" };
@@ -166,7 +138,9 @@ export async function updateBooking(
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : "Error al actualizar la reserva",
+        error instanceof Error
+          ? error.message
+          : "Error al actualizar la reserva",
     };
   }
 }
@@ -176,9 +150,8 @@ export async function deleteBooking(
 ): Promise<{ success: boolean; message: string }> {
   try {
     // Get the booking to retrieve google_event_id
-    const booking = await DIContainer.getBookingRepository().getBooking(
-      bookingId,
-    );
+    const booking =
+      await DIContainer.getBookingRepository().getBooking(bookingId);
 
     // Delete the Google Calendar event before deleting the booking
     try {

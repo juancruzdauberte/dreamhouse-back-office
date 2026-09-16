@@ -25,10 +25,10 @@ export class BookingRepository implements IBookingRepository {
       // - monto_anticipo_usd (30% of total price)
       // - monto_saldo_usd (70% of total price)
       // - comision_canal_usd (from channel percentage)
-      // - pago_anticipo_ars (from tipo_cambio_anticipo * monto_anticipo_usd)
-      // - pago_saldo_ars (from tipo_cambio_saldo * monto_saldo_usd)
+      // - monto_anticipo_ars (from tipo_cambio_anticipo * monto_anticipo_usd)
+      // - monto_saldo_ars (from tipo_cambio_saldo * monto_saldo_usd)
       const [result] = await pool.execute<ResultSetHeader>(
-        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones, monto_anticipo_usd, monto_anticipo_ars) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           fechaActual,
           bookingData.check_in,
@@ -43,6 +43,8 @@ export class BookingRepository implements IBookingRepository {
           bookingData.guest_phone,
           bookingData.noon,
           bookingData.observations ?? null,
+          bookingData.deposit_amount_usd ?? null,
+          bookingData.deposit_amount_ars ?? null,
         ],
       );
       return result.insertId;
@@ -75,10 +77,10 @@ export class BookingRepository implements IBookingRepository {
           fr.precio_total_cotizado_usd as total_price_usd,
           fr.monto_anticipo_usd as deposit_amount_usd,
           fr.monto_saldo_usd as balance_amount_usd,
-          fr.pago_anticipo_ars as deposit_payment_ars,
-          fr.tipo_cambio_anticipo as deposit_exchange_rate,
-          fr.pago_saldo_ars as balance_payment_ars,
-          fr.tipo_cambio_saldo as balance_exchange_rate,
+          fr.monto_anticipo_ars as deposit_amount_ars,
+              fr.tipo_cambio_anticipo as deposit_exchange_rate,
+              fr.monto_saldo_ars as balance_amount_ars,
+              fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,
           fr.precio_total_cotizado_ars as total_price_ars,
@@ -131,10 +133,10 @@ export class BookingRepository implements IBookingRepository {
           fr.precio_total_cotizado_usd as total_price_usd,
           fr.monto_anticipo_usd as deposit_amount_usd,
           fr.monto_saldo_usd as balance_amount_usd,
-          fr.pago_anticipo_ars as deposit_payment_ars,
-          fr.tipo_cambio_anticipo as deposit_exchange_rate,
-          fr.pago_saldo_ars as balance_payment_ars,
-          fr.tipo_cambio_saldo as balance_exchange_rate,
+          fr.monto_anticipo_ars as deposit_amount_ars,
+              fr.tipo_cambio_anticipo as deposit_exchange_rate,
+              fr.monto_saldo_ars as balance_amount_ars,
+              fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,
           fr.precio_total_cotizado_ars as total_price_ars,
@@ -233,9 +235,9 @@ export class BookingRepository implements IBookingRepository {
       // - precio_noche_cotizado_usd (if price changed)
       // - monto_anticipo_usd, monto_saldo_usd (if price or montos changed)
       // - comision_canal_usd (if price or canal changed)
-      // - pago_anticipo_ars, pago_saldo_ars (if TC or base USD changed)
+      // - monto_anticipo_ars, monto_saldo_ars (if TC or base USD changed)
       await pool.execute(
-        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ? WHERE id_reserva = ?",
+        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ?, monto_anticipo_usd = ?, monto_anticipo_ars = ? WHERE id_reserva = ?",
         [
           bookingData.check_in,
           bookingData.check_out,
@@ -249,6 +251,8 @@ export class BookingRepository implements IBookingRepository {
           bookingData.guest_phone,
           bookingData.noon,
           bookingData.observations ?? null,
+          bookingData.deposit_amount_usd ?? null,
+          bookingData.deposit_amount_ars ?? null,
           bookingData.id,
         ],
       );
@@ -300,10 +304,10 @@ export class BookingRepository implements IBookingRepository {
           fr.precio_total_cotizado_usd as total_price_usd,
           fr.monto_anticipo_usd as deposit_amount_usd,
           fr.monto_saldo_usd as balance_amount_usd,
-          fr.pago_anticipo_ars as deposit_payment_ars,
-          fr.tipo_cambio_anticipo as deposit_exchange_rate,
-          fr.pago_saldo_ars as balance_payment_ars,
-          fr.tipo_cambio_saldo as balance_exchange_rate,
+          fr.monto_anticipo_ars as deposit_amount_ars,
+              fr.tipo_cambio_anticipo as deposit_exchange_rate,
+              fr.monto_saldo_ars as balance_amount_ars,
+              fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,
           fr.precio_total_cotizado_ars as total_price_ars,
@@ -344,9 +348,11 @@ export class BookingRepository implements IBookingRepository {
           fr.precio_total_cotizado_usd as total_price_usd,
           fr.monto_anticipo_usd as deposit_amount_usd,
           fr.monto_saldo_usd as balance_amount_usd,
-          fr.pago_anticipo_ars as deposit_payment_ars,
+          fr.monto_anticipo_ars as deposit_amount_ars,
+          fr.tipo_cambio_anticipo as tipo_cambio_anticipo,
           fr.tipo_cambio_anticipo as deposit_exchange_rate,
-          fr.pago_saldo_ars as balance_payment_ars,
+          fr.monto_saldo_ars as balance_amount_ars,
+          fr.tipo_cambio_saldo as tipo_cambio_saldo,
           fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,

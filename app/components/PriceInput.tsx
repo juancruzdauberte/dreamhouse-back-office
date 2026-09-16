@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 export type PriceInputProps = {
   name: string;
   label: string;
-  currency: "ARS" | "USD";
+  currency: "ARS" | "USD" | "TC";
   defaultValue?: string | number | null;
+  value?: string | number | null;
   required?: boolean;
   placeholder?: string;
   className?: string;
@@ -41,6 +42,7 @@ export function PriceInput({
   label,
   currency: _currency,
   defaultValue,
+  value: controlledValue,
   required,
   placeholder,
   className,
@@ -51,10 +53,12 @@ export function PriceInput({
   const [displayValue, setDisplayValue] = useState<string>("");
 
   useEffect(() => {
-    const digits = normalizeDefault(defaultValue);
+    // Si hay value controlado, usarlo; sino usar defaultValue
+    const valueToUse = controlledValue ?? defaultValue;
+    const digits = normalizeDefault(valueToUse);
     setRawValue(digits);
     setDisplayValue(formatWithDots(digits));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [controlledValue, defaultValue]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = stripNonDigits(e.target.value);

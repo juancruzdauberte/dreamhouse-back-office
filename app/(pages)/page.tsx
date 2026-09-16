@@ -48,9 +48,6 @@ export default async function BookingsPage({
             <h1 className="text-3xl md:text-4xl font-bold text-foreground text-balance">
               Reservas
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-2">
-              Gestiona próximas estadías y revisa disponibilidad del mes.
-            </p>
 
             <div className="flex gap-5 mt-4">
               <Link
@@ -108,16 +105,16 @@ export default async function BookingsPage({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6 mb-8">
-              <div className="min-w-0 order-last lg:order-first">
-                <InquiryDashboard />
-              </div>
-              <div className="min-w-0 order-first lg:order-last">
-                <CalendarComponent
-                  bookings={calendarBookings}
-                  initialDate={startDate}
-                />
-              </div>
-            </div>
+          <div className="min-w-0 order-last lg:order-first">
+            <InquiryDashboard />
+          </div>
+          <div className="min-w-0 order-first lg:order-last">
+            <CalendarComponent
+              bookings={calendarBookings}
+              initialDate={startDate}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -88,7 +88,7 @@ export default function StayTimeline({
               ease: [0.22, 1, 0.36, 1],
             }}
             style={{ transformOrigin: "left center" }}
-            className="h-full bg-gradient-to-r from-primary to-primary/40 rounded-full"
+            className="h-full bg-linear-to-r from-primary to-primary/40 rounded-full"
           />
         </div>
 

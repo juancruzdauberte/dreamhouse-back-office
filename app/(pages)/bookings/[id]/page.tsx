@@ -79,10 +79,10 @@ export default async function BookingDetailPage({ params }: Props) {
     : parseFloat(booking.total_price_ars ?? "0");
   const depositAmt = isUSD
     ? parseFloat(booking.deposit_amount_usd)
-    : parseFloat(booking.deposit_payment_ars ?? "0");
+    : parseFloat(booking.deposit_amount_ars ?? "0");
   const balanceAmt = isUSD
     ? parseFloat(booking.balance_amount_usd)
-    : parseFloat(booking.balance_payment_ars ?? "0");
+    : parseFloat(booking.balance_amount_ars ?? "0");
   const pricePerNight = isUSD
     ? Math.round(parseFloat(booking.price_per_night_usd))
     : Math.round(totalAmt / booking.nights_stay);

@@ -1,9 +1,17 @@
 import z from "zod";
 
 // NOTE: CreateBookingSchema validates ONLY the fields provided by the CREATE form.
-// Calculated fields (anticipo, saldo, comission, etc.) are NOT in this schema.
+// Calculated fields (balance, comission, etc.) are NOT in this schema.
 // The database triggers calculate them automatically.
 // booking_state is hardcoded to "Confirmada" in the action.
+//
+// CAMPOS DE ANTICIPO/DEPÓSITO:
+//   - deposit_amount_usd: depósito personalizado en USD (opcional, 30% por defecto)
+//   - deposit_amount_ars: depósito personalizado en ARS (opcional, 30% por defecto)
+//
+// CAMPOS DE TIPO DE CAMBIO:
+//   - tipo_cambio: SOLO INFORMATIVO en el cliente. No se persiste ni se usa en lógica BD.
+//     Se usa solo para mostrar el equivalente en USD de una reserva en ARS.
 export const CreateBookingSchema = z.object({
   tenant_name: z.string(),
   channel_id: z.coerce.number(),
@@ -24,6 +32,32 @@ export const CreateBookingSchema = z.object({
       return typeof val === "string" ? parseFloat(val) : val;
     })
     .pipe(z.number().nullable()),
+  // Depósito personalizado (opcional, trigger calcula 30% si no se proporciona)
+  deposit_amount_usd: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  deposit_amount_ars: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  // Tipo de cambio: SOLO INFORMATIVO, no se persiste
+  tipo_cambio: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
   tenant_quantity: z.coerce.number(),
   guest_phone: z
     .union([z.string(), z.null(), z.undefined()])
@@ -37,6 +71,23 @@ export const CreateBookingSchema = z.object({
     .union([z.string(), z.null(), z.undefined()])
     .transform((val) => (val === "" || val === null || val === undefined ? null : val))
     .pipe(z.string().nullable())
+    .optional(),
+  // DEPRECATED: Keep for backward compatibility
+  monto_anticipo_usd: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  monto_anticipo_ars: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
     .optional(),
 });
 
@@ -74,11 +125,62 @@ export const UpdateBookingSchema = z.object({
     })
     .pipe(z.number().nullable())
     .optional(),
+  // Depósito personalizado (opcional, trigger calcula 30% si no se proporciona)
+  deposit_amount_usd: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  deposit_amount_ars: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  // Tipo de cambio: SOLO INFORMATIVO, no se persiste
+  tipo_cambio: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
   tenant_quantity: z.coerce.number().optional(),
   noon: z.boolean().optional(),
   observations: z
     .union([z.string(), z.null(), z.undefined()])
     .transform((val) => (val === "" || val === null || val === undefined ? null : val))
     .pipe(z.string().nullable())
+    .optional(),
+  // DEPRECATED: Keep for backward compatibility
+  monto_anticipo_usd: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  monto_anticipo_ars: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  deposit_amount_ars: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
     .optional(),
 });

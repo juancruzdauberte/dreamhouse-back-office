@@ -21,16 +21,31 @@ export function CreateBookingFormClient({
 }: BookingFormClientProps) {
   const router = useRouter();
 
+  // Función para redondear como lo hace MySQL
+  const ROUND = (value: number, decimals: number) => {
+    return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  };
+
   const [currency, setCurrency] = useState<number | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<number>(0);
 
   // Track the current price for live preview calculation
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
+  // Custom deposit amount (if user specifies it)
+  const [customDeposit, setCustomDeposit] = useState<number | null>(null);
+  const [useStandardDeposit, setUseStandardDeposit] = useState(true);
+
+  // Exchange rate (informative only for ARS)
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+
   const handleSuccess = () => {
     setSelectedChannel(0);
     setCurrency(null);
     setTotalPrice(0);
+    setCustomDeposit(null);
+    setUseStandardDeposit(true);
+    setExchangeRate(null);
     router.refresh();
     router.push("/");
   };
@@ -66,12 +81,37 @@ export function CreateBookingFormClient({
     [datesUnavailable],
   );
 
-  // Calculate deposit and balance for LIVE PREVIEW (not submitted to server)
-  const calculatedDeposit = totalPrice * 0.3;
-  const calculatedBalance = totalPrice * 0.7;
+  // Calculate deposit and balance for LIVE PREVIEW
+  const finalDeposit = useStandardDeposit ? totalPrice * 0.3 : customDeposit || 0;
+  const finalBalance = totalPrice - finalDeposit;
+
+  // Calculate informative USD equivalent when ARS
+  const equivalentUSD = exchangeRate && currency === 1 
+    ? totalPrice / exchangeRate
+    : null;
 
   const handlePriceChange = (newPrice: number) => {
     setTotalPrice(newPrice);
+  };
+
+  const handleStandardDepositToggle = (checked: boolean) => {
+    setUseStandardDeposit(checked);
+    if (checked) {
+      setCustomDeposit(null);
+    }
+  };
+
+  const handleCustomDepositChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "");
+    const value = parseFloat(digits || "0");
+    setCustomDeposit(value);
+    setUseStandardDeposit(false);
+  };
+
+  const handleExchangeRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "");
+    const value = parseFloat(digits || "0");
+    setExchangeRate(value || null);
   };
 
   return (
@@ -155,6 +195,7 @@ export function CreateBookingFormClient({
           }
         />
 
+        {/* Precio Total */}
         <div
           key={`price-${currency}`}
           className="animate-in fade-in-0 duration-200"
@@ -184,47 +225,110 @@ export function CreateBookingFormClient({
           )}
         </div>
 
-        {/* PREVIEW ONLY: Calculated Deposit (30%) */}
+        {/* Anticipo: Checkbox para 30% estándar + Input personalizado */}
         <div
-          key={`prepay-${currency}`}
+          key={`deposit-control-${currency}`}
           className="animate-in fade-in-0 duration-200"
         >
           <div className="flex flex-col">
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-              Anticipo (30%) {currency === 1 ? "ARS" : "USD"}
+            <label className="block text-xs font-medium text-muted-foreground mb-2">
+              Anticipo
             </label>
-            <div className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground flex items-center opacity-60 cursor-not-allowed">
-              {currency === 1
-                ? `$${calculatedDeposit.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
-                : `USD ${calculatedDeposit.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`}
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                id="use_standard_deposit"
+                checked={useStandardDeposit}
+                onChange={(e) => handleStandardDepositToggle(e.target.checked)}
+                className="w-4 h-4 rounded border-border cursor-pointer"
+              />
+              <label htmlFor="use_standard_deposit" className="text-sm cursor-pointer">
+                Usar 30% estándar
+              </label>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Se calcula automáticamente al guardar
-            </p>
+
+            {useStandardDeposit ? (
+              <div className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground flex items-center opacity-60">
+                {currency === 1
+                  ? `$${finalDeposit.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
+                  : `USD ${finalDeposit.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`}
+              </div>
+            ) : (
+              <PriceInput
+                name="anticipo_custom"
+                label=""
+                currency={currency === 1 ? "ARS" : "USD"}
+                placeholder={`Ej. ${(totalPrice * 0.5).toFixed(0)}`}
+                value={customDeposit || ""}
+                onChange={handleCustomDepositChange}
+              />
+            )}
           </div>
-          <input type="hidden" name="prepayment_usd" value="0" />
-          <input type="hidden" name="prepayment_ars" value="0" />
+          {/* Hidden fields para enviar al servidor */}
+          <input
+            type="hidden"
+            name={currency === 1 ? "deposit_amount_ars" : "deposit_amount_usd"}
+            value={useStandardDeposit ? "" : customDeposit || ""}
+          />
         </div>
 
-        {/* PREVIEW ONLY: Calculated Balance (70%) */}
+        {/* Saldo: Solo lectura, calculado automáticamente */}
         <div
           key={`balance-${currency}`}
           className="animate-in fade-in-0 duration-200"
         >
           <div className="flex flex-col">
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-              Saldo (70%) {currency === 1 ? "ARS" : "USD"}
+              Saldo {currency === 1 ? "ARS" : "USD"}
             </label>
             <div className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground flex items-center opacity-60 cursor-not-allowed">
               {currency === 1
-                ? `$${calculatedBalance.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
-                : `USD ${calculatedBalance.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`}
+                ? `$${finalBalance.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`
+                : `USD ${finalBalance.toLocaleString("es-AR", { minimumFractionDigits: 2 })}`}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Se calcula automáticamente al guardar
+              Se calcula como: Total - Anticipo
             </p>
           </div>
         </div>
+
+        {/* Tipo de Cambio: Solo informativo para ARS */}
+        {currency === 1 && (
+          <div
+            key={`exchange-rate-${currency}`}
+            className="animate-in fade-in-0 duration-200"
+          >
+            <PriceInput
+              name="tipo_cambio_input"
+              label="Tipo de cambio (informativo)"
+              currency="TC"
+              placeholder="Ej. 45.50"
+              value={exchangeRate || ""}
+              onChange={handleExchangeRateChange}
+            />
+            <input type="hidden" name="tipo_cambio" value={exchangeRate || ""} />
+          </div>
+        )}
+
+        {/* USD Equivalence Display (informativo para ARS) */}
+        {currency === 1 && equivalentUSD && (
+          <div
+            key={`usd-equiv-${currency}`}
+            className="animate-in fade-in-0 duration-200 col-span-1"
+          >
+            <div className="flex flex-col">
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                Equivalencia USD
+              </label>
+              <div className="w-full h-10 rounded-lg border border-border bg-blue-50 px-3 py-2 text-sm text-foreground flex items-center">
+                USD {equivalentUSD.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Referencia: Total ARS ÷ Tipo de cambio
+              </p>
+            </div>
+          </div>
+        )}
       </BookingFormSection>
 
       {/* ── Reserva ── */}
