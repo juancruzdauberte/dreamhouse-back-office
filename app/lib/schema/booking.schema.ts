@@ -49,8 +49,7 @@ export const CreateBookingSchema = z.object({
     })
     .pipe(z.number().nullable())
     .optional(),
-  // Tipo de cambio: SOLO INFORMATIVO, no se persiste
-  tipo_cambio: z
+  deposit_exchange_rate: z
     .union([z.string(), z.number(), z.null(), z.undefined()])
     .transform((val) => {
       if (val === "" || val === null || val === undefined) return null;
@@ -73,23 +72,6 @@ export const CreateBookingSchema = z.object({
       val === "" || val === null || val === undefined ? null : val,
     )
     .pipe(z.string().nullable())
-    .optional(),
-  // DEPRECATED: Keep for backward compatibility
-  monto_anticipo_usd: z
-    .union([z.string(), z.number(), z.null(), z.undefined()])
-    .transform((val) => {
-      if (val === "" || val === null || val === undefined) return null;
-      return typeof val === "string" ? parseFloat(val) : val;
-    })
-    .pipe(z.number().nullable())
-    .optional(),
-  monto_anticipo_ars: z
-    .union([z.string(), z.number(), z.null(), z.undefined()])
-    .transform((val) => {
-      if (val === "" || val === null || val === undefined) return null;
-      return typeof val === "string" ? parseFloat(val) : val;
-    })
-    .pipe(z.number().nullable())
     .optional(),
 });
 
@@ -144,8 +126,15 @@ export const UpdateBookingSchema = z.object({
     })
     .pipe(z.number().nullable())
     .optional(),
-  // Tipo de cambio: SOLO INFORMATIVO, no se persiste
-  tipo_cambio: z
+  deposit_exchange_rate: z
+    .union([z.string(), z.number(), z.null(), z.undefined()])
+    .transform((val) => {
+      if (val === "" || val === null || val === undefined) return null;
+      return typeof val === "string" ? parseFloat(val) : val;
+    })
+    .pipe(z.number().nullable())
+    .optional(),
+  balance_exchange_rate: z
     .union([z.string(), z.number(), z.null(), z.undefined()])
     .transform((val) => {
       if (val === "" || val === null || val === undefined) return null;

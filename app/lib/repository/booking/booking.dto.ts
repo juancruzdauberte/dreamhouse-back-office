@@ -9,7 +9,7 @@ export interface CreateBookingDTO {
   booking_total_price_ars?: number | null;
   deposit_amount_usd?: number | null;
   deposit_amount_ars?: number | null;
-  tipo_cambio?: number | null; // SOLO INFORMATIVO, no se persiste
+  deposit_exchange_rate?: number | null;
   guest_phone?: string | null;
   noon?: boolean;
   observations?: string | null;
@@ -32,6 +32,8 @@ export interface BookingDTO {
   balance_amount_usd: string;
   balance_amount_ars: string;
   deposit_amount_ars: string;
+  deposit_exchange_rate: string;
+  balance_exchange_rate: string;
   channel_commission_usd: string;
   advertising_booking: number;
   total_price_ars: string | null;

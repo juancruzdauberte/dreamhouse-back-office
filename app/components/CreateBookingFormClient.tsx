@@ -300,7 +300,7 @@ export function CreateBookingFormClient({
             className="animate-in fade-in-0 duration-200"
           >
             <PriceInput
-              name="tipo_cambio_input"
+              name="deposit_exchange_rate"
               label="Tipo de cambio (informativo)"
               currency="TC"
               placeholder="Ej. 45.50"
@@ -309,7 +309,7 @@ export function CreateBookingFormClient({
             />
             <input
               type="hidden"
-              name="tipo_cambio"
+              name="deposit_exchange_rate"
               value={exchangeRate || ""}
             />
           </div>

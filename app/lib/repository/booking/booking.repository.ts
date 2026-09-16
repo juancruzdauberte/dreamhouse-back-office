@@ -16,21 +16,10 @@ import { IBookingRepository } from "./booking.interface";
 export class BookingRepository implements IBookingRepository {
   async createBooking(bookingData: CreateBookingDTO): Promise<number> {
     try {
-      const fechaActual = new Date();
-
-      // NOTE: The INSERT only passes raw data to the database.
-      // The BEFORE INSERT trigger (trg_reservas_before_insert_completo) calculates:
-      // - noches_estadia (from dates)
-      // - precio_noche_cotizado_usd (from total price / nights)
-      // - monto_anticipo_usd (30% of total price)
-      // - monto_saldo_usd (70% of total price)
-      // - comision_canal_usd (from channel percentage)
-      // - monto_anticipo_ars (from tipo_cambio_anticipo * monto_anticipo_usd)
-      // - monto_saldo_ars (from tipo_cambio_saldo * monto_saldo_usd)
       const [result] = await pool.execute<ResultSetHeader>(
-        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones, monto_anticipo_usd, monto_anticipo_ars) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones, monto_anticipo_usd, monto_anticipo_ars, tipo_cambio_anticipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
-          fechaActual,
+          new Date(),
           bookingData.check_in,
           bookingData.check_out,
           bookingData.channel_id,
@@ -45,6 +34,7 @@ export class BookingRepository implements IBookingRepository {
           bookingData.observations ?? null,
           bookingData.deposit_amount_usd ?? null,
           bookingData.deposit_amount_ars ?? null,
+          bookingData.deposit_exchange_rate ?? null,
         ],
       );
       return result.insertId;
@@ -78,9 +68,9 @@ export class BookingRepository implements IBookingRepository {
           fr.monto_anticipo_usd as deposit_amount_usd,
           fr.monto_saldo_usd as balance_amount_usd,
           fr.monto_anticipo_ars as deposit_amount_ars,
-              fr.tipo_cambio_anticipo as deposit_exchange_rate,
-              fr.monto_saldo_ars as balance_amount_ars,
-              fr.tipo_cambio_saldo as balance_exchange_rate,
+          fr.tipo_cambio_anticipo as deposit_exchange_rate,
+          fr.monto_saldo_ars as balance_amount_ars,
+          fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,
           fr.precio_total_cotizado_ars as total_price_ars,
@@ -237,7 +227,7 @@ export class BookingRepository implements IBookingRepository {
       // - comision_canal_usd (if price or canal changed)
       // - monto_anticipo_ars, monto_saldo_ars (if TC or base USD changed)
       await pool.execute(
-        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ?, monto_anticipo_usd = ?, monto_anticipo_ars = ? WHERE id_reserva = ?",
+        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ?, monto_anticipo_usd = ?, monto_anticipo_ars = ?, tipo_cambio_anticipo = ?, tipo_cambio_saldo = ? WHERE id_reserva = ?",
         [
           bookingData.check_in,
           bookingData.check_out,
@@ -253,6 +243,8 @@ export class BookingRepository implements IBookingRepository {
           bookingData.observations ?? null,
           bookingData.deposit_amount_usd ?? null,
           bookingData.deposit_amount_ars ?? null,
+          bookingData.deposit_exchange_rate ?? null,
+          bookingData.balance_exchange_rate ?? null,
           bookingData.id,
         ],
       );

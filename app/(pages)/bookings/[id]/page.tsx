@@ -90,6 +90,19 @@ export default async function BookingDetailPage({ params }: Props) {
 
   const fmt = (n: number) => `$${n.toLocaleString("es-AR")} ${currency}`;
 
+  // Calcular equivalencia en USD si hay tipos de cambio
+  const depositTC = parseFloat(booking.deposit_exchange_rate || "0");
+  const balanceTC = parseFloat(booking.balance_exchange_rate || "0");
+  const hasExchangeRates = depositTC > 0 || balanceTC > 0;
+  const avgTC =
+    depositTC && balanceTC
+      ? (depositTC + balanceTC) / 2
+      : depositTC || balanceTC;
+  const equivalentUSD =
+    hasExchangeRates && !isUSD && avgTC > 0
+      ? parseFloat((totalAmt / avgTC).toFixed(2))
+      : null;
+
   const bookingDateFormatted = new Date(
     booking.booking_date,
   ).toLocaleDateString("es-AR", {
@@ -183,6 +196,52 @@ export default async function BookingDetailPage({ params }: Props) {
                 />
               )}
               <PriceRow label="Total" value={fmt(totalAmt)} highlight />
+
+              {/* Tipos de cambio e información referencial en USD */}
+              {hasExchangeRates && (
+                <div className="mt-4 pt-3 border-t border-border/60">
+                  <p className="text-xs font-medium text-muted-foreground mb-2.5">
+                    Referencia de cambio
+                  </p>
+                  {depositTC > 0 && (
+                    <div className="flex items-center justify-between py-1.5 text-xs">
+                      <span className="text-muted-foreground">
+                        USD tipo de cambio anticipo:
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {depositTC.toLocaleString("es-AR", {
+                          maximumFractionDigits: 3,
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  {balanceTC > 0 && (
+                    <div className="flex items-center justify-between py-1.5 text-xs">
+                      <span className="text-muted-foreground">
+                        USD tipo de cambio saldo:
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {balanceTC.toLocaleString("es-AR", {
+                          maximumFractionDigits: 3,
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  {equivalentUSD && (
+                    <div className="flex items-center justify-between py-2 mt-2 px-3 rounded-lg bg-blue-50 border border-blue-100">
+                      <span className="text-xs font-medium text-blue-700">
+                        ≈ en USD:
+                      </span>
+                      <span className="text-sm font-bold text-blue-700">
+                        USD {equivalentUSD.toLocaleString("es-AR")}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2 italic">
+                    ℹ️ Valor informativo basado en TC promedio
+                  </p>
+                </div>
+              )}
             </AnimatedSectionCard>
 
             {/* Pagos — progress bar + count-up */}

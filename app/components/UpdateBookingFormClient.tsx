@@ -21,6 +21,7 @@ export default function UpdateBookingFormClient({
 }: BookingFormClientProps) {
   const router = useRouter();
 
+  console.log(booking.deposit_exchange_rate);
   const [currency, setCurrency] = useState<number>(
     parseFloat(booking.total_price_usd || "0") > 0 ? 2 : 1,
   );
@@ -37,8 +38,12 @@ export default function UpdateBookingFormClient({
   const [selectedChannel, setSelectedChannel] =
     useState<number>(bookingChannelId);
 
-  // Exchange rate (informative only)
-  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [depositExchangeRate, setDepositExchangeRate] = useState<number | null>(
+    null,
+  );
+  const [balanceExchangeRate, setBalanceExchangeRate] = useState<number | null>(
+    null,
+  );
 
   // Anticipo editado en UPDATE
   const [editedDeposit, setEditedDeposit] = useState<number | null>(null);
@@ -125,16 +130,30 @@ export default function UpdateBookingFormClient({
 
   // Calculate informative USD equivalent when ARS
   const equivalentUSD =
-    exchangeRate && currency === 1 ? totalPrice / exchangeRate : null;
+    depositExchangeRate && balanceExchangeRate && currency === 1
+      ? Math.round(
+          totalPrice / ((depositExchangeRate + balanceExchangeRate) / 2),
+        )
+      : null;
 
   const handlePriceChange = (newPrice: number) => {
     setTotalPrice(newPrice);
   };
 
-  const handleExchangeRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDepositExchangeRateChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const digits = e.target.value.replace(/\D/g, "");
     const value = parseFloat(digits || "0");
-    setExchangeRate(value || null);
+    setDepositExchangeRate(value || null);
+  };
+
+  const handleBalanceExchangeRateChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const digits = e.target.value.replace(/\D/g, "");
+    const value = parseFloat(digits || "0");
+    setBalanceExchangeRate(value || null);
   };
 
   return (
@@ -268,32 +287,35 @@ export default function UpdateBookingFormClient({
           key={`deposit-${currency}`}
           className="animate-in fade-in-0 duration-200"
         >
-          {currency === 1 ? (
-            <PriceInput
-              name="deposit_amount_ars"
-              label="Anticipo ARS"
-              currency="ARS"
-              defaultValue={booking.deposit_amount_ars}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const digits = e.target.value.replace(/\D/g, "");
-                handleCustomDepositChange(e);
-              }}
-            />
-          ) : (
-            <PriceInput
-              name="deposit_amount_usd"
-              label="Anticipo USD"
-              currency="USD"
-              defaultValue={booking.deposit_amount_usd}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const digits = e.target.value.replace(/\D/g, "");
-                handleCustomDepositChange(e);
-              }}
-            />
-          )}
-          <p className="text-xs text-muted-foreground mt-1">
-            Dejar vacío para usar 30% del total automáticamente
-          </p>
+          <div className="flex flex-col">
+            <label className="block text-xs font-medium text-muted-foreground mb-2">
+              Anticipo {currency === 1 ? "ARS" : "USD"}
+            </label>
+            {currency === 1 ? (
+              <PriceInput
+                name="deposit_amount_ars"
+                label=""
+                currency="ARS"
+                defaultValue={booking.deposit_amount_ars}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  handleCustomDepositChange(e);
+                }}
+              />
+            ) : (
+              <PriceInput
+                name="deposit_amount_usd"
+                label=""
+                currency="USD"
+                defaultValue={booking.deposit_amount_usd}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  handleCustomDepositChange(e);
+                }}
+              />
+            )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Dejar vacío para usar 30% del total automáticamente
+            </p>
+          </div>
         </div>
 
         {/* Saldo: Solo lectura, calculado automáticamente */}
@@ -318,31 +340,41 @@ export default function UpdateBookingFormClient({
 
         {/* Tipo de Cambio: Solo informativo para ARS */}
         {currency === 1 && (
-          <div
-            key={`exchange-rate-${currency}`}
-            className="animate-in fade-in-0 duration-200"
-          >
-            <PriceInput
-              name="tipo_cambio_input"
-              label="Tipo de cambio (informativo)"
-              currency="TC"
-              placeholder="Ej. 45.50"
-              value={exchangeRate || ""}
-              onChange={handleExchangeRateChange}
-            />
-            <input
-              type="hidden"
-              name="tipo_cambio"
-              value={exchangeRate || ""}
-            />
-          </div>
+          <>
+            <div
+              key={`exchange-rate-anticipo-${currency}`}
+              className="animate-in fade-in-0 duration-200"
+            >
+              <PriceInput
+                name="deposit_exchange_rate"
+                label="USD pago anticipo"
+                currency="TC"
+                placeholder="Ej. 45.50"
+                value={booking.deposit_exchange_rate}
+                onChange={(e) => handleDepositExchangeRateChange(e)}
+              />
+            </div>
+            <div
+              key={`exchange-rate-saldo-${currency}`}
+              className="animate-in fade-in-0 duration-200"
+            >
+              <PriceInput
+                name="balance_exchange_rate"
+                label="USD pago saldo"
+                currency="TC"
+                placeholder="Ej. 45.50"
+                value={booking.balance_exchange_rate}
+                onChange={(e) => handleBalanceExchangeRateChange(e)}
+              />
+            </div>
+          </>
         )}
 
         {/* USD Equivalence Display (informativo para ARS) */}
         {currency === 1 && equivalentUSD && (
           <div
             key={`usd-equiv-${currency}`}
-            className="animate-in fade-in-0 duration-200 col-span-1"
+            className="animate-in fade-in-0 duration-200"
           >
             <div className="flex flex-col">
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">

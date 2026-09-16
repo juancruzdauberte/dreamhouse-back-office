@@ -34,6 +34,7 @@ export async function createBooking(
       guest_phone: formData.get("guest_phone"),
       noon: formData.get("noon") === "on",
       observations: formData.get("observations"),
+      deposit_exchange_rate: formData.get("deposit_exchange_rate"),
     });
 
     const bookingId =
@@ -94,6 +95,8 @@ export async function updateBooking(
       booking_total_price_ars: formData.get("booking_total_price_ars"),
       deposit_amount_usd: formData.get("deposit_amount_usd"),
       deposit_amount_ars: formData.get("deposit_amount_ars"),
+      deposit_exchange_rate: formData.get("deposit_exchange_rate"),
+      balance_exchange_rate: formData.get("balance_exchange_rate"),
       booking_state: formData.get("booking_state"),
       guest_phone: formData.get("guest_phone"),
       noon: formData.get("noon") === "on",
