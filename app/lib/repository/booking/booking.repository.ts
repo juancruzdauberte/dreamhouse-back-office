@@ -17,11 +17,12 @@ export class BookingRepository implements IBookingRepository {
   async createBooking(bookingData: CreateBookingDTO): Promise<number> {
     try {
       const [result] = await pool.execute<ResultSetHeader>(
-        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones, monto_anticipo_usd, monto_anticipo_ars, tipo_cambio_anticipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_propiedad_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones, monto_anticipo_usd, monto_anticipo_ars, tipo_cambio_anticipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           new Date(),
           bookingData.check_in,
           bookingData.check_out,
+          bookingData.property_id,
           bookingData.channel_id,
           bookingData.tenant_quantity,
           "Confirmada",
@@ -59,6 +60,8 @@ export class BookingRepository implements IBookingRepository {
           fr.fecha_checkin_fk as check_in,
           fr.fecha_checkout_fk as check_out,
           dm.nombre_canal as channel_name,
+          dp.id_propiedad as property_id,
+          dp.nombre as property_name,
           fr.cant_huespedes as guest_count,
           fr.noches_estadia as nights_stay,
           fr.estado_reserva as status,
@@ -80,6 +83,7 @@ export class BookingRepository implements IBookingRepository {
           fr.google_event_id as google_event_id
         FROM fact_reservas fr
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
         WHERE fr.id_reserva = ?`,
         [id],
       );
@@ -115,6 +119,8 @@ export class BookingRepository implements IBookingRepository {
           fr.fecha_checkin_fk as check_in,
           fr.fecha_checkout_fk as check_out,
           dm.nombre_canal as channel_name,
+          dp.id_propiedad as property_id,
+          dp.nombre as property_name,
           fr.cant_huespedes as guest_count,
           fr.noches_estadia as nights_stay,
           fr.estado_reserva as status,
@@ -124,9 +130,9 @@ export class BookingRepository implements IBookingRepository {
           fr.monto_anticipo_usd as deposit_amount_usd,
           fr.monto_saldo_usd as balance_amount_usd,
           fr.monto_anticipo_ars as deposit_amount_ars,
-              fr.tipo_cambio_anticipo as deposit_exchange_rate,
-              fr.monto_saldo_ars as balance_amount_ars,
-              fr.tipo_cambio_saldo as balance_exchange_rate,
+          fr.tipo_cambio_anticipo as deposit_exchange_rate,
+          fr.monto_saldo_ars as balance_amount_ars,
+          fr.tipo_cambio_saldo as balance_exchange_rate,
           fr.comision_canal_usd as channel_commission_usd,
           fr.reserva_por_adv as advertising_booking,
           fr.precio_total_cotizado_ars as total_price_ars,
@@ -134,6 +140,7 @@ export class BookingRepository implements IBookingRepository {
           fr.medio_dia as noon
         FROM fact_reservas fr
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
         WHERE fr.fecha_checkin_fk BETWEEN ? AND ?
         ORDER BY fr.fecha_checkin_fk DESC
         LIMIT ?`,
@@ -219,18 +226,12 @@ export class BookingRepository implements IBookingRepository {
 
   async updateBooking(bookingData: UpdateBookingDTO): Promise<void> {
     try {
-      // NOTE: The UPDATE only passes raw data. The BEFORE UPDATE trigger
-      // (trg_reservas_before_update_completo) recalculates:
-      // - noches_estadia (if dates changed)
-      // - precio_noche_cotizado_usd (if price changed)
-      // - monto_anticipo_usd, monto_saldo_usd (if price or montos changed)
-      // - comision_canal_usd (if price or canal changed)
-      // - monto_anticipo_ars, monto_saldo_ars (if TC or base USD changed)
       await pool.execute(
-        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ?, monto_anticipo_usd = ?, monto_anticipo_ars = ?, tipo_cambio_anticipo = ?, tipo_cambio_saldo = ? WHERE id_reserva = ?",
+        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_propiedad_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ?, monto_anticipo_usd = ?, monto_anticipo_ars = ?, tipo_cambio_anticipo = ?, tipo_cambio_saldo = ? WHERE id_reserva = ?",
         [
           bookingData.check_in,
           bookingData.check_out,
+          bookingData.property_id,
           bookingData.channel_id,
           bookingData.tenant_quantity,
           bookingData.booking_state,
@@ -288,6 +289,8 @@ export class BookingRepository implements IBookingRepository {
           fr.fecha_checkin_fk as check_in,
           fr.fecha_checkout_fk as check_out,
           dm.nombre_canal as channel_name,
+          dp.id_propiedad as property_id,
+          dp.nombre as property_name,
           fr.cant_huespedes as guest_count,
           fr.noches_estadia as nights_stay,
           fr.estado_reserva as status,
@@ -307,6 +310,7 @@ export class BookingRepository implements IBookingRepository {
           fr.medio_dia as noon
         FROM fact_reservas fr
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
         WHERE fr.fecha_checkin_fk >= ? AND fr.estado_reserva = 'Confirmada'
         ORDER BY fr.fecha_checkin_fk ASC
         LIMIT 1`,
@@ -332,6 +336,8 @@ export class BookingRepository implements IBookingRepository {
           fr.fecha_checkin_fk as check_in,
           fr.fecha_checkout_fk as check_out,
           dm.nombre_canal as channel_name,
+          dp.id_propiedad as property_id,
+          dp.nombre as property_name,
           fr.cant_huespedes as guest_count,
           fr.noches_estadia as nights_stay,
           fr.estado_reserva as status,
@@ -353,6 +359,7 @@ export class BookingRepository implements IBookingRepository {
           fr.medio_dia as noon
         FROM fact_reservas fr
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
         ORDER BY fr.fecha_checkin_fk DESC`,
       );
       return rows as BookingDTO[];

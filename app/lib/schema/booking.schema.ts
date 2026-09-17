@@ -4,6 +4,7 @@ import z from "zod";
 // Calculated fields (balance, comission, etc.) are NOT in this schema.
 // The database triggers calculate them automatically.
 // booking_state is hardcoded to "Confirmada" in the action.
+// property_id is REQUIRED and tied to a property in dim_propiedades.
 //
 // CAMPOS DE ANTICIPO/DEPÓSITO:
 //   - deposit_amount_usd: depósito personalizado en USD (opcional, 30% por defecto)
@@ -12,7 +13,10 @@ import z from "zod";
 // CAMPOS DE TIPO DE CAMBIO:
 //   - tipo_cambio: SOLO INFORMATIVO en el cliente. No se persiste ni se usa en lógica BD.
 //     Se usa solo para mostrar el equivalente en USD de una reserva en ARS.
+// PROPERTY SELECTION:
+//   - property_id es OBLIGATORIO. Selecciona a qué propiedad/casa pertenece la reserva.
 export const CreateBookingSchema = z.object({
+  property_id: z.coerce.number().int().positive("Property ID debe ser un número positivo"),
   tenant_name: z.string(),
   channel_id: z.coerce.number(),
   check_in: z.string(),
@@ -77,8 +81,10 @@ export const CreateBookingSchema = z.object({
 
 // NOTE: UpdateBookingSchema validates ONLY the fields provided by the UPDATE form.
 // Calculated fields are NOT included (trigger handles them).
+// property_id es OPCIONAL en edición (puede cambiar a qué propiedad pertenece).
 export const UpdateBookingSchema = z.object({
   id: z.coerce.number(),
+  property_id: z.coerce.number().int().positive("Property ID debe ser un número positivo").optional(),
   tenant_name: z.string().optional(),
   channel_id: z.coerce.number().optional(),
   check_in: z.string().optional(),

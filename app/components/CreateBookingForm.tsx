@@ -2,8 +2,14 @@ import { DIContainer } from "../core/DiContainer";
 import { CreateBookingFormClient } from "./CreateBookingFormClient";
 
 export default async function CreateBookingForm() {
-  const bookingRepository = DIContainer.getBookingRepository();
-  const datesUnavailable = await bookingRepository.getBookingsDate();
+  const datesUnavailable =
+    await DIContainer.getBookingRepository().getBookingsDate();
+  const properties = await DIContainer.getPropertyRepository().getProperties();
 
-  return <CreateBookingFormClient datesUnavailable={datesUnavailable} />;
+  return (
+    <CreateBookingFormClient
+      datesUnavailable={datesUnavailable}
+      properties={properties}
+    />
+  );
 }

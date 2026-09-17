@@ -6,6 +6,7 @@ import {
   CalendarPlus2,
   ChartNoAxesCombined,
   House,
+  Building2,
   Menu,
   X,
 } from "lucide-react";
@@ -138,6 +139,14 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
               >
                 <CalendarPlus2 size={20} aria-hidden="true" />
                 Crear Reserva
+              </Link>
+              <Link
+                href="/properties"
+                onClick={() => setDrawerOpen(false)}
+                className="flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground transition-colors"
+              >
+                <Building2 size={20} aria-hidden="true" />
+                Propiedades
               </Link>
               <div className="my-2 border-t border-border/80 mx-2" />
               <a
@@ -357,6 +366,11 @@ const Navbar = ({ children }: { children: ReactNode }) => {
           icon={<CalendarPlus2 size={20} />}
           text="Crear Reserva"
           href="/bookings/create"
+        />
+        <SidebarItem
+          icon={<Building2 size={20} />}
+          text="Propiedades"
+          href="/properties"
         />
 
         <div className="my-2 border-t border-border/80 mx-2" />

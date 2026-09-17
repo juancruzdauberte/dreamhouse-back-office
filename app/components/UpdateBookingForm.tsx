@@ -10,9 +10,11 @@ export default async function UpdateBookingForm({
   bookingId,
 }: UpdateBookingFormProps) {
   const bookingRepository = DIContainer.getBookingRepository();
-  const [datesUnavailable, booking] = await Promise.all([
+  const propertyRepository = DIContainer.getPropertyRepository();
+  const [datesUnavailable, booking, properties] = await Promise.all([
     bookingRepository.getBookingsDate(),
     bookingRepository.getBooking(bookingId),
+    propertyRepository.getProperties(),
   ]);
 
   if (!booking) {
@@ -22,6 +24,7 @@ export default async function UpdateBookingForm({
     <UpdateBookingFormClient
       datesUnavailable={datesUnavailable}
       booking={booking}
+      properties={properties}
     />
   );
 }

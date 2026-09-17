@@ -3,7 +3,6 @@ import {
   CreateBookingSchema,
   UpdateBookingSchema,
 } from "../schema/booking.schema";
-import { DIContainer } from "../../core/DiContainer";
 
 const { revalidatePath } = await import("next/cache");
 
@@ -18,9 +17,11 @@ export async function createBooking(
   formData: FormData,
 ): Promise<{ success: boolean; message: string }> {
   try {
+    const { DIContainer } = await import("../../core/DiContainer");
     const checkInStr = formData.get("check_in") as string;
     const checkOutStr = formData.get("check_out") as string;
     const booking = CreateBookingSchema.parse({
+      property_id: formData.get("property_id"),
       tenant_name: formData.get("tenant_name"),
       check_in: checkInStr,
       check_out: checkOutStr,
@@ -74,6 +75,7 @@ export async function updateBooking(
   formData: FormData,
 ): Promise<{ success: boolean; message: string }> {
   try {
+    const { DIContainer } = await import("../../core/DiContainer");
     const checkInStr = formData.get("check_in") as string;
     const checkOutStr = formData.get("check_out") as string;
     const bookingId = Number(formData.get("id"));
@@ -84,6 +86,7 @@ export async function updateBooking(
     // NOTE: Deposit, balance, commission, etc. are calculated by database triggers.
     // We only send the input data.
     const booking = UpdateBookingSchema.parse({
+      property_id: formData.get("property_id"),
       id: formData.get("id"),
       tenant_name: formData.get("tenant_name"),
       check_in: checkInStr,
@@ -142,6 +145,7 @@ export async function deleteBooking(
   bookingId: number,
 ): Promise<{ success: boolean; message: string }> {
   try {
+    const { DIContainer } = await import("../../core/DiContainer");
     // Get the booking to retrieve google_event_id
     const booking =
       await DIContainer.getBookingRepository().getBooking(bookingId);

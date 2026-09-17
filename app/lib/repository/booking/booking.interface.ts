@@ -18,6 +18,7 @@ export interface IBookingRepository {
     startDate: string,
     endDate: string,
     limit?: number,
+    propertyIds?: number[],
   ): Promise<BookingDTO[]>;
   getChannels(): Promise<ChannelDTO[]>;
   getBookingsDate(): Promise<BookingDatesDTO[]>;

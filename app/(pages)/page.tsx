@@ -1,9 +1,9 @@
 import { CalendarPlus2, Eye } from "lucide-react";
 import { DIContainer } from "../core/DiContainer";
 import Link from "next/link";
-import CalendarComponent from "../components/CalendarComponent";
 import BookingSearchBar from "../components/BookingSearchBar";
 import InquiryDashboard from "../components/inquiries/InquiryDashboard";
+import BookingsPageClient from "../components/BookingsPageClient";
 
 export default async function BookingsPage({
   searchParams,
@@ -12,7 +12,7 @@ export default async function BookingsPage({
 }) {
   const resolvedSearchParams = await searchParams;
   const bookingRepository = DIContainer.getBookingRepository();
-
+  const propertyRepository = DIContainer.getPropertyRepository();
   // Default dates: Today and Today + 1 Month
   const today = new Date();
   const nextMonth = new Date();
@@ -33,9 +33,10 @@ export default async function BookingsPage({
   const [sy, sm] = startDate.split("-").map(Number);
   const calendarStartDate = `${sy}-${String(sm).padStart(2, "0")}-01`;
 
-  const [calendarBookings, closestBooking] = await Promise.all([
+  const [calendarBookings, closestBooking, properties] = await Promise.all([
     bookingRepository.getBookingsForCalendar(calendarStartDate, endDate, 200),
     bookingRepository.getClosestUpcomingBooking(),
+    propertyRepository.getProperties(),
   ]);
 
   const hasClosestBooking = Boolean(closestBooking?.id);
@@ -109,8 +110,9 @@ export default async function BookingsPage({
             <InquiryDashboard />
           </div>
           <div className="min-w-0 order-first lg:order-last">
-            <CalendarComponent
+            <BookingsPageClient
               bookings={calendarBookings}
+              properties={properties}
               initialDate={startDate}
             />
           </div>

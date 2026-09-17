@@ -1,26 +1,37 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Banknote, Calendar, MessageSquare, Tag, User } from "lucide-react";
+import {
+  Banknote,
+  Calendar,
+  MessageSquare,
+  Tag,
+  User,
+  Home,
+} from "lucide-react";
 import { createBooking } from "../lib/actions/booking.actions";
 import { FormField } from "./FormField";
 import { PriceInput } from "./PriceInput";
 import { ReusableForm } from "./ReusableForm";
 import { BookingFormSection } from "./BookingFormSection";
 import { CHANNELS } from "../lib/constants/channels";
+import type { PropertyDTO } from "../lib/repository/property/property.dto";
 
 type BookingFormClientProps = {
   datesUnavailable: Array<{
     check_in: string | Date;
     check_out: string | Date;
   }>;
+  properties: PropertyDTO[];
 };
 
 export function CreateBookingFormClient({
   datesUnavailable,
+  properties,
 }: BookingFormClientProps) {
   const router = useRouter();
 
+  const [selectedProperty, setSelectedProperty] = useState<number>(0);
   const [currency, setCurrency] = useState<number | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<number>(0);
 
@@ -35,6 +46,7 @@ export function CreateBookingFormClient({
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
 
   const handleSuccess = () => {
+    setSelectedProperty(0);
     setSelectedChannel(0);
     setCurrency(null);
     setTotalPrice(0);
@@ -44,6 +56,23 @@ export function CreateBookingFormClient({
     router.refresh();
     router.push("/");
   };
+
+  // Fetch unavailable dates when property changes
+  const [dynamicDatesUnavailable, setDynamicDatesUnavailable] =
+    useState<Array<{ check_in: string | Date; check_out: string | Date }>>(
+      datesUnavailable,
+    );
+
+  useEffect(() => {
+    if (selectedProperty && selectedProperty > 0) {
+      fetch(`/api/booking/unavailable-dates?propertyId=${selectedProperty}`)
+        .then((res) => res.json())
+        .then((data) => setDynamicDatesUnavailable(data))
+        .catch((error) => {
+          console.error("Error loading unavailable dates:", error);
+        });
+    }
+  }, [selectedProperty]);
 
   const parseLocalDate = (dateVal: string | Date) => {
     const dateStr =
@@ -56,24 +85,24 @@ export function CreateBookingFormClient({
 
   const checkInDisabledRanges = useMemo(
     () =>
-      datesUnavailable.map((r) => {
+      dynamicDatesUnavailable.map((r) => {
         const start = parseLocalDate(r.check_in);
         const end = parseLocalDate(r.check_out);
         end.setDate(end.getDate() - 1);
         return { start, end };
       }),
-    [datesUnavailable],
+    [dynamicDatesUnavailable],
   );
 
   const checkOutDisabledRanges = useMemo(
     () =>
-      datesUnavailable.map((r) => {
+      dynamicDatesUnavailable.map((r) => {
         const start = parseLocalDate(r.check_in);
         const end = parseLocalDate(r.check_out);
         start.setDate(start.getDate() + 1);
         return { start, end };
       }),
-    [datesUnavailable],
+    [dynamicDatesUnavailable],
   );
 
   // Calculate deposit and balance for LIVE PREVIEW
@@ -142,6 +171,31 @@ export function CreateBookingFormClient({
           label="Teléfono"
           placeholder="3329305210"
           defaultCountry="AR"
+        />
+      </BookingFormSection>
+
+      {/* ── Propiedad ── */}
+      <BookingFormSection
+        icon={<Home className="h-4 w-4" />}
+        title="Propiedad"
+        cols={1}
+        animationDelay={120}
+      >
+        <FormField
+          type="select"
+          name="property_id"
+          label="Selecciona una propiedad"
+          options={[
+            { value: "", label: "Seleccionar propiedad" },
+            ...(properties?.map((prop) => ({
+              value: prop.id,
+              label: prop.name,
+            })) ?? []),
+          ]}
+          required
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setSelectedProperty(Number(e.target.value))
+          }
         />
       </BookingFormSection>
 

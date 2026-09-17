@@ -12,10 +12,12 @@ import {
   EventClickArg,
   EventHoveringArg,
   EventInput,
+  DateClickArg,
 } from "@fullcalendar/core";
 import { BookingDTO } from "../lib/repository/booking/booking.dto";
 import Spinner from "./widget/Spinner";
 import { toTitleCase } from "../utils/utils";
+import DayReservationsModal from "./DayReservationsModal";
 
 interface CalendarComponentProps {
   bookings: BookingDTO[];
@@ -34,12 +36,27 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
     x: number;
     y: number;
   } | null>(null);
-  const [calView, setCalView] = useState<"dayGridMonth" | "dayGridWeek">("dayGridMonth");
+  const [calView, setCalView] = useState<"dayGridMonth" | "dayGridWeek">(
+    "dayGridMonth",
+  );
   const [mobileEvent, setMobileEvent] = useState<EventApi | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [dayReservations, setDayReservations] = useState<BookingDTO[]>([]);
 
   useEffect(() => {
     setCalView(window.innerWidth < 768 ? "dayGridWeek" : "dayGridMonth");
   }, []);
+
+  // Group bookings by date for the day modal
+  const groupBookingsByDate = (date: Date): BookingDTO[] => {
+    const dateStr = date.toISOString().split("T")[0];
+    return bookings.filter((booking) => {
+      const checkInStr = String(booking.check_in).split("T")[0];
+      const checkOutStr = String(booking.check_out).split("T")[0];
+      // Include bookings that overlap with this date
+      return checkInStr <= dateStr && dateStr < checkOutStr;
+    });
+  };
 
   const events = useMemo<EventInput[]>(() => {
     return bookings.map((booking) => {
@@ -77,7 +94,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 
       return {
         id: String(booking.id),
-        title: `${guestName} (${booking.channel_name})`,
+        title: `${guestName} (${booking.property_name})`,
         start: checkInStr,
         end: endStr,
         allDay: true,
@@ -91,7 +108,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
               ? `U$S ${parseFloat(booking.total_price_usd!).toLocaleString("es-AR")}`
               : `$ ${parseFloat(String(booking.total_price_ars || 0)).toLocaleString("es-AR")}`,
           guest_name: guestName,
-          channel_name: booking.channel_name,
+          property_name: booking.property_name || "Propiedad desconocida",
           guest_count: booking.guest_count,
           nights_stay: booking.nights_stay,
           check_in: booking.check_in,
@@ -120,6 +137,16 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
       setMobileEvent(clickInfo.event);
     } else {
       router.push(`/bookings/${clickInfo.event.id}`);
+    }
+  };
+
+  const handleDateClick = (selectInfo: DateClickArg) => {
+    const date = selectInfo.date;
+    const reservations = groupBookingsByDate(date);
+    
+    if (reservations.length > 0) {
+      setSelectedDate(date);
+      setDayReservations(reservations);
     }
   };
 
@@ -169,9 +196,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           </div>
           <div className="space-y-1.5 text-xs text-slate-600">
             <div className="flex justify-between">
-              <span>Canal:</span>
+              <span>Propiedad:</span>
               <span className="font-medium">
-                {hoveredEvent.extendedProps.channel_name}
+                {hoveredEvent.extendedProps.property_name}
               </span>
             </div>
             <div className="flex justify-between">
@@ -268,6 +295,14 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           transform: translateY(-1px);
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+        /* Cursor pointer en días con eventos */
+        .fc-daygrid-day {
+          cursor: pointer;
+        }
+        .fc-daygrid-day:hover .fc-daygrid-day-frame {
+          background-color: rgba(7, 89, 133, 0.05);
+          border-radius: 4px;
+        }
         .fc-day-today {
           background-color: #f3f9ff !important;
         }
@@ -333,6 +368,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           eventClick={handleEventClick}
           eventMouseEnter={handleEventMouseEnter}
           eventMouseLeave={handleEventMouseLeave}
+          dateClick={handleDateClick}
+          
           locale={esLocale}
           headerToolbar={{
             left: "prev,next today",
@@ -344,10 +381,21 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           aspectRatio={1.8}
           fixedWeekCount={false}
           showNonCurrentDates={false}
-          dayMaxEvents={3}
+          dayMaxEvents={2}
           displayEventTime={false}
         />
       </div>
+
+      {/* Day Reservations Modal */}
+      <DayReservationsModal
+        date={selectedDate}
+        bookings={dayReservations}
+        isOpen={dayReservations.length > 0}
+        onClose={() => {
+          setSelectedDate(null);
+          setDayReservations([]);
+        }}
+      />
 
       {/* Mobile event tap modal */}
       {mobileEvent && (
@@ -386,15 +434,21 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
             <div className="space-y-1.5 text-sm text-slate-600 mb-4">
               <div className="flex justify-between">
                 <span>Canal:</span>
-                <span className="font-medium">{mobileEvent.extendedProps.channel_name}</span>
+                <span className="font-medium">
+                  {mobileEvent.extendedProps.channel_name}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Huéspedes:</span>
-                <span className="font-medium">{mobileEvent.extendedProps.guest_count}</span>
+                <span className="font-medium">
+                  {mobileEvent.extendedProps.guest_count}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Noches:</span>
-                <span className="font-medium">{mobileEvent.extendedProps.nights_stay}</span>
+                <span className="font-medium">
+                  {mobileEvent.extendedProps.nights_stay}
+                </span>
               </div>
               <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-slate-100">
                 <span>Total:</span>

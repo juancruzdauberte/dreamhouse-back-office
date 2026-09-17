@@ -70,6 +70,9 @@ export default async function BookingDetailPage({ params }: Props) {
   const booking = await DIContainer.getBookingRepository().getBooking(
     Number(id),
   );
+  const property = await DIContainer.getPropertyRepository().getPropertyById(
+    booking?.property_id ?? 0,
+  );
   if (!booking) notFound();
 
   const isUSD = parseFloat(booking.total_price_usd) > 0;
@@ -172,6 +175,7 @@ export default async function BookingDetailPage({ params }: Props) {
             <StayTimeline
               checkIn={checkInFormatted}
               checkOut={checkOutFormatted}
+              property={property?.name ?? "Propiedad desconocida"}
               nights={booking.nights_stay}
               noon={booking.noon}
               delay={160}

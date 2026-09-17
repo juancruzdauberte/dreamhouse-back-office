@@ -163,7 +163,6 @@ export default function BookingSearchBar() {
           onFocus={handleFocus}
           placeholder="Buscar reservas por huésped o canal..."
           aria-label="Buscar reservas"
-          aria-expanded={isOpen}
           aria-haspopup="listbox"
           className="w-full pl-10 pr-10 py-3 text-sm rounded-2xl border border-border bg-white shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all duration-200"
         />
@@ -186,7 +185,7 @@ export default function BookingSearchBar() {
           className="absolute z-50 mt-2 w-full max-w-[calc(100vw-1.5rem)] bg-white border border-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in-0 slide-in-from-top-2 duration-200"
         >
           {/* Date filter section */}
-          <div className="px-4 pt-3 pb-3 border-b border-border/60 bg-gradient-to-b from-muted/40 to-transparent">
+          <div className="px-4 pt-3 pb-3 border-b border-border/60 bg-lienar-to-b from-muted/40 to-transparent">
             <div className="flex items-center gap-1.5 mb-2.5">
               <Calendar className="h-3 w-3 text-primary" aria-hidden="true" />
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -309,8 +308,7 @@ export default function BookingSearchBar() {
               >
                 {filtered.map((booking, i) => {
                   const statusCfg = STATUS_CONFIG[booking.status] ?? {
-                    classes:
-                      "bg-gray-50 text-gray-600 ring-1 ring-gray-200/80",
+                    classes: "bg-gray-50 text-gray-600 ring-1 ring-gray-200/80",
                   };
 
                   return (
@@ -318,7 +316,7 @@ export default function BookingSearchBar() {
                       key={booking.id}
                       role="option"
                       aria-selected="false"
-                      className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 [animation-fill-mode:both]"
+                      className="animate-in fade-in-0 slide-in-from-bottom-1 duration-200 fill-mode-[both]"
                       style={{ animationDelay: `${i * 40}ms` }}
                     >
                       <Link

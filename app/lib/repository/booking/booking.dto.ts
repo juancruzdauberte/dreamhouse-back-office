@@ -1,4 +1,5 @@
 export interface CreateBookingDTO {
+  property_id: number; // ← NEW: required property
   tenant_name: string;
   check_in: string;
   check_out: string;
@@ -22,6 +23,8 @@ export interface BookingDTO {
   check_in: string;
   check_out: string;
   channel_name: string;
+  property_id: number;
+  property_name: string;
   guest_count: number;
   nights_stay: number;
   status: string;
@@ -44,6 +47,7 @@ export interface BookingDTO {
 }
 
 export interface UpdateBookingDTO {
+  property_id?: number;
   id?: number;
   tenant_name?: string;
   check_in?: string;

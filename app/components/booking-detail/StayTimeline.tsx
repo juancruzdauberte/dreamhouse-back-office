@@ -10,6 +10,7 @@ interface Props {
   checkOut: string;
   nights: number;
   noon: number;
+  property: string;
   delay?: number;
 }
 
@@ -18,6 +19,7 @@ export default function StayTimeline({
   checkOut,
   nights,
   noon,
+  property,
   delay = 160,
 }: Props) {
   const [displayedNights, setDisplayedNights] = useState(0);
@@ -107,7 +109,13 @@ export default function StayTimeline({
       </div>
 
       {/* Datos de estadía */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground mb-0.5">
+            Propiedad
+          </p>
+          <p className="text-sm font-semibold text-foreground">{property}</p>
+        </div>
         <div>
           <p className="text-xs font-medium text-muted-foreground mb-0.5">
             Check-in

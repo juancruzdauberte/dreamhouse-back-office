@@ -47,3 +47,4 @@ next-env.d.ts
 # Local Pi runtime state
 .atl/
 app/lib/db/migrations/
+docs

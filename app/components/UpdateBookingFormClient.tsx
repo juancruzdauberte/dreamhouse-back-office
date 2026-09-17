@@ -1,7 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useMemo, useState } from "react";
-import { Banknote, Calendar, MessageSquare, Tag, User } from "lucide-react";
+import React, { useMemo, useState, useEffect } from "react";
+import {
+  Banknote,
+  Calendar,
+  MessageSquare,
+  Tag,
+  User,
+  Home,
+} from "lucide-react";
 import { FormField } from "./FormField";
 import { PriceInput } from "./PriceInput";
 import { ReusableForm } from "./ReusableForm";
@@ -9,13 +16,16 @@ import { BookingFormSection } from "./BookingFormSection";
 import { updateBooking } from "../lib/actions/booking.actions";
 import { BookingDTO } from "../lib/repository/booking/booking.dto";
 import { CHANNELS } from "../lib/constants/channels";
+import { PropertyDTO } from "../lib/repository/property/property.dto";
 
 type BookingFormClientProps = {
+  properties: PropertyDTO[];
   datesUnavailable: Array<{ check_in: string; check_out: string }>;
   booking: BookingDTO;
 };
 
 export default function UpdateBookingFormClient({
+  properties,
   datesUnavailable,
   booking,
 }: BookingFormClientProps) {
@@ -37,6 +47,26 @@ export default function UpdateBookingFormClient({
 
   const [selectedChannel, setSelectedChannel] =
     useState<number>(bookingChannelId);
+  const [selectedProperty, setSelectedProperty] = useState<number>(
+    booking.property_id || 0,
+  );
+
+  // Fetch unavailable dates when property changes
+  const [dynamicDatesUnavailable, setDynamicDatesUnavailable] =
+    useState<Array<{ check_in: string | Date; check_out: string | Date }>>(
+      datesUnavailable,
+    );
+
+  useEffect(() => {
+    if (selectedProperty && selectedProperty > 0) {
+      fetch(`/api/booking/unavailable-dates?propertyId=${selectedProperty}`)
+        .then((res) => res.json())
+        .then((data) => setDynamicDatesUnavailable(data))
+        .catch((error) => {
+          console.error("Error loading unavailable dates:", error);
+        });
+    }
+  }, [selectedProperty]);
 
   const [depositExchangeRate, setDepositExchangeRate] = useState<number | null>(
     null,
@@ -73,7 +103,7 @@ export default function UpdateBookingFormClient({
 
   const filteredDatesUnavailable = useMemo(
     () =>
-      datesUnavailable.filter((d) => {
+      dynamicDatesUnavailable.filter((d) => {
         const dIn =
           typeof d.check_in === "string"
             ? d.check_in.split("T")[0]
@@ -86,7 +116,7 @@ export default function UpdateBookingFormClient({
         const bOut = formatDateForInput(booking.check_out);
         return !(dIn === bIn && dOut === bOut);
       }),
-    [booking.check_in, booking.check_out, datesUnavailable],
+    [booking.check_in, booking.check_out, dynamicDatesUnavailable],
   );
 
   const parseLocalDate = (dateVal: string | Date) => {
@@ -194,12 +224,38 @@ export default function UpdateBookingFormClient({
         )}
       </BookingFormSection>
 
+      {/* ── Propiedad ── */}
+      <BookingFormSection
+        icon={<Home className="h-4 w-4" />}
+        title="Propiedad"
+        cols={1}
+        animationDelay={120}
+      >
+        <FormField
+          type="select"
+          name="property_id"
+          label="Propiedad"
+          defaultValue={selectedProperty}
+          options={[
+            { value: "", label: "Seleccionar propiedad" },
+            ...(properties?.map((prop) => ({
+              value: prop.id,
+              label: prop.name,
+            })) ?? []),
+          ]}
+          required
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setSelectedProperty(Number(e.target.value))
+          }
+        />
+      </BookingFormSection>
+
       {/* ── Estadía ── */}
       <BookingFormSection
         icon={<Calendar className="h-4 w-4" />}
         title="Estadía"
         cols={3}
-        animationDelay={80}
+        animationDelay={160}
       >
         <FormField
           type="date"
@@ -232,7 +288,7 @@ export default function UpdateBookingFormClient({
         icon={<Banknote className="h-4 w-4" />}
         title="Financiero"
         cols={3}
-        animationDelay={160}
+        animationDelay={240}
       >
         <FormField
           type="select"
@@ -399,7 +455,7 @@ export default function UpdateBookingFormClient({
         icon={<Tag className="h-4 w-4" />}
         title="Reserva"
         cols={3}
-        animationDelay={240}
+        animationDelay={320}
       >
         <FormField
           type="select"
@@ -464,7 +520,7 @@ export default function UpdateBookingFormClient({
         icon={<MessageSquare className="h-4 w-4" />}
         title="Notas"
         cols={1}
-        animationDelay={320}
+        animationDelay={400}
       >
         <FormField
           type="textarea"

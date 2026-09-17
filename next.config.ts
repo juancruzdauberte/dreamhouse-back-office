@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["imapflow", "mailparser", "pino", "thread-stream"],
+  serverExternalPackages: ["imapflow", "mailparser", "pino", "thread-stream", "mysql2"],
   images: {
     remotePatterns: [
       {
