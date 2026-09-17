@@ -51,6 +51,11 @@ export default function UpdateBookingFormClient({
     booking.property_id || 0,
   );
 
+  const maxGuests = useMemo(
+    () => properties.find((p) => p.id === selectedProperty)?.max_guests || 0,
+    [selectedProperty, properties],
+  );
+
   // Fetch unavailable dates when property changes
   const [dynamicDatesUnavailable, setDynamicDatesUnavailable] =
     useState<Array<{ check_in: string | Date; check_out: string | Date }>>(
@@ -494,10 +499,15 @@ export default function UpdateBookingFormClient({
           defaultValue={booking.guest_count.toString()}
           options={[
             { value: "", label: "Seleccionar" },
-            ...Array.from({ length: 9 }, (_, i) => ({
-              value: String(i + 1),
-              label: String(i + 1),
-            })),
+            ...(maxGuests > 0
+              ? Array.from({ length: maxGuests }, (_, i) => ({
+                  value: String(i + 1),
+                  label: String(i + 1),
+                }))
+              : Array.from({ length: 9 }, (_, i) => ({
+                  value: String(i + 1),
+                  label: String(i + 1),
+                }))),
           ]}
           required
         />

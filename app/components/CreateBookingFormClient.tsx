@@ -35,6 +35,11 @@ export function CreateBookingFormClient({
   const [currency, setCurrency] = useState<number | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<number>(0);
 
+  const maxGuests = useMemo(
+    () => properties.find((p) => p.id === selectedProperty)?.max_guests || 0,
+    [selectedProperty, properties],
+  );
+
   // Track the current price for live preview calculation
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
@@ -422,10 +427,15 @@ export function CreateBookingFormClient({
           label="Cantidad de personas"
           options={[
             { value: "", label: "Seleccionar" },
-            ...Array.from({ length: 9 }, (_, i) => ({
-              value: String(i + 1),
-              label: String(i + 1),
-            })),
+            ...(maxGuests > 0
+              ? Array.from({ length: maxGuests }, (_, i) => ({
+                  value: String(i + 1),
+                  label: String(i + 1),
+                }))
+              : Array.from({ length: 9 }, (_, i) => ({
+                  value: String(i + 1),
+                  label: String(i + 1),
+                }))),
           ]}
           required
         />

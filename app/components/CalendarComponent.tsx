@@ -12,12 +12,19 @@ import {
   EventClickArg,
   EventHoveringArg,
   EventInput,
-  DateClickArg,
 } from "@fullcalendar/core";
 import { BookingDTO } from "../lib/repository/booking/booking.dto";
 import Spinner from "./widget/Spinner";
 import { toTitleCase } from "../utils/utils";
 import DayReservationsModal from "./DayReservationsModal";
+
+interface DateClickArg {
+  date: Date;
+  dateStr: string;
+  allDay: boolean;
+  jsEvent: MouseEvent;
+  view: any;
+}
 
 interface CalendarComponentProps {
   bookings: BookingDTO[];
@@ -143,7 +150,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
   const handleDateClick = (selectInfo: DateClickArg) => {
     const date = selectInfo.date;
     const reservations = groupBookingsByDate(date);
-    
+
     if (reservations.length > 0) {
       setSelectedDate(date);
       setDayReservations(reservations);
@@ -369,7 +376,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
           eventMouseEnter={handleEventMouseEnter}
           eventMouseLeave={handleEventMouseLeave}
           dateClick={handleDateClick}
-          
           locale={esLocale}
           headerToolbar={{
             left: "prev,next today",
