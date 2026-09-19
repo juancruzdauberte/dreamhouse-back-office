@@ -1,4 +1,4 @@
-import { CalendarPlus2, Eye } from "lucide-react";
+import { CalendarPlus2 } from "lucide-react";
 import { DIContainer } from "../core/DiContainer";
 import Link from "next/link";
 import BookingSearchBar from "../components/BookingSearchBar";
@@ -33,13 +33,10 @@ export default async function BookingsPage({
   const [sy, sm] = startDate.split("-").map(Number);
   const calendarStartDate = `${sy}-${String(sm).padStart(2, "0")}-01`;
 
-  const [calendarBookings, closestBooking, properties] = await Promise.all([
+  const [calendarBookings, properties] = await Promise.all([
     bookingRepository.getBookingsForCalendar(calendarStartDate, endDate, 200),
-    bookingRepository.getClosestUpcomingBooking(),
     propertyRepository.getProperties(),
   ]);
-
-  const hasClosestBooking = Boolean(closestBooking?.id);
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-[radial-gradient(circle_at_top_left,oklch(0.98_0.02_70),transparent_55%),radial-gradient(circle_at_top_right,oklch(0.97_0.02_240),transparent_45%),oklch(0.995_0.003_80)]">
@@ -62,47 +59,6 @@ export default async function BookingsPage({
           </div>
 
           <BookingSearchBar />
-
-          <div className="bg-white rounded-xl w-full lg:w-[320px] max-h-[170px] p-5 border border-border shadow-sm">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Próxima Reserva
-                </p>
-                <p className="text-2xl md:text-3xl font-bold text-primary mt-1 truncate">
-                  {hasClosestBooking
-                    ? closestBooking?.guest_name.toUpperCase().split(" ")[0]
-                    : "Sin reservas"}
-                </p>
-                <p className="text-sm font-medium text-foreground mt-1">
-                  {hasClosestBooking && closestBooking?.check_in
-                    ? new Date(closestBooking.check_in).toLocaleDateString(
-                        "es-AR",
-                        { timeZone: "UTC" },
-                      )
-                    : "-"}{" "}
-                  -{" "}
-                  {hasClosestBooking && closestBooking?.check_out
-                    ? new Date(closestBooking.check_out).toLocaleDateString(
-                        "es-AR",
-                        { timeZone: "UTC" },
-                      )
-                    : "-"}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0 ">
-                <Link
-                  href={
-                    hasClosestBooking ? `/bookings/${closestBooking?.id}` : "/"
-                  }
-                  aria-label="Ver detalle de la próxima reserva"
-                  className="inline-flex items-center justify-center text-primary rounded-lg hover:bg-primary/20 active:bg-primary/30 transition-colors w-12 h-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                >
-                  <Eye className="w-6 h-6" aria-hidden="true" />
-                </Link>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6 mb-8">

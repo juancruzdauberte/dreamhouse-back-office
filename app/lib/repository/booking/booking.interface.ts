@@ -8,6 +8,10 @@ import {
   RevenueByMonthDTO,
   BookingsByMonthDTO,
   BookingsByChannelDTO,
+  PropertyStatsDTO,
+  PropertyRevenueByMonthDTO,
+  PropertyBookingsByMonthDTO,
+  PropertyBookingsByChannelDTO,
 } from "./booking.dto";
 
 export interface IBookingRepository {
@@ -31,10 +35,21 @@ export interface IBookingRepository {
     avgPerNight: number;
   }>;
   deleteBooking(id: number): Promise<void>;
-  getClosestUpcomingBooking(): Promise<BookingDTO | null>;
   getAllBookings(): Promise<BookingDTO[]>;
   getAllBookingsForSearch(): Promise<BookingSearchDTO[]>;
   getRevenueByMonthUSD(): Promise<RevenueByMonthDTO[]>;
   getBookingsByMonth(): Promise<BookingsByMonthDTO[]>;
   getBookingsByChannel(): Promise<BookingsByChannelDTO[]>;
+  getBookingStatsByProperty(
+    propertyId: number,
+  ): Promise<PropertyStatsDTO | null>;
+  getRevenueByMonthByProperty(
+    propertyId: number,
+  ): Promise<PropertyRevenueByMonthDTO[]>;
+  getBookingsByMonthByProperty(
+    propertyId: number,
+  ): Promise<PropertyBookingsByMonthDTO[]>;
+  getBookingsByChannelByProperty(
+    propertyId: number,
+  ): Promise<PropertyBookingsByChannelDTO[]>;
 }

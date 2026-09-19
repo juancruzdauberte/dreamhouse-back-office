@@ -10,6 +10,7 @@ import {
   RevenueByMonthDTO,
   BookingsByMonthDTO,
   BookingsByChannelDTO,
+  PropertyStatsDTO,
 } from "./booking.dto";
 import { IBookingRepository } from "./booking.interface";
 
@@ -17,7 +18,7 @@ export class BookingRepository implements IBookingRepository {
   async createBooking(bookingData: CreateBookingDTO): Promise<number> {
     try {
       const [result] = await pool.execute<ResultSetHeader>(
-        "INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_propiedad_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones, monto_anticipo_usd, monto_anticipo_ars, tipo_cambio_anticipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        `INSERT INTO fact_reservas (fecha_reserva_fk, fecha_checkin_fk, fecha_checkout_fk, id_propiedad_fk, id_canal_fk, cant_huespedes, estado_reserva, reserva_por_adv, nombre_huesped_ref, precio_total_cotizado_usd, precio_total_cotizado_ars, tel_huesped, medio_dia, observaciones, monto_anticipo_usd, monto_anticipo_ars, tipo_cambio_anticipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           new Date(),
           bookingData.check_in,
@@ -33,9 +34,9 @@ export class BookingRepository implements IBookingRepository {
           bookingData.guest_phone,
           bookingData.noon,
           bookingData.observations ?? null,
-          bookingData.deposit_amount_usd ?? null,
-          bookingData.deposit_amount_ars ?? null,
-          bookingData.deposit_exchange_rate ?? null,
+          bookingData.deposit_amount_usd,
+          bookingData.deposit_amount_ars,
+          bookingData.deposit_exchange_rate,
         ],
       );
       return result.insertId;
@@ -115,31 +116,16 @@ export class BookingRepository implements IBookingRepository {
       const [rows] = await pool.execute<RowDataPacket[]>(
         `SELECT
           fr.id_reserva as id,
-          fr.fecha_reserva_fk as booking_date,
           fr.fecha_checkin_fk as check_in,
           fr.fecha_checkout_fk as check_out,
-          dm.nombre_canal as channel_name,
-          dp.id_propiedad as property_id,
           dp.nombre as property_name,
           fr.cant_huespedes as guest_count,
           fr.noches_estadia as nights_stay,
           fr.estado_reserva as status,
           fr.nombre_huesped_ref as guest_name,
-          fr.precio_noche_cotizado_usd as price_per_night_usd,
           fr.precio_total_cotizado_usd as total_price_usd,
-          fr.monto_anticipo_usd as deposit_amount_usd,
-          fr.monto_saldo_usd as balance_amount_usd,
-          fr.monto_anticipo_ars as deposit_amount_ars,
-          fr.tipo_cambio_anticipo as deposit_exchange_rate,
-          fr.monto_saldo_ars as balance_amount_ars,
-          fr.tipo_cambio_saldo as balance_exchange_rate,
-          fr.comision_canal_usd as channel_commission_usd,
-          fr.reserva_por_adv as advertising_booking,
-          fr.precio_total_cotizado_ars as total_price_ars,
-          fr.tel_huesped as guest_phone,
-          fr.medio_dia as noon
+          fr.precio_total_cotizado_ars as total_price_ars
         FROM fact_reservas fr
-        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
         LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
         WHERE fr.fecha_checkin_fk BETWEEN ? AND ?
         ORDER BY fr.fecha_checkin_fk DESC
@@ -153,7 +139,6 @@ export class BookingRepository implements IBookingRepository {
       return [];
     }
   }
-
   async getChannels(): Promise<ChannelDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
@@ -227,9 +212,9 @@ export class BookingRepository implements IBookingRepository {
   async updateBooking(bookingData: UpdateBookingDTO): Promise<void> {
     try {
       await pool.execute(
-        "UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_propiedad_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ?, monto_anticipo_usd = ?, monto_anticipo_ars = ?, tipo_cambio_anticipo = ?, tipo_cambio_saldo = ? WHERE id_reserva = ?",
+        `UPDATE fact_reservas SET fecha_checkin_fk = ?, fecha_checkout_fk = ?, id_propiedad_fk = ?, id_canal_fk = ?, cant_huespedes = ?, estado_reserva = ?, reserva_por_adv = ?, nombre_huesped_ref = ?, precio_total_cotizado_usd = ?, precio_total_cotizado_ars = ?, tel_huesped = ?, medio_dia = ?, observaciones = ?, monto_anticipo_usd = ?, monto_anticipo_ars = ?, tipo_cambio_anticipo = ?, tipo_cambio_saldo = ? WHERE id_reserva = ?`,
         [
-          bookingData.check_in,
+          (bookingData.check_in,
           bookingData.check_out,
           bookingData.property_id,
           bookingData.channel_id,
@@ -246,7 +231,8 @@ export class BookingRepository implements IBookingRepository {
           bookingData.deposit_amount_ars ?? null,
           bookingData.deposit_exchange_rate ?? null,
           bookingData.balance_exchange_rate ?? null,
-          bookingData.id,
+          bookingData.balance_exchange_rate ?? null,
+          bookingData.id),
         ],
       );
     } catch (error) {
@@ -277,56 +263,7 @@ export class BookingRepository implements IBookingRepository {
       throw error;
     }
   }
-  async getClosestUpcomingBooking(): Promise<BookingDTO | null> {
-    try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
 
-      const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT
-          fr.id_reserva as id,
-          fr.fecha_reserva_fk as booking_date,
-          fr.fecha_checkin_fk as check_in,
-          fr.fecha_checkout_fk as check_out,
-          dm.nombre_canal as channel_name,
-          dp.id_propiedad as property_id,
-          dp.nombre as property_name,
-          fr.cant_huespedes as guest_count,
-          fr.noches_estadia as nights_stay,
-          fr.estado_reserva as status,
-          fr.nombre_huesped_ref as guest_name,
-          fr.precio_noche_cotizado_usd as price_per_night_usd,
-          fr.precio_total_cotizado_usd as total_price_usd,
-          fr.monto_anticipo_usd as deposit_amount_usd,
-          fr.monto_saldo_usd as balance_amount_usd,
-          fr.monto_anticipo_ars as deposit_amount_ars,
-              fr.tipo_cambio_anticipo as deposit_exchange_rate,
-              fr.monto_saldo_ars as balance_amount_ars,
-              fr.tipo_cambio_saldo as balance_exchange_rate,
-          fr.comision_canal_usd as channel_commission_usd,
-          fr.reserva_por_adv as advertising_booking,
-          fr.precio_total_cotizado_ars as total_price_ars,
-          fr.tel_huesped as guest_phone,
-          fr.medio_dia as noon
-        FROM fact_reservas fr
-        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
-        LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
-        WHERE fr.fecha_checkin_fk >= ? AND fr.estado_reserva = 'Confirmada'
-        ORDER BY fr.fecha_checkin_fk ASC
-        LIMIT 1`,
-        [today],
-      );
-
-      if (rows.length === 0) {
-        return null;
-      }
-
-      return rows[0] as BookingDTO;
-    } catch (error) {
-      console.error("Error getting closest upcoming booking:", error);
-      return null;
-    }
-  }
   async getAllBookings(): Promise<BookingDTO[]> {
     try {
       const [rows] = await pool.execute<RowDataPacket[]>(
@@ -376,11 +313,13 @@ export class BookingRepository implements IBookingRepository {
           fr.id_reserva          as id,
           fr.nombre_huesped_ref  as guest_name,
           dm.nombre_canal        as channel_name,
+          dp.nombre              as property_name,
           fr.fecha_checkin_fk    as check_in,
           fr.fecha_checkout_fk   as check_out,
           fr.estado_reserva      as status
         FROM fact_reservas fr
         INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
         ORDER BY fr.fecha_checkin_fk DESC`,
       );
       return rows as BookingSearchDTO[];
@@ -470,24 +409,25 @@ export class BookingRepository implements IBookingRepository {
   ): Promise<BookingSearchDTO[]> {
     try {
       const query = `%${q}%`;
-      const [rows] = await pool.execute<RowDataPacket[]>(
-        `SELECT
+      const sql = `SELECT
               fr.id_reserva as id,
               fr.nombre_huesped_ref as guest_name,
               dm.nombre_canal as channel_name,
+              dp.nombre as property_name,
               fr.fecha_checkin_fk as check_in,
               fr.fecha_checkout_fk as check_out,
               fr.estado_reserva as status
             FROM fact_reservas fr
             INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+            LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
             WHERE fr.nombre_huesped_ref LIKE ?
               OR dm.nombre_canal LIKE ?
               OR fr.tel_huesped LIKE ?
             ORDER BY fr.fecha_checkin_fk DESC
-            LIMIT ? OFFSET ?`,
-        [query, query, query, limit, offset],
-      );
-      return rows as BookingSearchDTO[];
+            LIMIT ? OFFSET ?`;
+      const params = [query, query, query, limit, offset];
+      const [rows] = await pool.execute(sql, params);
+      return rows as RowDataPacket[] as BookingSearchDTO[];
     } catch (error) {
       console.error("Error searching bookings:", error);
       return [];
@@ -510,6 +450,162 @@ export class BookingRepository implements IBookingRepository {
     } catch (error) {
       console.error("Error counting bookings:", error);
       return 0;
+    }
+  }
+
+  async getBookingStatsByProperty(
+    propertyId: number,
+  ): Promise<PropertyStatsDTO | null> {
+    try {
+      const sql = `SELECT
+             fr.id_propiedad_fk as property_id,
+             dp.nombre as property_name,
+             COALESCE(SUM(fr.precio_total_cotizado_usd), 0) as total_revenue_usd,
+             COALESCE(SUM(fr.precio_total_cotizado_ars), 0) as total_revenue_ars,
+             COALESCE(SUM(COALESCE(fr.monto_anticipo_ars / NULLIF(fr.tipo_cambio_anticipo, 0),0) +
+                 COALESCE(fr.monto_saldo_ars / NULLIF(fr.tipo_cambio_saldo, 0), 0)), 0) as converted_ars_to_usd,
+             COALESCE(SUM(CASE WHEN fr.estado_reserva = 'Confirmada' THEN 1 ELSE 0 END), 0) as confirmed_bookings,
+             COALESCE(SUM(fr.noches_estadia), 0) as total_nights,
+             COALESCE(SUM(fr.noches_estadia * fr.cant_huespedes), 0) as total_guest_nights
+           FROM fact_reservas fr
+           LEFT JOIN dim_propiedades dp ON dp.id_propiedad = fr.id_propiedad_fk
+           WHERE fr.id_propiedad_fk = ?
+           AND fr.estado_reserva != 'Cancelada'
+           GROUP BY fr.id_propiedad_fk, dp.nombre`;
+
+      const [rows] = await pool.execute(sql, [propertyId]);
+
+      if (rows.length === 0) return null;
+
+      const row = (rows as RowDataPacket[])[0];
+
+      const totalRevenueUsd = Number(row.total_revenue_usd) || 0;
+      const totalRevenueArs = Number(row.total_revenue_ars) || 0;
+      const totalNights = Number(row.total_nights) || 0;
+      const totalGuestNights = Number(row.total_guest_nights) || 0;
+
+      return {
+        property_id: Number(row.property_id),
+        property_name: row.property_name,
+        total_revenue_usd: totalRevenueUsd,
+        total_revenue_ars: totalRevenueArs,
+        converted_ars_to_usd: Number(row.converted_ars_to_usd) || 0,
+        confirmed_bookings: Number(row.confirmed_bookings) || 0,
+        total_nights: totalNights,
+        total_guests_nights: totalGuestNights,
+        avg_price_per_night_usd:
+          totalNights > 0 ? totalRevenueUsd / totalNights : 0,
+        avg_price_per_night_ars:
+          totalNights > 0 ? totalRevenueArs / totalNights : 0,
+        avg_per_person_per_night_usd:
+          totalGuestNights > 0 ? totalRevenueUsd / totalGuestNights : 0,
+        avg_per_person_per_night_ars:
+          totalGuestNights > 0 ? totalRevenueArs / totalGuestNights : 0,
+      };
+    } catch (error) {
+      console.error("Error getting booking stats by property:", error);
+      return null;
+    }
+  }
+
+  async getRevenueByMonthByProperty(propertyId: number): Promise<
+    {
+      month: string;
+      revenue_usd: number;
+      revenue_ars: number;
+      converted_ars_to_usd: number;
+    }[]
+  > {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT
+          DATE_FORMAT(fr.fecha_checkin_fk, '%Y-%m') as month,
+          SUM(fr.precio_total_cotizado_usd) as revenue_usd,
+          SUM(fr.precio_total_cotizado_ars) as revenue_ars,
+          SUM(COALESCE(fr.monto_anticipo_ars / NULLIF(fr.tipo_cambio_anticipo, 0), 0) +
+              COALESCE(fr.monto_saldo_ars / NULLIF(fr.tipo_cambio_saldo, 0), 0)) as converted_ars_to_usd
+        FROM fact_reservas fr
+        WHERE fr.id_propiedad_fk = ?
+        AND fr.estado_reserva != 'Cancelada'
+        GROUP BY DATE_FORMAT(fr.fecha_checkin_fk, '%Y-%m')
+        ORDER BY month ASC
+        LIMIT 12`,
+        [propertyId],
+      );
+
+      return rows.map((row) => ({
+        month: row.month,
+        revenue_usd: Number(row.revenue_usd) || 0,
+        revenue_ars: Number(row.revenue_ars) || 0,
+        converted_ars_to_usd: Number(row.converted_ars_to_usd) || 0,
+      }));
+    } catch (error) {
+      console.error("Error getting revenue by month by property:", error);
+      return [];
+    }
+  }
+
+  async getBookingsByMonthByProperty(
+    propertyId: number,
+  ): Promise<{ month: string; bookings: number }[]> {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT
+          DATE_FORMAT(fr.fecha_checkin_fk, '%Y-%m') as month,
+          COUNT(*) as bookings
+        FROM fact_reservas fr
+        WHERE fr.id_propiedad_fk = ?
+        AND fr.estado_reserva != 'Cancelada'
+        GROUP BY DATE_FORMAT(fr.fecha_checkin_fk, '%Y-%m')
+        ORDER BY month ASC
+        LIMIT 12`,
+        [propertyId],
+      );
+
+      return rows as { month: string; bookings: number }[];
+    } catch (error) {
+      console.error("Error getting bookings by month by property:", error);
+      return [];
+    }
+  }
+
+  async getBookingsByChannelByProperty(propertyId: number): Promise<
+    {
+      channel_name: string;
+      bookings: number;
+      revenue_usd: number;
+      revenue_ars: number;
+      converted_ars_to_usd: number;
+    }[]
+  > {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT
+          dm.nombre_canal as channel_name,
+          COUNT(fr.id_reserva) as bookings,
+          SUM(fr.precio_total_cotizado_usd) as revenue_usd,
+          SUM(fr.precio_total_cotizado_ars) as revenue_ars,
+          SUM(COALESCE(fr.monto_anticipo_ars / NULLIF(fr.tipo_cambio_anticipo, 0), 0) +
+              COALESCE(fr.monto_saldo_ars / NULLIF(fr.tipo_cambio_saldo, 0), 0)) as converted_ars_to_usd
+        FROM fact_reservas fr
+        INNER JOIN dim_canales dm ON dm.id_canal = fr.id_canal_fk
+        WHERE fr.id_propiedad_fk = ?
+        AND fr.estado_reserva != 'Cancelada'
+        GROUP BY dm.nombre_canal, fr.id_canal_fk
+        ORDER BY bookings DESC`,
+        [propertyId],
+      );
+
+      return rows.map((row) => ({
+        channel_name: row.channel_name,
+        bookings: Number(row.bookings) || 0,
+        revenue_usd: Number(row.revenue_usd) || 0,
+        revenue_ars: Number(row.revenue_ars) || 0,
+        converted_ars_to_usd: Number(row.converted_ars_to_usd) || 0,
+      }));
+    } catch (error) {
+      console.error("Error getting bookings by channel by property:", error);
+      return [];
     }
   }
 }

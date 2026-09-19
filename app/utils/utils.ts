@@ -12,6 +12,13 @@ export function formatCurrency(raw: string | null | undefined): string {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const toTitleCase = (str: string) => {

@@ -16,7 +16,10 @@ import z from "zod";
 // PROPERTY SELECTION:
 //   - property_id es OBLIGATORIO. Selecciona a qué propiedad/casa pertenece la reserva.
 export const CreateBookingSchema = z.object({
-  property_id: z.coerce.number().int().positive("Property ID debe ser un número positivo"),
+  property_id: z.coerce
+    .number()
+    .int()
+    .positive("Property ID debe ser un número positivo"),
   tenant_name: z.string(),
   channel_id: z.coerce.number(),
   check_in: z.string(),
@@ -84,7 +87,11 @@ export const CreateBookingSchema = z.object({
 // property_id es OPCIONAL en edición (puede cambiar a qué propiedad pertenece).
 export const UpdateBookingSchema = z.object({
   id: z.coerce.number(),
-  property_id: z.coerce.number().int().positive("Property ID debe ser un número positivo").optional(),
+  property_id: z.coerce
+    .number()
+    .int()
+    .positive("Property ID debe ser un número positivo")
+    .optional(),
   tenant_name: z.string().optional(),
   channel_id: z.coerce.number().optional(),
   check_in: z.string().optional(),

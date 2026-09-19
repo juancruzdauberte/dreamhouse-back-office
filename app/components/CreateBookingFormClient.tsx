@@ -50,6 +50,17 @@ export function CreateBookingFormClient({
   // Exchange rate (informative only for ARS)
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
 
+  // Reset exchange rate when currency changes
+  useEffect(() => {
+    if (currency === 2) {
+      // USD: no exchange rate needed, set to 0
+      setExchangeRate(0);
+    } else if (currency === 1) {
+      // ARS: reset to null to require input
+      setExchangeRate(null);
+    }
+  }, [currency]);
+
   const handleSuccess = () => {
     setSelectedProperty(0);
     setSelectedChannel(0);
@@ -117,8 +128,12 @@ export function CreateBookingFormClient({
   const finalBalance = totalPrice - finalDeposit;
 
   // Calculate informative USD equivalent when ARS
+  // Use the same logic as the detail page: average both exchange rates if available
+  const avgExchangeRate = exchangeRate || null;
   const equivalentUSD =
-    exchangeRate && currency === 1 ? totalPrice / exchangeRate : null;
+    avgExchangeRate && currency === 1 && avgExchangeRate > 0
+      ? parseFloat((totalPrice / avgExchangeRate).toFixed(2))
+      : null;
 
   const handlePriceChange = (newPrice: number) => {
     setTotalPrice(newPrice);
@@ -352,7 +367,7 @@ export function CreateBookingFormClient({
           </div>
         </div>
 
-        {/* Tipo de Cambio: Solo informativo para ARS */}
+        {/* Tipo de Cambio: Solo para ARS */}
         {currency === 1 && (
           <div
             key={`exchange-rate-${currency}`}
@@ -365,13 +380,26 @@ export function CreateBookingFormClient({
               placeholder="Ej. 45.50"
               value={exchangeRate || ""}
               onChange={handleExchangeRateChange}
+              required
             />
             <input
               type="hidden"
               name="deposit_exchange_rate"
               value={exchangeRate || ""}
             />
+            <input
+              type="hidden"
+              name="balance_exchange_rate"
+              value={exchangeRate || ""}
+            />
           </div>
+        )}
+        {/* USD: tipo de cambio = 0 */}
+        {currency === 2 && (
+          <>
+            <input type="hidden" name="deposit_exchange_rate" value="0" />
+            <input type="hidden" name="balance_exchange_rate" value="0" />
+          </>
         )}
 
         {/* USD Equivalence Display (informativo para ARS) */}

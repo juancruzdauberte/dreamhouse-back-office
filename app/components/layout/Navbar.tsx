@@ -28,7 +28,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "../ui/tooltip";
 
 type SidebarContextType = {
   expanded: boolean;
@@ -103,7 +103,7 @@ const Sidebar: FC<SidebarProps> = ({ children }) => {
                 alt="Dreamhouse"
                 width={40}
                 height={40}
-                className="rounded-full border-1"
+                className="rounded-full border"
               />
               <button
                 className="flex items-center justify-center w-11 h-11 rounded-xl hover:bg-accent/60 transition-colors"

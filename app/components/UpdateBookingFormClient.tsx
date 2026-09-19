@@ -62,6 +62,17 @@ export default function UpdateBookingFormClient({
       datesUnavailable,
     );
 
+  const [depositExchangeRate, setDepositExchangeRate] = useState<number | null>(
+    booking.deposit_exchange_rate
+      ? parseFloat(booking.deposit_exchange_rate)
+      : null,
+  );
+  const [balanceExchangeRate, setBalanceExchangeRate] = useState<number | null>(
+    booking.balance_exchange_rate
+      ? parseFloat(booking.balance_exchange_rate)
+      : null,
+  );
+
   useEffect(() => {
     if (selectedProperty && selectedProperty > 0) {
       fetch(`/api/booking/unavailable-dates?propertyId=${selectedProperty}`)
@@ -73,12 +84,26 @@ export default function UpdateBookingFormClient({
     }
   }, [selectedProperty]);
 
-  const [depositExchangeRate, setDepositExchangeRate] = useState<number | null>(
-    null,
-  );
-  const [balanceExchangeRate, setBalanceExchangeRate] = useState<number | null>(
-    null,
-  );
+  // Initialize exchange rates based on currency
+  useEffect(() => {
+    if (currency === 2) {
+      // USD: no exchange rate needed, set to 0
+      setDepositExchangeRate(0);
+      setBalanceExchangeRate(0);
+    } else if (currency === 1) {
+      // ARS: load from booking
+      setDepositExchangeRate(
+        booking.deposit_exchange_rate
+          ? parseFloat(booking.deposit_exchange_rate)
+          : null,
+      );
+      setBalanceExchangeRate(
+        booking.balance_exchange_rate
+          ? parseFloat(booking.balance_exchange_rate)
+          : null,
+      );
+    }
+  }, [currency, booking]);
 
   // Anticipo editado en UPDATE
   const [editedDeposit, setEditedDeposit] = useState<number | null>(null);
@@ -164,11 +189,18 @@ export default function UpdateBookingFormClient({
   const finalBalance = totalPrice - finalDeposit;
 
   // Calculate informative USD equivalent when ARS
+  // Use the same logic as the detail page: average both exchange rates if available
+  const hasExchangeRates =
+    (depositExchangeRate ?? 0) > 0 || (balanceExchangeRate ?? 0) > 0;
+  const avgTC =
+    (depositExchangeRate ?? 0) > 0 && (balanceExchangeRate ?? 0) > 0
+      ? ((depositExchangeRate ?? 0) + (balanceExchangeRate ?? 0)) / 2
+      : (depositExchangeRate ?? 0) > 0
+        ? depositExchangeRate
+        : balanceExchangeRate;
   const equivalentUSD =
-    depositExchangeRate && balanceExchangeRate && currency === 1
-      ? Math.round(
-          totalPrice / ((depositExchangeRate + balanceExchangeRate) / 2),
-        )
+    hasExchangeRates && currency === 1 && (avgTC ?? 0) > 0
+      ? parseFloat((totalPrice / (avgTC ?? 0)).toFixed(2))
       : null;
 
   const handlePriceChange = (newPrice: number) => {
@@ -399,7 +431,7 @@ export default function UpdateBookingFormClient({
           </div>
         </div>
 
-        {/* Tipo de Cambio: Solo informativo para ARS */}
+        {/* Tipo de Cambio: Solo para ARS */}
         {currency === 1 && (
           <>
             <div
@@ -411,8 +443,9 @@ export default function UpdateBookingFormClient({
                 label="USD pago anticipo"
                 currency="TC"
                 placeholder="Ej. 45.50"
-                value={booking.deposit_exchange_rate}
+                value={depositExchangeRate}
                 onChange={(e) => handleDepositExchangeRateChange(e)}
+                required
               />
             </div>
             <div
@@ -424,10 +457,18 @@ export default function UpdateBookingFormClient({
                 label="USD pago saldo"
                 currency="TC"
                 placeholder="Ej. 45.50"
-                value={booking.balance_exchange_rate}
+                value={balanceExchangeRate}
                 onChange={(e) => handleBalanceExchangeRateChange(e)}
+                required
               />
             </div>
+          </>
+        )}
+        {/* USD: tipo de cambio = 0 */}
+        {currency === 2 && (
+          <>
+            <input type="hidden" name="deposit_exchange_rate" value="0" />
+            <input type="hidden" name="balance_exchange_rate" value="0" />
           </>
         )}
 

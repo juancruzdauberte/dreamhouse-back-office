@@ -14,7 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "../ui/card";
 import { BookingsByMonthDTO } from "../../lib/repository/booking/booking.dto";
 
 interface BookingsLineChartProps {
@@ -46,45 +46,45 @@ export function BookingsLineChart({ data }: BookingsLineChartProps) {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <div className="h-[250px] w-full">
-              <div className="w-full overflow-x-hidden min-w-0">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart
-              data={formattedData}
-              margin={{ top: 20, right: 10, left: 10, bottom: 0 }}
-            >
-              <CartesianGrid
-                vertical={false}
-                strokeDasharray="4 4"
-                stroke="var(--color-border)"
-              />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3).toUpperCase()}
-                tick={{ fill: "var(--color-muted-foreground)", fontSize: 12 }}
-              />
-              <Tooltip
-                formatter={(value) => [`${value}`, "Reservas"]}
-                cursor={{ stroke: "var(--color-chart-2)", strokeWidth: 1.4 }}
-                contentStyle={{
-                  backgroundColor: "var(--color-card)",
-                  borderColor: "var(--color-border)",
-                  borderRadius: "10px",
-                }}
-                labelStyle={{ color: "var(--color-foreground)" }}
-              />
-              <Line
-                type="monotone"
-                dataKey="bookings"
-                stroke="var(--color-chart-2)"
-                strokeWidth={3}
-                dot={{ r: 3, fill: "var(--color-chart-2)", strokeWidth: 0 }}
-                activeDot={{ r: 5, fill: "var(--color-chart-2)" }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-              </div>
+          <div className="w-full overflow-x-hidden min-w-0">
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart
+                data={formattedData}
+                margin={{ top: 20, right: 10, left: 10, bottom: 0 }}
+              >
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="4 4"
+                  stroke="var(--color-border)"
+                />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => value.slice(0, 3).toUpperCase()}
+                  tick={{ fill: "var(--color-muted-foreground)", fontSize: 12 }}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value}`, "Reservas"]}
+                  cursor={{ stroke: "var(--color-chart-2)", strokeWidth: 1.4 }}
+                  contentStyle={{
+                    backgroundColor: "var(--color-card)",
+                    borderColor: "var(--color-border)",
+                    borderRadius: "10px",
+                  }}
+                  labelStyle={{ color: "var(--color-foreground)" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="bookings"
+                  stroke="var(--color-chart-2)"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: "var(--color-chart-2)", strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: "var(--color-chart-2)" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </CardContent>
     </Card>

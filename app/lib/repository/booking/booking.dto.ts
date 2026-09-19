@@ -100,7 +100,46 @@ export interface BookingSearchDTO {
   id: number;
   guest_name: string;
   channel_name: string;
+  property_name: string;
   check_in: string;
   check_out: string;
   status: string;
+}
+
+export interface PropertyStatsDTO {
+  total_guests_nights: number;
+  property_id: number;
+  property_name: string;
+  total_revenue_usd: number; // Ingresos totales en USD
+  total_revenue_ars: number; // Ingresos totales en ARS (cotización)
+  converted_ars_to_usd: number; // Ingresos ARS convertidos a USD usando tipos de cambio
+  confirmed_bookings: number;
+  total_nights: number;
+  avg_price_per_night_usd: number;
+  avg_price_per_night_ars: number;
+  avg_per_person_per_night_usd: number;
+  avg_per_person_per_night_ars: number;
+}
+
+/** Revenue by month with property filter, both currencies */
+export interface PropertyRevenueByMonthDTO {
+  month: string;
+  revenue_usd: number;
+  revenue_ars: number;
+  converted_ars_to_usd: number; // ARS converted to USD using exchange rates
+}
+
+/** Bookings by month with property filter */
+export interface PropertyBookingsByMonthDTO {
+  month: string;
+  bookings: number;
+}
+
+/** Channel distribution with property filter */
+export interface PropertyBookingsByChannelDTO {
+  channel_name: string;
+  bookings: number;
+  revenue_usd: number;
+  revenue_ars: number;
+  converted_ars_to_usd: number;
 }

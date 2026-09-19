@@ -14,7 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "../ui/card";
 import { BookingsByChannelDTO } from "../../lib/repository/booking/booking.dto";
 
 interface ChannelPieChartProps {
@@ -43,48 +43,48 @@ export function ChannelPieChart({ data }: ChannelPieChartProps) {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <div className="h-[250px] w-full">
-              <div className="w-full overflow-x-hidden min-w-0">
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                innerRadius={56}
-                outerRadius={88}
-                fill="#8884d8"
-                paddingAngle={3}
-                dataKey="bookings"
-                nameKey="channel_name"
-              >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value, name) => [`${value} reservas`, name]}
-                contentStyle={{
-                  backgroundColor: "var(--color-card)",
-                  borderColor: "var(--color-border)",
-                  borderRadius: "10px",
-                }}
-                labelStyle={{ color: "var(--color-foreground)" }}
-              />
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                iconType="circle"
-                wrapperStyle={{
-                  color: "var(--color-muted-foreground)",
-                  fontSize: "12px",
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-              </div>
+          <div className="w-full overflow-x-hidden min-w-0">
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={56}
+                  outerRadius={88}
+                  fill="#8884d8"
+                  paddingAngle={3}
+                  dataKey="bookings"
+                  nameKey="channel_name"
+                >
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name) => [`${value} reservas`, name]}
+                  contentStyle={{
+                    backgroundColor: "var(--color-card)",
+                    borderColor: "var(--color-border)",
+                    borderRadius: "10px",
+                  }}
+                  labelStyle={{ color: "var(--color-foreground)" }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  iconType="circle"
+                  wrapperStyle={{
+                    color: "var(--color-muted-foreground)",
+                    fontSize: "12px",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </CardContent>
     </Card>

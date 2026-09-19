@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import {
   createPropertyAction,
   updatePropertyAction,
-} from "../../lib/actions/property-server.actions";
+} from "../../lib/actions/property.actions";
 
 interface PropertyFormModalProps {
   isOpen: boolean;
