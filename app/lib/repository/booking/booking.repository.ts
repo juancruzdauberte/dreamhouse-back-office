@@ -475,8 +475,6 @@ export class BookingRepository implements IBookingRepository {
 
       const [rows] = await pool.execute(sql, [propertyId]);
 
-      if (rows.length === 0) return null;
-
       const row = (rows as RowDataPacket[])[0];
 
       const totalRevenueUsd = Number(row.total_revenue_usd) || 0;
